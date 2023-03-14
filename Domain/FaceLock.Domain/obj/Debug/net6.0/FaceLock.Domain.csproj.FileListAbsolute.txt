@@ -1,0 +1,12 @@
+D:\progect\GraduationProject\Domain\FaceLock.Domain\bin\Debug\net6.0\FaceLock.Domain.deps.json
+D:\progect\GraduationProject\Domain\FaceLock.Domain\bin\Debug\net6.0\FaceLock.Domain.dll
+D:\progect\GraduationProject\Domain\FaceLock.Domain\bin\Debug\net6.0\FaceLock.Domain.pdb
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.csproj.AssemblyReference.cache
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.AssemblyInfoInputs.cache
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.AssemblyInfo.cs
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.csproj.CoreCompileInputs.cache
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.dll
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\refint\FaceLock.Domain.dll
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\FaceLock.Domain.pdb
+D:\progect\GraduationProject\Domain\FaceLock.Domain\obj\Debug\net6.0\ref\FaceLock.Domain.dll

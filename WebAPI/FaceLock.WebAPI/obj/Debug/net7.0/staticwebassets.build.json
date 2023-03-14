@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "KKH0sixV5KicJ7pHxGu/JWT57cJyJPrpyIA89/NtlaU=",
+  "Source": "FaceLock.WebAPI",
+  "BasePath": "_content/FaceLock.WebAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
