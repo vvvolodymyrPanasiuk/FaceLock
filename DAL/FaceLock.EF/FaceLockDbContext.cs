@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +24,7 @@ namespace FaceLock.EF
         
         public override DbSet<User> Users { get; set; }
         public DbSet<UserFace> UserFaces { get; set; }
-        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Place> Places { get; set; }
         public DbSet<Visit> Visits { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

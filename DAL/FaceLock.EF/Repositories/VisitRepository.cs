@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ namespace FaceLock.EF.Repositories
         {
         }
 
-        public async Task<List<Visit>> GetVisitsByRoomIdAsync(int roomId)
+        public async Task<List<Visit>> GetVisitsByPlaceIdAsync(int roomId)
         {
             return await _dbSet.Where(v => v.RoomId == roomId).ToListAsync();
         }

@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;

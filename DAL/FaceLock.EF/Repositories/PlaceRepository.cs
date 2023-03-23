@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace FaceLock.EF.Repositories
 {
-    public class RoomRepository : Repository<Room>, IRoomRepository
+    public class PlaceRepository : Repository<Place>, IPlaceRepository
     {
-        public RoomRepository(FaceLockDbContext context) : base(context)
+        public PlaceRepository(FaceLockDbContext context) : base(context)
         {
         }
     }

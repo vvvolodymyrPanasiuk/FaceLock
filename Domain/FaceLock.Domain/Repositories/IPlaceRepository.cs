@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FaceLock.Domain.Repositories
 {
-    public interface IRoomRepository : IRepository<Room>
+    public interface IPlaceRepository : IRepository<Place>
     {
     }
 }

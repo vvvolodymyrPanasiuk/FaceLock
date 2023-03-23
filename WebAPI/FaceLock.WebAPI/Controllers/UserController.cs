@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
 using FaceLock.EF.Repositories;
@@ -21,21 +21,21 @@ namespace FaceLock.WebAPI.Controllers
         private readonly UserManager<User> _userManager; // сервіс для керування користувачами
         private readonly IUserRepository _userRepository;
         private readonly IVisitRepository _visitRepository;
-        private readonly IRoomRepository _roomRepository;
+        private readonly IPlaceRepository _placeRepository;
         //private readonly IWebHostEnvironment _hostEnvironment; // сервіс для доступу до папки wwwroot
 
         public UserController(
             UserManager<User> userManager,
             IUserRepository userRepository, 
             IVisitRepository visitRepository, 
-            IRoomRepository roomRepository
+            IPlaceRepository placeRepository
             //IWebHostEnvironment hostEnvironment
             )
         {
             _userManager = userManager;
             _userRepository = userRepository;
             _visitRepository = visitRepository;
-            _roomRepository = roomRepository;
+            _placeRepository = placeRepository;
             //_hostEnvironment = hostEnvironment;
         }
 
@@ -85,15 +85,15 @@ namespace FaceLock.WebAPI.Controllers
 
 
         /// <summary>
-        /// Returns a list of visits made to a particular room
+        /// Returns a list of visits made to a particular place
         /// </summary>
-        /// <param name="roomId">The ID of the room</param>
-        /// <returns>A list of visits made to the room</returns>
-        [HttpGet("visits/{roomId}")]
-        public async Task<ActionResult<List<Visit>>> GetRoomVisits(int roomId)
+        /// <param name="placeId">The ID of the place</param>
+        /// <returns>A list of visits made to the place</returns>
+        [HttpGet("visits/{placeId}")]
+        public async Task<ActionResult<List<Visit>>> GetPlaceVisits(int placeId)
         {
             // Get the visit with the specified ID from the visit repository
-            var visits = await _visitRepository.GetVisitsByRoomIdAsync(roomId);
+            var visits = await _visitRepository.GetVisitsByPlaceIdAsync(placeId);
 
             // If the visit was not found, return a 404 Not Found response
             if (visits == null)
@@ -129,45 +129,45 @@ namespace FaceLock.WebAPI.Controllers
 
 
         /// <summary>
-        /// Returns a list of all rooms in the system
+        /// Returns a list of all places in the system
         /// </summary>
-        /// <returns>A list of all rooms</returns>
-        [HttpGet("rooms")]
-        public async Task<ActionResult<List<Room>>> GetAllRooms()
+        /// <returns>A list of all places</returns>
+        [HttpGet("places")]
+        public async Task<ActionResult<List<Place>>> GetAllPlaces()
         {
-            // Call the GetAllAsync method of the injected IRoomRepository to retrieve all rooms.
-            var rooms = await _roomRepository.GetAllAsync();
+            // Call the GetAllAsync method of the injected IPlaceRepository to retrieve all places.
+            var places = await _placeRepository.GetAllAsync();
 
-            // If the rooms was not found, return a 404 Not Found response
-            if (rooms == null)
+            // If the places was not found, return a 404 Not Found response
+            if (places == null)
             {
                 return NotFound();
             }
 
-            // Return an HTTP 200 OK response with the retrieved rooms as the response body.
-            return Ok(rooms);
+            // Return an HTTP 200 OK response with the retrieved places as the response body.
+            return Ok(places);
         }
 
 
         /// <summary>
-        /// Gets a room by its id.
+        /// Gets a place by its id.
         /// </summary>
-        /// <param name="id">The id of the room.</param>
-        /// <returns>The room with the given id, or a NotFound response if the room is not found.</returns>
-        [HttpGet("rooms/{id}")]
-        public async Task<ActionResult<Room>> GetRoom(int id)
+        /// <param name="id">The id of the place.</param>
+        /// <returns>The place with the given id, or a NotFound response if the place is not found.</returns>
+        [HttpGet("places/{id}")]
+        public async Task<ActionResult<Place>> GetPlace(int id)
         {
-            // Retrieve the room by its id from the database using the RoomRepository.
-            var room = await _roomRepository.GetByIdAsync(id);
+            // Retrieve the place by its id from the database using the PlaceRepository.
+            var place = await _placeRepository.GetByIdAsync(id);
 
-            // If the room is not found in the database, return a NotFound response.
-            if (room == null)
+            // If the place is not found in the database, return a NotFound response.
+            if (place == null)
             {
                 return NotFound();
             }
 
-            // Return the room in an Ok response.
-            return Ok(room);
+            // Return the place in an Ok response.
+            return Ok(place);
         }
 
     }

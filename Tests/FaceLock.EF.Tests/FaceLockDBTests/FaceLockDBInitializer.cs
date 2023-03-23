@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
 using System;
 using System.Collections.Generic;
@@ -21,14 +21,14 @@ namespace FaceLock.EF.Tests.FaceLockDBTests
 
             _context.Users.AddRange(users);
 
-            var rooms = new[]
+            var places = new[]
             {      
-                new Room { Id = 1, Name = "Conference Room 1", NumberRoom = "101" },
-                new Room { Id = 2, Name = "Conference Room 2", NumberRoom = "102" },  
-                new Room { Id = 3, Name = "Conference Room 3", NumberRoom = "103" }
+                new Place { Id = 1, Name = "Conference Room 1", Description = "101" },
+                new Place { Id = 2, Name = "Conference Room 2", Description = "102" },  
+                new Place { Id = 3, Name = "Conference Room 3", Description = "103" }
             };
 
-            _context.Rooms.AddRange(rooms);
+            _context.Places.AddRange(places);
 
             var visits = new[]
             {

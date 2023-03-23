@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Repositories;
 using FaceLock.EF.Repositories;
 using FaceLock.EF.Tests.FaceLockDBTests;

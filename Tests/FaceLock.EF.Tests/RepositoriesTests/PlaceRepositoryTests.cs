@@ -1,4 +1,4 @@
-﻿using FaceLock.Domain.Entities.RoomAggregate;
+﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Repositories;
 using FaceLock.EF.Repositories;
 using FaceLock.EF.Tests.FaceLockDBTests;
@@ -12,25 +12,25 @@ using System.Threading.Tasks;
 namespace FaceLock.EF.Tests.RepositoriesTests
 {
     [TestFixture]
-    public class RoomRepositoryTests : FaceLockDBTestBase
+    public class PlaceRepositoryTests : FaceLockDBTestBase
     {
-        private IRoomRepository _roomRepository;
+        private IPlaceRepository _placeRepository;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            _roomRepository = new RoomRepository(_context);
+            _placeRepository = new PlaceRepository(_context);
         }
         
         [Test]
         public async Task GetByIdAsync_Returns_Room_With_Correct_Id()
         {
             // Arrange
-            var room = new Room { Name = "Test Room", NumberRoom = "123" };
-            await _roomRepository.AddAsync(room);
+            var room = new Place { Name = "Test Room", Description = "123" };
+            await _placeRepository.AddAsync(room);
 
             // Act
-            var result = await _roomRepository.GetByIdAsync(room.Id);
+            var result = await _placeRepository.GetByIdAsync(room.Id);
 
             // Assert
             Assert.AreEqual(room.Id, result.Id);
@@ -43,7 +43,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var expectedCount = 3;
 
             // Act
-            var rooms = await _roomRepository.GetAllAsync();
+            var rooms = await _placeRepository.GetAllAsync();
 
             // Assert
             Assert.AreEqual(expectedCount, rooms.Count);
@@ -53,32 +53,32 @@ namespace FaceLock.EF.Tests.RepositoriesTests
         public async Task AddAsync_AddsRoomToDatabase()
         {
             // Arrange
-            var room = new Room { Name = "Test Room", NumberRoom = "123" };
+            var room = new Place { Name = "Test Room", Description = "123" };
 
             // Act
-            await _roomRepository.AddAsync(room);
+            await _placeRepository.AddAsync(room);
 
             // Assert
-            var result = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == room.Id);
+            var result = await _context.Places.FirstOrDefaultAsync(r => r.Id == room.Id);
             Assert.IsNotNull(result);
             Assert.AreEqual("Test Room", result.Name);
-            Assert.AreEqual("123", result.NumberRoom);
+            Assert.AreEqual("123", result.Description);
 
-            _roomRepository.DeleteAsync(room);
+            _placeRepository.DeleteAsync(room);
         }
 
         [Test]
         public async Task UpdateAsync_Should_Update_Room()
         {
             // Arrange
-            var room = await _context.Rooms.FirstAsync();
+            var room = await _context.Places.FirstAsync();
             room.Name = "Updated Room Name";
 
             // Act
-            await _roomRepository.UpdateAsync(room);
+            await _placeRepository.UpdateAsync(room);
 
             // Assert
-            var updatedRoom = await _context.Rooms.FindAsync(room.Id);
+            var updatedRoom = await _context.Places.FindAsync(room.Id);
             Assert.AreEqual(room.Name, updatedRoom.Name);
         }
 
@@ -86,13 +86,13 @@ namespace FaceLock.EF.Tests.RepositoriesTests
         public async Task DeleteAsync_DeletesRoomFromDatabase()
         {
             // Arrange
-            var room = new Room { Name = "Test Room", NumberRoom = "101" };
-            await _context.Rooms.AddAsync(room);
+            var room = new Place { Name = "Test Room", Description = "101" };
+            await _context.Places.AddAsync(room);
             await _context.SaveChangesAsync();
 
             // Act
-            await _roomRepository.DeleteAsync(room);
-            var result = await _roomRepository.GetByIdAsync(room.Id);
+            await _placeRepository.DeleteAsync(room);
+            var result = await _placeRepository.GetByIdAsync(room.Id);
 
             // Assert
             Assert.IsNull(result);
