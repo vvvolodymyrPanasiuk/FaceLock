@@ -3,12 +3,7 @@ using FaceLock.Domain.Repositories;
 using FaceLock.EF.Repositories;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FaceLock.EF.Tests.RepositoriesTests
 {

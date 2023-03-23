@@ -1,15 +1,14 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
-using FaceLock.EF.Repositories;
 using FaceLock.WebAPI.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
 
 namespace FaceLock.WebAPI.Controllers
 {

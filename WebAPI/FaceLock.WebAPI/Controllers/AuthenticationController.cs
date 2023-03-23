@@ -33,7 +33,7 @@ namespace FaceLock.WebAPI.Controllers
             _configuration = configuration;
         }
 
-
+        // POST: api/<AuthenticationController>/register
         /// <summary>
         /// Реєстрація користувача
         /// </summary>
@@ -83,7 +83,7 @@ namespace FaceLock.WebAPI.Controllers
             }
         }
 
-        // POST: api/account/login
+        // POST: api/<AuthenticationController>/login
         /// <summary>
         /// Логін користувача
         /// </summary>
@@ -122,7 +122,7 @@ namespace FaceLock.WebAPI.Controllers
             return BadRequest(ModelState);
         }
 
-        // POST: api/account/logout
+        // POST: api/<AuthenticationController>/logout
         /// <summary>
         /// Логаут користувача і очищення кукі
         /// </summary>

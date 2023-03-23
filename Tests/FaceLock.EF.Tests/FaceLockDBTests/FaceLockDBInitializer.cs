@@ -1,10 +1,6 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FaceLock.EF.Tests.FaceLockDBTests
 {

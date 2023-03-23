@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FaceLock.Domain.Entities.PlaceAggregate
+﻿namespace FaceLock.Domain.Entities.PlaceAggregate
 {
     /// <summary>
     /// Kлас, що представляє місце огляду
