@@ -1,15 +1,20 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.WebAPI.ViewModel;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -20,103 +25,113 @@ namespace FaceLock.WebAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        // Конструктор AuthController містить інстанси SignInManager,
-        // UserManager та IConfiguration, які потрібні для авторизації та реєстрації користувачів
         public AuthenticationController(
             SignInManager<User> signInManager, 
             UserManager<User> userManager, 
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<AuthenticationController> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         // POST: api/<AuthenticationController>/register
         /// <summary>
-        /// Реєстрація користувача
+        /// User registration
         /// </summary>
-        /// <param name="model">Дані користувача, які необхідно зареєструвати</param>
-        /// <returns>Статус 200 з токеном або повідомлення про помилку</returns>
+        /// <param name="model">User data to be registered</param>
+        /// <returns>Status 200 or error message</returns>
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            try
+            // Check if user data is valid
+            if (!ModelState.IsValid)
             {
-                // Перевіряємо чи дані користувача валідні
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                // Створення користувача з введеними даними
-                var user = new User
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName
-                };
-
-                // Збереження користувача в базу даних
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                // Перевірка результату
-                if (!result.Succeeded)
-                {
-                    // Якщо сталася помилка, повертаємо повідомлення про помилку
-                    return BadRequest(result.Errors);
-                }
-
-                // Якщо користувач успішно створений, створюємо токен для нього
-                var tokenString = await GenerateJwtToken(user);
-
-                // Повертаємо статус 200 з токеном
-                return Ok(new { token = tokenString, UserId = user.Id });
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
+
+            // Check if user with same email already exists
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
             {
-                // Якщо сталася помилка, повертаємо повідомлення про помилку
-                return BadRequest(ex.Message);
+                ModelState.AddModelError(nameof(model.Email), "A user with this email already exists.");
+                return BadRequest(ModelState);
             }
+
+            // Create user with provided data
+            var user = new User
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Status = "user"
+            };
+
+            // Save user to database
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            // Check result
+            if (result.Succeeded)
+            {
+                // If user was created successfully, return status 200
+                return Ok(new { Message = $"Welcome, {user.FirstName} {user.LastName}!" });
+            }
+
+            // Log errors
+            foreach (var error in result.Errors)
+            {
+                _logger.LogError($"Error creating user: {error.Code} - {error.Description}");
+            }
+
+            // If there was an error, return error message
+            return StatusCode(500, "Error creating user");
         }
 
         // POST: api/<AuthenticationController>/login
         /// <summary>
-        /// Логін користувача
+        /// Login a user
         /// </summary>
-        /// <param name="model">Дані користувача, які необхідно ввести для логіна</param>
-        /// <returns>Статус 200 з токеном або повідомлення про помилку</returns>
+        /// <param name="model">User credentials required for login</param>
+        /// <returns>Status 200 with token or error message</returns>
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Знайти користувача по email
+                // Find user by email
                 var user = await _userManager.FindByEmailAsync(model.Email);
 
-                // Якщо користувач не знайдений, повертаємо помилку авторизації
+                // If user not found, return authorization error
                 if (user == null)
                 {
+                    _logger.LogError($"Authorization: Invalid login credentials for user {model.Email}");
                     return Unauthorized(new { message = "Invalid login credentials" });
                 }
 
-                // Перевірка пароля
+                // Check password
                 var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
-                // Якщо пароль не правильний, повертаємо помилку авторизації
+                // If password is incorrect, return authorization error
                 if (!result.Succeeded)
                 {
+                    _logger.LogError($"Authorization: Invalid login credentials for user {model.Email}");
                     return Unauthorized(new { message = "Invalid login credentials" });
                 }
-
-                // Генерація JWT токена для користувача
+                // Generate JWT token for user
                 var token = GenerateJwtToken(user);
+                await _userManager.SetAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings", token.ToString());
 
-                return Ok(new { Token = token, UserId = user.Id });
+                // Save token in Authorization header
+                //HttpContext.Response.Headers.Add("Authorization", "Bearer " + token.ToString());
+
+                return Ok(new { Token = token.ToString() });
             }
 
             return BadRequest(ModelState);
@@ -124,49 +139,80 @@ namespace FaceLock.WebAPI.Controllers
 
         // POST: api/<AuthenticationController>/logout
         /// <summary>
-        /// Логаут користувача і очищення кукі
+        /// Logs out the user and clears cookies.
         /// </summary>
         /// <param></param>
-        /// <returns>Статус 200 або повідомлення про помилку</returns>
+        /// <returns>Returns status 200 or an error message.</returns>
         [HttpPost("logout")]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return BadRequest();
+                }
 
-            return Ok(new { Message = "Logged out successfully!" });
+                // Revoke the refresh token
+                await _userManager.RemoveAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings");
+                
+                // Clear the authentication cookies
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignOutAsync(JwtBearerDefaults.AuthenticationScheme);
 
+                await _signInManager.SignOutAsync();
+
+                return Ok(new { Message = $"{user.FirstName} {user.LastName} logged out successfully!" });
+            }     
+            catch(Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error during logout: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during logout.");
+            }
         }
 
-        // Генерує JWT-токен для авторизованого користувача
+        // Generates a JWT token for an authorized user
         private async Task<string> GenerateJwtToken(User user)
         {
-            // Визначаємо клейми для JWT-токену
-            var claims = new[]
+            try
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.GivenName, user.FirstName),
-                new Claim(ClaimTypes.Surname, user.LastName)
-            };
+                // Define claims for the JWT token
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.GivenName, user.FirstName),
+                    new Claim(ClaimTypes.Surname, user.LastName),
+                    new Claim(ClaimTypes.Role , user.Status)
+                };
 
-            // Використовуємо симетричний ключ для підпису JWT-токену
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            // Визначаємо час життя JWT-токену
-            //DateTime.UtcNow.AddDays(7)
-            var expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["JwtExpireDays"]));
+                // Use a symmetric key to sign the JWT token
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSecretKey"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                // Define the lifetime of the JWT token
+                var expires = DateTime.UtcNow.AddDays(int.Parse(_configuration.GetValue<string>("JwtTokenSettings:RefreshExpirationDays")));
 
-            // Створюємо JWT-токен з визначеними параметрами
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JwtIssuer"],
-                audience: _configuration["JwtIssuer"],
-                claims: claims,
-                expires: expires,
-                signingCredentials: creds
-            );
+                // Create a JWT token with the defined parameters
+                var token = new JwtSecurityToken(
+                    issuer: _configuration.GetValue<string>("JwtTokenSettings:Issuer"),
+                    audience: _configuration.GetValue<string>("JwtTokenSettings:Audience"),
+                    claims: claims,
+                    expires: expires,
+                    signingCredentials: creds
+                );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+                await _userManager.RemoveAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings");
+
+                return await Task.Run(() => new JwtSecurityTokenHandler().WriteToken(token));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating JWT token");
+                throw new ApplicationException("Error generating JWT token");
+            }
         }
     }
 }

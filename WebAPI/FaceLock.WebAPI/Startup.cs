@@ -10,7 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System;
 using System.Text;
 
@@ -32,6 +34,17 @@ namespace FaceLock.WebAPI
             services.AddDbContext<FaceLockDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionStrings")));
 
+            // Add logging
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddSerilog(new LoggerConfiguration()
+                     .MinimumLevel.Debug()
+                     .WriteTo.Console()
+                     .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                     .CreateLogger());
+            });
+
             // Add identity
             services.AddIdentity<User, IdentityRole>(config =>
             {
@@ -39,8 +52,9 @@ namespace FaceLock.WebAPI
                 config.Password.RequireUppercase = false;
                 config.Password.RequireLowercase = false;
             })
-                    .AddEntityFrameworkStores<FaceLockDbContext>()
-                    .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<FaceLockDbContext>()
+                .AddDefaultTokenProviders();
+                //.AddTokenProvider("MyApp", typeof(DataProtectorTokenProvider<User>));
             
             // Configure identity options
             services.Configure<IdentityOptions>(options =>
@@ -64,7 +78,7 @@ namespace FaceLock.WebAPI
             });
 
             // Add JWT authentication
-            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("JwtTokenSettings:SecretKey"));
+            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("JwtTokenSettings:JwtSecretKey"));
             services.AddAuthentication(o =>
             {
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -86,18 +100,9 @@ namespace FaceLock.WebAPI
             // Додайте авторизацію по ролях
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("User", policy => policy.RequireRole("User"));
+                options.AddPolicy("admin", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("user", policy => policy.RequireRole("User"));
             });          
-
-            /*
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/Account/Login";
-                    options.LogoutPath = "/Account/Logout";
-                });
-            */
 
             // Add CORS policy
             services.AddCors(options =>
@@ -112,10 +117,8 @@ namespace FaceLock.WebAPI
 
             // Add API controllers
             services.AddControllers();
-
             // Register the Swagger services
             services.AddSwaggerDocument();
-
 
             // Application services
             //services.AddScoped<IUserRepository, UserRepository>();
@@ -137,7 +140,6 @@ namespace FaceLock.WebAPI
 
             app.UseRouting();
             app.UseStaticFiles();
-
 
             // Register the Swagger generator and the Swagger UI middlewares
             app.UseOpenApi();
