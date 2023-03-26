@@ -1,5 +1,8 @@
 ﻿namespace FaceLock.Domain.Entities.UserAggregate
 {
+    /// <summary>
+    /// Сlass represents an image of the user's face
+    /// </summary>
     public class UserFace
     {
         public int Id { get; set; }

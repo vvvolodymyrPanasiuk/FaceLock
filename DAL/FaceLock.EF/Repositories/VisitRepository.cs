@@ -11,9 +11,9 @@ namespace FaceLock.EF.Repositories
         {
         }
 
-        public async Task<List<Visit>> GetVisitsByPlaceIdAsync(int roomId)
+        public async Task<List<Visit>> GetVisitsByPlaceIdAsync(int placeId)
         {
-            return await _dbSet.Where(v => v.RoomId == roomId).ToListAsync();
+            return await _dbSet.Where(v => v.PlaceId == placeId).ToListAsync();
         }
 
         public async Task<List<Visit>> GetVisitsByUserIdAsync(string userId)

@@ -1,7 +1,7 @@
 ﻿namespace FaceLock.Domain.Entities.PlaceAggregate
 {
     /// <summary>
-    /// Kлас, що представляє місце огляду
+    /// Class representing the place of inspection
     /// </summary>
     public class Place
     {

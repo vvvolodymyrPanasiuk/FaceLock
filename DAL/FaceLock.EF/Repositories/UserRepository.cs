@@ -11,13 +11,13 @@ namespace FaceLock.EF.Repositories
         {
         }
 
-        public async Task<User> GetByIdAsync(string id)
+        public async Task<User> GetByIdAsync(string userId)
         {
-            return await _dbSet.FirstOrDefaultAsync(u => u.Id == id);
+            return await _dbSet.FirstOrDefaultAsync(u => u.Id == userId);
         }
-        public async Task<User> GetUserByUsernameAsync(string username)
+        public async Task<User> GetUserByUsernameAsync(string userName)
         {
-            return await _dbSet.FirstOrDefaultAsync(u => u.UserName == username);
+            return await _dbSet.FirstOrDefaultAsync(u => u.UserName == userName);
         }
     }
 }

@@ -72,7 +72,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var visit = new Visit
             {
                 UserId = userId,
-                RoomId = roomId,
+                PlaceId = roomId,
                 CheckInTime = checkInTime,
                 CheckOutTime = checkOutTime
             };
@@ -83,7 +83,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             // Assert
             var resultvisit = await _visitRepository.GetByIdAsync(visit.Id);
 
-            Assert.AreEqual(roomId, resultvisit.RoomId);
+            Assert.AreEqual(roomId, resultvisit.PlaceId);
             Assert.AreEqual(checkInTime, resultvisit.CheckInTime);
             Assert.AreEqual(checkOutTime, resultvisit.CheckOutTime);
         }
@@ -95,7 +95,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var visit = new Visit
             {
                 UserId = "testuser",
-                RoomId = 1,
+                PlaceId = 1,
                 CheckInTime = DateTime.Now,
             };
             await _visitRepository.AddAsync(visit);
@@ -116,7 +116,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var visit = new Visit
             {
                 UserId = "testUserId",
-                RoomId = 10,
+                PlaceId = 10,
                 CheckInTime = DateTime.Now
             };
 
@@ -137,9 +137,9 @@ namespace FaceLock.EF.Tests.RepositoriesTests
         {
             // Arrange
             var userId = "validUserId";
-            var visit1 = new Visit { UserId = userId, RoomId = 1, CheckInTime = DateTime.Now };
-            var visit2 = new Visit { UserId = userId, RoomId = 1, CheckInTime = DateTime.Now.AddHours(-1) };
-            var visit3 = new Visit { UserId = "otherUserId", RoomId = 1, CheckInTime = DateTime.Now };
+            var visit1 = new Visit { UserId = userId, PlaceId = 1, CheckInTime = DateTime.Now };
+            var visit2 = new Visit { UserId = userId, PlaceId = 1, CheckInTime = DateTime.Now.AddHours(-1) };
+            var visit3 = new Visit { UserId = "otherUserId", PlaceId = 1, CheckInTime = DateTime.Now };
             _context.Visits.AddRange(visit1, visit2, visit3);
             await _context.SaveChangesAsync();
 

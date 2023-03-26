@@ -28,9 +28,9 @@ namespace FaceLock.EF.Tests.FaceLockDBTests
 
             var visits = new[]
             {
-                new Visit { Id = 1, UserId = "1", RoomId = 1, CheckInTime = DateTime.Now.AddHours(-2), CheckOutTime = DateTime.Now.AddHours(-1) },
-                new Visit { Id = 2, UserId = "2", RoomId = 2, CheckInTime = DateTime.Now.AddHours(-3), CheckOutTime = DateTime.Now.AddHours(-2) },
-                new Visit { Id = 3, UserId = "3", RoomId = 3, CheckInTime = DateTime.Now.AddHours(-1) }
+                new Visit { Id = 1, UserId = "1", PlaceId = 1, CheckInTime = DateTime.Now.AddHours(-2), CheckOutTime = DateTime.Now.AddHours(-1) },
+                new Visit { Id = 2, UserId = "2", PlaceId = 2, CheckInTime = DateTime.Now.AddHours(-3), CheckOutTime = DateTime.Now.AddHours(-2) },
+                new Visit { Id = 3, UserId = "3", PlaceId = 3, CheckInTime = DateTime.Now.AddHours(-1) }
             };
 
             _context.Visits.AddRange(visits);
