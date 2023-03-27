@@ -1,5 +1,0 @@
-D:\progect\GraduationProject\DAL\FaceLock.EF\obj\Debug\net6.0\FaceLock.EF.csproj.AssemblyReference.cache
-D:\progect\GraduationProject\DAL\FaceLock.EF\obj\Debug\net6.0\FaceLock.EF.GeneratedMSBuildEditorConfig.editorconfig
-D:\progect\GraduationProject\DAL\FaceLock.EF\obj\Debug\net6.0\FaceLock.EF.AssemblyInfoInputs.cache
-D:\progect\GraduationProject\DAL\FaceLock.EF\obj\Debug\net6.0\FaceLock.EF.AssemblyInfo.cs
-D:\progect\GraduationProject\DAL\FaceLock.EF\obj\Debug\net6.0\FaceLock.EF.csproj.CoreCompileInputs.cache
