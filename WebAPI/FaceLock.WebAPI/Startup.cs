@@ -32,7 +32,7 @@ namespace FaceLock.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<FaceLockDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionStrings")));
+                options.UseSqlServer(Configuration.GetConnectionString("name=ConnectionStrings:DefaultConnection")));
 
             // Add logging
             services.AddLogging(loggingBuilder =>
@@ -76,9 +76,11 @@ namespace FaceLock.WebAPI
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = true;
             });
+            
+            // Add JWT authentication           
+            var jwtTokenSettings = Configuration.GetSection("JwtTokenSettings");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtTokenSettings.GetValue<string>("SecretKey")));
 
-            // Add JWT authentication
-            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("JwtTokenSettings:JwtSecretKey"));
             services.AddAuthentication(o =>
             {
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -90,18 +92,18 @@ namespace FaceLock.WebAPI
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = key,
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ClockSkew = TimeSpan.Zero
                 };
             });
 
-            // Додайте авторизацію по ролях
+            // Add authorization by roles
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("admin", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("user", policy => policy.RequireRole("User"));
+                options.AddPolicy("admin", policy => policy.RequireRole("admin"));
+                options.AddPolicy("user", policy => policy.RequireRole("user"));
             });          
 
             // Add CORS policy
@@ -145,11 +147,12 @@ namespace FaceLock.WebAPI
             app.UseOpenApi();
             app.UseSwaggerUi3();
 
-            // Додайте обробку CORS
+            // Add CORS handling
             app.UseCors(options =>
                 options.AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod());
+            //app.UseCors("AllowAll");
             //app.UseCors("AllowAll");
             
             // Add authentication and authorization

@@ -21,9 +21,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF", "..\..\DAL\Fa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1EEF6A80-4E86-4310-AA51-FFD63456ABD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceLock.EF.Tests", "..\..\Tests\FaceLock.EF.Tests\FaceLock.EF.Tests.csproj", "{A79D40EC-A0E9-4B3C-AC97-34E70980320E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF.Tests", "..\..\Tests\FaceLock.EF.Tests\FaceLock.EF.Tests.csproj", "{A79D40EC-A0E9-4B3C-AC97-34E70980320E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F860A2C9-6C93-4006-9DC5-1784B1887F6F} = {F860A2C9-6C93-4006-9DC5-1784B1887F6F}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{780863FD-FD64-4FCC-B02F-21FCB5384607}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\.gitattributes = ..\..\.gitattributes
+		..\..\.gitignore = ..\..\.gitignore
 	EndProjectSection
 EndProject
 Global

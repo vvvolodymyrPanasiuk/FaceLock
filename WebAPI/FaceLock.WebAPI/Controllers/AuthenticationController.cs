@@ -126,12 +126,12 @@ namespace FaceLock.WebAPI.Controllers
                 }
                 // Generate JWT token for user
                 var token = GenerateJwtToken(user);
-                await _userManager.SetAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings", token.ToString());
+                await _userManager.SetAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings", token.Result);
 
                 // Save token in Authorization header
                 //HttpContext.Response.Headers.Add("Authorization", "Bearer " + token.ToString());
 
-                return Ok(new { Token = token.ToString() });
+                return Ok(new { Token = token.Result });
             }
 
             return BadRequest(ModelState);
@@ -190,21 +190,25 @@ namespace FaceLock.WebAPI.Controllers
                 };
 
                 // Use a symmetric key to sign the JWT token
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSecretKey"]));
+                var jwtTokenSettings = _configuration.GetSection("JwtTokenSettings");
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtTokenSettings.GetValue<string>("SecretKey")));
+
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                 // Define the lifetime of the JWT token
-                var expires = DateTime.UtcNow.AddDays(int.Parse(_configuration.GetValue<string>("JwtTokenSettings:RefreshExpirationDays")));
+                var expires = DateTime.UtcNow.AddDays(int.Parse(jwtTokenSettings.GetValue<string>("RefreshExpirationDays")));
 
                 // Create a JWT token with the defined parameters
                 var token = new JwtSecurityToken(
-                    issuer: _configuration.GetValue<string>("JwtTokenSettings:Issuer"),
-                    audience: _configuration.GetValue<string>("JwtTokenSettings:Audience"),
+                    //issuer: _configuration.GetValue<string>("JwtTokenSettings:Issuer"),
+                    //audience: _configuration.GetValue<string>("JwtTokenSettings:Audience"),
+                    issuer: jwtTokenSettings.GetValue<string>("Issuer"),
+                    audience: jwtTokenSettings.GetValue<string>("Audience"),
                     claims: claims,
                     expires: expires,
                     signingCredentials: creds
                 );
 
-                await _userManager.RemoveAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings");
+                //await _userManager.RemoveAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings");
 
                 return await Task.Run(() => new JwtSecurityTokenHandler().WriteToken(token));
             }

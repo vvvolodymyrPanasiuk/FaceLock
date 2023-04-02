@@ -1,8 +1,8 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.EF.EntityConfigurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
 namespace FaceLock.EF
@@ -15,9 +15,15 @@ namespace FaceLock.EF
         public DbSet<UserFace> UserFaces { get; set; }
         public DbSet<Place> Places { get; set; }
         public DbSet<Visit> Visits { get; set; }
-
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             //optionsBuilder.LogTo(message => System.Diagnostics.Debug.WriteLine(message), new[] { RelationalEventId.CommandExecuted });
             //optionsBuilder.LogTo(message => System.Diagnostics.Debug.WriteLine(message));
         }
