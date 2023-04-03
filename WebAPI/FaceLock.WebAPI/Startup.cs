@@ -1,8 +1,14 @@
+using FaceLock.Authentication;
+using FaceLock.Authentication.Repositories;
+using FaceLock.Authentication.RepositoriesImplementations;
+using FaceLock.Authentication.Services;
+using FaceLock.Authentication.ServicesImplementations;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
 using FaceLock.EF;
 using FaceLock.EF.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +39,8 @@ namespace FaceLock.WebAPI
         {
             services.AddDbContext<FaceLockDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("name=ConnectionStrings:DefaultConnection")));
+
+            services.Configure<JwtTokenSettings>(Configuration.GetSection("JwtTokenSettings"));
 
             // Add logging
             services.AddLogging(loggingBuilder =>
@@ -76,7 +84,7 @@ namespace FaceLock.WebAPI
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = true;
             });
-            
+
             // Add JWT authentication           
             var jwtTokenSettings = Configuration.GetSection("JwtTokenSettings");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtTokenSettings.GetValue<string>("SecretKey")));
@@ -117,6 +125,11 @@ namespace FaceLock.WebAPI
                 });
             });
 
+            services.AddMemoryCache(options =>
+            {
+                options.ExpirationScanFrequency = TimeSpan.FromMinutes(60);
+                options.SizeLimit = 256;
+            });
             // Add API controllers
             services.AddControllers();
             // Register the Swagger services
@@ -128,6 +141,9 @@ namespace FaceLock.WebAPI
             services.AddTransient<IUserFaceRepository, UserFaceRepository>();
             services.AddTransient<IVisitRepository, VisitRepository>();
             services.AddTransient<IPlaceRepository, PlaceRepository>();
+            services.AddTransient<IBlacklistRepository, InMemoryCacheBlacklistRepository>();
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
