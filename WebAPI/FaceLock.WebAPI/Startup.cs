@@ -49,7 +49,7 @@ namespace FaceLock.WebAPI
                 loggingBuilder.AddSerilog(new LoggerConfiguration()
                      .MinimumLevel.Debug()
                      .WriteTo.Console()
-                     .WriteTo.File("./log/log.txt", rollingInterval: RollingInterval.Day)
+                     .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
                      .CreateLogger());
             });
 
