@@ -7,6 +7,10 @@
 *.user
 *.userosscache
 *.sln.docstates
+logs/
+log*.txt
+WebAPI/FaceLock.WebAPI/logs/*.txt
+WebAPI/FaceLock.WebAPI/logs/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

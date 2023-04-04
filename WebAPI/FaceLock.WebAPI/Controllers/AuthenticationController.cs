@@ -1,16 +1,10 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.WebAPI.ViewModel;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -20,21 +14,15 @@ namespace FaceLock.WebAPI.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
         private readonly ILogger<AuthenticationController> _logger;
         private readonly FaceLock.Authentication.Services.IAuthenticationService _authenticationService;
         public AuthenticationController(
-            SignInManager<User> signInManager, 
             UserManager<User> userManager, 
-            IConfiguration configuration,
             ILogger<AuthenticationController> logger,
             FaceLock.Authentication.Services.IAuthenticationService authenticationService)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
-            _configuration = configuration;
             _logger = logger;
             _authenticationService = authenticationService;
         }
