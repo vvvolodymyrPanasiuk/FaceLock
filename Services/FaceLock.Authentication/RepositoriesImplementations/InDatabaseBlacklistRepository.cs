@@ -1,16 +1,18 @@
 ﻿using FaceLock.Authentication.Repositories;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace FaceLock.Authentication.RepositoriesImplementations
 {
     public class InDatabaseBlacklistRepository : IBlacklistRepository
     {
         private readonly string _connectionString;
+        private readonly IConfiguration _configuration;
 
-        public InDatabaseBlacklistRepository(string connectionString)
+        public InDatabaseBlacklistRepository(IConfiguration configuration)
         {
-            _connectionString = "Server=(localdb)\\MSSQLLocalDB;Database=BlacklistTokensDB;Trusted_Connection=True;MultipleActiveResultSets=true";
-            //_connectionString = connectionString;
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("BlacklistConnection");
         }
 
 

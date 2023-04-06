@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -124,9 +125,11 @@ namespace FaceLock.WebAPI.Controllers
         {
             try
             {
-                string refreshToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string accessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 //string refreshToken = await HttpContext.GetTokenAsync("refreshToken");
-                if(string.IsNullOrEmpty(refreshToken))
+                string refreshToken = HttpContext.Request.Headers["refreshToken"].ToString();
+
+                if (string.IsNullOrEmpty(refreshToken))
                 {
                     return BadRequest();
                 }

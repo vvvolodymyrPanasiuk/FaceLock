@@ -11,7 +11,7 @@ logs/
 log*.txt
 WebAPI/FaceLock.WebAPI/logs/*.txt
 WebAPI/FaceLock.WebAPI/logs/
-
+blacklist.json
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

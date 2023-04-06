@@ -141,7 +141,7 @@ namespace FaceLock.WebAPI
             services.AddTransient<IUserFaceRepository, UserFaceRepository>();
             services.AddTransient<IVisitRepository, VisitRepository>();
             services.AddTransient<IPlaceRepository, PlaceRepository>();
-            services.AddTransient<IBlacklistRepository, InMemoryCacheBlacklistRepository>();
+            services.AddTransient<IBlacklistRepository, InDatabaseBlacklistRepository>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
         }

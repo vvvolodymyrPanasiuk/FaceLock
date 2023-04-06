@@ -18,7 +18,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations
             _cache.Set(refreshToken, true, new MemoryCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = expirationTime
-            });
+            }.SetSize(1));
 
             //_cache.Set(refreshToken, true, expirationTime);
             await Task.CompletedTask;

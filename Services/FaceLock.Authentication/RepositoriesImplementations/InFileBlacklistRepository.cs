@@ -1,4 +1,5 @@
 ﻿using FaceLock.Authentication.Repositories;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace FaceLock.Authentication.RepositoriesImplementations
@@ -6,11 +7,13 @@ namespace FaceLock.Authentication.RepositoriesImplementations
     public class InFileBlacklistRepository : IBlacklistRepository
     {
         private readonly string _filePath;
+        private readonly IConfiguration _configuration;
 
-        public InFileBlacklistRepository(string filePath)
+        public InFileBlacklistRepository(IConfiguration configuration)
         {
-            _filePath = "blacklist.json";
-            //_filePath = filePath;
+            _configuration = configuration;
+            _filePath = _configuration["BlacklistFilePath"];
+            //_filePath = "blacklist.json";
         }
 
 
