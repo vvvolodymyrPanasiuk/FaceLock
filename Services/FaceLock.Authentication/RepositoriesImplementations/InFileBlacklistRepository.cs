@@ -7,13 +7,10 @@ namespace FaceLock.Authentication.RepositoriesImplementations
     public class InFileBlacklistRepository : IBlacklistRepository
     {
         private readonly string _filePath;
-        private readonly IConfiguration _configuration;
 
         public InFileBlacklistRepository(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _filePath = _configuration["BlacklistFilePath"];
-            //_filePath = "blacklist.json";
+            _filePath = configuration["BlacklistFilePath"];
         }
 
 
@@ -26,6 +23,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                 RefreshTokenExpires = DateTime.UtcNow.AddMinutes(expirationTime.TotalMinutes),
             });
             await SaveBlacklistAsync(blacklist);
+            await RemoveExpiredTokensFromBlacklistAsync();
 
             return await IsTokenInBlacklistAsync(refreshToken);
         }
@@ -48,7 +46,13 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                 using (var streamReader = new StreamReader(fileStream))
                 {
                     var json = await streamReader.ReadToEndAsync();
-                    return JsonConvert.DeserializeObject<List<RefreshToken>>(json);
+                    var result = JsonConvert.DeserializeObject<List<RefreshToken>>(json);
+
+                    if(result is null)
+                    {
+                        throw new ApplicationException("Failed loading tokens from blacklist.");
+                    }
+                    return result;
                 }
             }
         }
@@ -63,6 +67,14 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                     await streamWriter.WriteAsync(json);
                 }
             }
+        }
+
+        private async Task RemoveExpiredTokensFromBlacklistAsync()
+        {
+            var blacklist = await LoadBlacklistAsync();
+            var currentTime = DateTime.UtcNow;
+            blacklist.RemoveAll(t => t.RefreshTokenExpires <= currentTime);
+            await SaveBlacklistAsync(blacklist);
         }
     }
 }

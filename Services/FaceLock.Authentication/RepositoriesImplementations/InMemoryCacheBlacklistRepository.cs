@@ -20,8 +20,6 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                 AbsoluteExpirationRelativeToNow = expirationTime
             }.SetSize(1));
 
-            //_cache.Set(refreshToken, true, expirationTime);
-            await Task.CompletedTask;
             return await IsTokenInBlacklistAsync(refreshToken);
         }
 

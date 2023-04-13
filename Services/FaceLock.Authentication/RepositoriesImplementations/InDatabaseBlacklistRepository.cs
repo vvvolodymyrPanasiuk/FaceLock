@@ -7,12 +7,10 @@ namespace FaceLock.Authentication.RepositoriesImplementations
     public class InDatabaseBlacklistRepository : IBlacklistRepository
     {
         private readonly string _connectionString;
-        private readonly IConfiguration _configuration;
 
         public InDatabaseBlacklistRepository(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("BlacklistConnection");
+            _connectionString = configuration.GetConnectionString("BlacklistConnection");
         }
 
 
@@ -27,6 +25,8 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                 command.Parameters.AddWithValue("@token", token);
                 command.Parameters.AddWithValue("@expirationTime", DateTime.UtcNow.Add(expirationTime));
                 await command.ExecuteNonQueryAsync();
+                await RemoveExpiredTokensFromBlacklistAsync();
+
                 return await IsTokenInBlacklistAsync(token);
             }
         }
@@ -41,13 +41,17 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                 var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@token", token);
                 command.Parameters.AddWithValue("@currentTime", DateTime.UtcNow);
-                var result = (int)await command.ExecuteScalarAsync();
+                var result = await command.ExecuteScalarAsync() as int?;
 
+                if (result == null)
+                {
+                    throw new ApplicationException("Failed to check if token is in blacklist.");
+                }
                 return result > 0;
             }
         }
 
-        public async Task RemoveExpiredTokensFromBlacklistAsync()
+        private async Task RemoveExpiredTokensFromBlacklistAsync()
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -57,19 +61,6 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                 var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@currentTime", DateTime.UtcNow);
                 await command.ExecuteNonQueryAsync();
-            }
-        }
-        //Створити новий файл з назвою DeleteExpiredTokens.sql з наступним вмістом
-        //DELETE FROM BlacklistTokens WHERE ExpirationDate <= GETUTCDATE();
-        public async Task DeleteExpiredTokens()
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand("EXEC sp_start_job 'DeleteExpiredTokens';", connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
             }
         }
     }
