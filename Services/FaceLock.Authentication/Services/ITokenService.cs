@@ -1,4 +1,5 @@
-﻿using FaceLock.Domain.Entities.UserAggregate;
+﻿using FaceLock.Authentication.DTO;
+using FaceLock.Domain.Entities.UserAggregate;
 using System.Security.Claims;
 
 namespace FaceLock.Authentication.Services
@@ -15,11 +16,12 @@ namespace FaceLock.Authentication.Services
         /// <returns>Generated access token as a string.</returns>
         Task<string> GenerateAccessToken(User user);
         /// <summary>
-        /// Generates a refresh token for the provided user ID.
+        /// Generates a refresh token for the provided user.
         /// </summary>
-        /// <param name="userId">ID of the user for whom the refresh token needs to be generated.</param>
+        /// <param name="userId">User ID for whom the refresh token needs to be generated.</param>
+        /// <param name="userMetaDataDto">User metadata for additional information associated with the refresh token.</param>
         /// <returns>Generated refresh token as a string.</returns>
-        Task<string> GenerateRefreshToken(string userId);
+        Task<string> GenerateRefreshToken(string userId, UserMetaDataDTO userMetaDataDto);
         /// <summary>
         /// Refreshes an access token using the provided refresh token.
         /// </summary>

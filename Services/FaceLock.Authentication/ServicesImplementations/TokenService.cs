@@ -1,4 +1,5 @@
-﻿using FaceLock.Authentication.Repositories;
+﻿using FaceLock.Authentication.DTO;
+using FaceLock.Authentication.Repositories;
 using FaceLock.Authentication.Services;
 using FaceLock.Domain.Entities.UserAggregate;
 using Microsoft.AspNetCore.Identity;
@@ -69,7 +70,7 @@ namespace FaceLock.Authentication.ServicesImplementations
             }
         }
 
-        public async Task<string> GenerateRefreshToken(string userId)
+        public async Task<string> GenerateRefreshToken(string userId, UserMetaDataDTO userMetaDataDto)
         {
             try
             {
@@ -84,7 +85,11 @@ namespace FaceLock.Authentication.ServicesImplementations
                 {
                     Token = refreshToken,
                     RefreshTokenExpires = DateTime.UtcNow.AddDays(_jwtTokenSetting.RefreshTokenExpirationDays),
-                    UserId = userId
+                    UserId = userId,
+                    Country = userMetaDataDto.Country,
+                    City = userMetaDataDto.City,
+                    Device = userMetaDataDto.Device,
+                    TimeCreated = DateTime.UtcNow
                 });
 
                 return await Task.Run(() => refreshToken);  

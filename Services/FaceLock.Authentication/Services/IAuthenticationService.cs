@@ -8,11 +8,12 @@ namespace FaceLock.Authentication.Services
     public interface IAuthenticationService
     {
         /// <summary>
-        /// Authenticates a user with the provided login credentials and returns access token and refresh token.
+        /// Authenticates a user with the provided login data and generates access and refresh tokens.
         /// </summary>
         /// <param name="userLoginDto">User login data transfer object.</param>
-        /// <returns>A tuple containing the access token and refresh token.</returns>
-        Task<(string, string)> LoginAsync(UserLoginDTO userLoginDto);
+        /// <param name="userMetaDataDto">User metadata data transfer object.</param>
+        /// <returns>Tuple containing the access token and refresh token.</returns>
+        Task<(string, string)> LoginAsync(UserLoginDTO userLoginDto, UserMetaDataDTO userMetaDataDto);
         /// <summary>
         /// Registers a new user with the provided registration data.
         /// </summary>

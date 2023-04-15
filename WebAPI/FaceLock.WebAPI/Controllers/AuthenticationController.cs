@@ -88,6 +88,11 @@ namespace FaceLock.WebAPI.Controllers
                         {
                             Email = model.Email,
                             Password = model.Password
+                        }, new Authentication.DTO.UserMetaDataDTO 
+                        {
+                            Country = HttpContext.Request.Headers["country"].ToString(),
+                            City = HttpContext.Request.Headers["city"].ToString(),
+                            Device = HttpContext.Request.Headers["device"].ToString()
                         });
 
                     if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken)) 

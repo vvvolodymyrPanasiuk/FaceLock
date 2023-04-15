@@ -23,7 +23,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
             {
                 await connection.OpenAsync();
                 
-                var query = "SELECT Token, UserId, RefreshTokenExpires FROM TokenStates WHERE UserId = @userId";
+                var query = "SELECT * FROM TokenStates WHERE UserId = @userId";
                 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -38,7 +38,11 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
                             {
                                 Token = reader["Token"].ToString(),
                                 UserId = reader["UserId"].ToString(),
-                                RefreshTokenExpires = Convert.ToDateTime(reader["RefreshTokenExpires"])
+                                RefreshTokenExpires = Convert.ToDateTime(reader["RefreshTokenExpires"]),
+                                Device = reader["Device"].ToString(),
+                                Country = reader["Country"].ToString(),
+                                City = reader["City"].ToString(),
+                                TimeCreated = Convert.ToDateTime(reader["TimeCreated"])
                             };
 
                             refreshTokenList.Add(refreshToken);
@@ -56,7 +60,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
             {
                 await connection.OpenAsync();
                 
-                var query = "SELECT Token, UserId, RefreshTokenExpires FROM TokenStates WHERE Token = @token";
+                var query = "SELECT * FROM TokenStates WHERE Token = @token";
                 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -70,7 +74,11 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
                             {
                                 Token = reader["Token"].ToString(),
                                 UserId = reader["UserId"].ToString(),
-                                RefreshTokenExpires = Convert.ToDateTime(reader["RefreshTokenExpires"])
+                                RefreshTokenExpires = Convert.ToDateTime(reader["RefreshTokenExpires"]),
+                                Device = reader["Device"].ToString(),
+                                Country = reader["Country"].ToString(),
+                                City = reader["City"].ToString(),
+                                TimeCreated = Convert.ToDateTime(reader["TimeCreated"])
                             };
 
                             return refreshTokenObject;
@@ -89,14 +97,18 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
                 await connection.OpenAsync();
                 
                 var query = "INSERT INTO TokenStates (Token, UserId, RefreshTokenExpires) " +
-                            "VALUES (@token, @userId, @expires)";
+                            "VALUES (@token, @userId, @expires, @country, @city, @device, @timeCreated)";
 
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@token", refreshToken.Token);
                     command.Parameters.AddWithValue("@userId", refreshToken.UserId);
-                    command.Parameters.AddWithValue("@expires", refreshToken.RefreshTokenExpires); 
-                    
+                    command.Parameters.AddWithValue("@expires", refreshToken.RefreshTokenExpires);
+                    command.Parameters.AddWithValue("@country", refreshToken.Country);
+                    command.Parameters.AddWithValue("@city", refreshToken.City);
+                    command.Parameters.AddWithValue("@device", refreshToken.Device);
+                    command.Parameters.AddWithValue("@timeCreated", refreshToken.TimeCreated);
+
                     await RemoveExpiredTokensFromTokenStateAsync();
                     await command.ExecuteNonQueryAsync();
                 }

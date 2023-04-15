@@ -30,7 +30,7 @@ namespace FaceLock.Authentication.ServicesImplementations
         }
 
 
-        public async Task<(string, string)> LoginAsync(UserLoginDTO userLoginDto)
+        public async Task<(string, string)> LoginAsync(UserLoginDTO userLoginDto, UserMetaDataDTO userMetaDataDto)
         {
             // Find user by email
             var user = await _userManager.FindByEmailAsync(userLoginDto.Email);
@@ -48,7 +48,8 @@ namespace FaceLock.Authentication.ServicesImplementations
                 throw new AuthenticationException("Invalid username or password");
             }
             // Generate RefreshToken for user
-            var refreshToken = await _tokenService.GenerateRefreshToken(user.Id);
+            var refreshToken = await _tokenService.
+                GenerateRefreshToken(user.Id, userMetaDataDto);
             // Generate AccessToken for user
             var accessToken = await _tokenService.GenerateAccessToken(user);
             
