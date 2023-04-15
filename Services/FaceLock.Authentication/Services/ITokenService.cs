@@ -5,9 +5,9 @@ namespace FaceLock.Authentication.Services
 {
     public interface ITokenService
     {
-        Task<AccessToken> GenerateAccessToken(User user);
-        Task<RefreshToken> GenerateRefreshToken();
-        Task<AccessToken> RefreshAccessToken(RefreshToken refreshToken);
+        Task<string> GenerateAccessToken(User user);
+        Task<string> GenerateRefreshToken(string userId);
+        Task<string> RefreshAccessToken(string refreshToken);
         Task<ClaimsPrincipal> GetPrincipalFromAccessToken(string accessToken);
         Task<bool> RevokeRefreshToken(string refreshToken);
     }

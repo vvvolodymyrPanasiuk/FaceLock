@@ -97,9 +97,12 @@ namespace FaceLock.WebAPI.Controllers
                         return StatusCode(StatusCodes.Status401Unauthorized, "Invalid tokens");
                     }
 
-                    //await _userManager.SetAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings", token.Result);
-                    // Save token in Authorization header
-                    //HttpContext.Response.Headers.Add("Authorization", "Bearer " + token.ToString());
+                    // Create cookie with HttpOnly for refreshToken 
+                    Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions 
+                    { 
+                        HttpOnly = true, 
+                        Secure = true
+                    });
 
                     return StatusCode(StatusCodes.Status200OK, $"accessToken - {accessToken}, refreshToken - {refreshToken}");
                 }

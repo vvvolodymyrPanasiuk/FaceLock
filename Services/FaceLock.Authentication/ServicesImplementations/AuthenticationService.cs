@@ -46,11 +46,11 @@ namespace FaceLock.Authentication.ServicesImplementations
                 throw new AuthenticationException("Invalid username or password");
             }
             // Generate RefreshToken for user
-            var refreshToken = await _tokenService.GenerateRefreshToken();
+            var refreshToken = await _tokenService.GenerateRefreshToken(user.Id);
             // Generate AccessToken for user
             var accessToken = await _tokenService.GenerateAccessToken(user);
-
-            return (accessToken.Token, refreshToken.Token);
+            
+            return (accessToken, refreshToken);
         }
 
         public async Task<bool> RegisterAsync(UserRegisterDTO userRegisterDto)

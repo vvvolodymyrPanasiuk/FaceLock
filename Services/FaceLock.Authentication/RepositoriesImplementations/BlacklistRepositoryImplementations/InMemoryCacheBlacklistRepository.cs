@@ -1,7 +1,7 @@
 ﻿using FaceLock.Authentication.Repositories;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace FaceLock.Authentication.RepositoriesImplementations
+namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
     public class InMemoryCacheBlacklistRepository : IBlacklistRepository
     {
@@ -23,9 +23,9 @@ namespace FaceLock.Authentication.RepositoriesImplementations
             return await IsTokenInBlacklistAsync(refreshToken);
         }
 
-        public async Task<bool> IsTokenInBlacklistAsync(string token)
+        public async Task<bool> IsTokenInBlacklistAsync(string refreshToken)
         {
-            return await Task.FromResult(_cache.TryGetValue(token, out _));
+            return await Task.FromResult(_cache.TryGetValue(refreshToken, out _));
         }
     }
 }

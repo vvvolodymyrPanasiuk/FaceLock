@@ -2,7 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-namespace FaceLock.Authentication.RepositoriesImplementations
+namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
     public class InDatabaseBlacklistRepository : IBlacklistRepository
     {
@@ -14,7 +14,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations
         }
 
 
-        public async Task<bool> AddTokenToBlacklistAsync(string token, TimeSpan expirationTime)
+        public async Task<bool> AddTokenToBlacklistAsync(string refreshToken, TimeSpan expirationTime)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -22,16 +22,16 @@ namespace FaceLock.Authentication.RepositoriesImplementations
 
                 var query = "INSERT INTO BlacklistTokens(Token, ExpirationTime) VALUES(@token, @expirationTime)";
                 var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@token", token);
+                command.Parameters.AddWithValue("@token", refreshToken);
                 command.Parameters.AddWithValue("@expirationTime", DateTime.UtcNow.Add(expirationTime));
                 await command.ExecuteNonQueryAsync();
                 await RemoveExpiredTokensFromBlacklistAsync();
 
-                return await IsTokenInBlacklistAsync(token);
+                return await IsTokenInBlacklistAsync(refreshToken);
             }
         }
 
-        public async Task<bool> IsTokenInBlacklistAsync(string token)
+        public async Task<bool> IsTokenInBlacklistAsync(string refreshToken)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -39,7 +39,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations
 
                 var query = "SELECT COUNT(*) FROM BlacklistTokens WHERE Token = @token AND ExpirationTime > @currentTime";
                 var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@token", token);
+                command.Parameters.AddWithValue("@token", refreshToken);
                 command.Parameters.AddWithValue("@currentTime", DateTime.UtcNow);
                 var result = await command.ExecuteScalarAsync() as int?;
 

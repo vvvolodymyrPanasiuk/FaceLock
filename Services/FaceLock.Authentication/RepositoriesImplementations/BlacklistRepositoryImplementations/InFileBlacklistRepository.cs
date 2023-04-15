@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
-namespace FaceLock.Authentication.RepositoriesImplementations
+namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
     public class InFileBlacklistRepository : IBlacklistRepository
     {
@@ -48,7 +48,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations
                     var json = await streamReader.ReadToEndAsync();
                     var result = JsonConvert.DeserializeObject<List<RefreshToken>>(json);
 
-                    if(result is null)
+                    if (result is null)
                     {
                         throw new ApplicationException("Failed loading tokens from blacklist.");
                     }

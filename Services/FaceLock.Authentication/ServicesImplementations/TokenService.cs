@@ -15,20 +15,23 @@ namespace FaceLock.Authentication.ServicesImplementations
     {
         private readonly JwtTokenSettings _jwtTokenSetting;
         private readonly IBlacklistRepository _blacklistRepository;
+        private readonly ITokenStateRepository _tokenStateRepository;
         private readonly UserManager<User> _userManager;
 
         public TokenService(
             IOptions<JwtTokenSettings> jwtTokenSetting, 
             IBlacklistRepository blacklistRepository, 
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            ITokenStateRepository tokenStateRepository)
         {
             _jwtTokenSetting = jwtTokenSetting.Value;
             _blacklistRepository = blacklistRepository;
+            _tokenStateRepository = tokenStateRepository;
             _userManager = userManager;
         }
 
 
-        public async Task<AccessToken> GenerateAccessToken(User user)
+        public async Task<string> GenerateAccessToken(User user)
         {
             try
             {
@@ -43,14 +46,12 @@ namespace FaceLock.Authentication.ServicesImplementations
                 };
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-                // Use a symmetric key to sign the JWT token (UTF8 ??)
                 var key = Encoding.ASCII.GetBytes(_jwtTokenSetting.SecretKey);
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Issuer = _jwtTokenSetting.Issuer,
                     Audience = _jwtTokenSetting.Audience,
-                    //Claims = (IDictionary<string, object>)claims,              
                     Subject = new ClaimsIdentity(claims),
                     Expires = DateTime.UtcNow.AddMinutes(_jwtTokenSetting.AccessTokenExpirationMinutes),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -58,11 +59,7 @@ namespace FaceLock.Authentication.ServicesImplementations
 
                 var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
 
-                return new AccessToken
-                {
-                    Token = await Task.Run(() => tokenHandler.WriteToken(token)),
-                    AccessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtTokenSetting.AccessTokenExpirationMinutes).ToUniversalTime()
-                };
+                return await Task.Run(() => tokenHandler.WriteToken(token));
             }
             catch (Exception ex)
             {
@@ -70,7 +67,7 @@ namespace FaceLock.Authentication.ServicesImplementations
             }
         }
 
-        public async Task<RefreshToken> GenerateRefreshToken()
+        public async Task<string> GenerateRefreshToken(string userId)
         {
             try
             {
@@ -78,12 +75,15 @@ namespace FaceLock.Authentication.ServicesImplementations
                 using var rng = RandomNumberGenerator.Create();
                 rng.GetBytes(randomNumber);
                 var refreshToken = Convert.ToBase64String(randomNumber);
-                return await Task.Run(() => new RefreshToken
+
+                await _tokenStateRepository.AddRefreshTokenAsync(new RefreshToken
                 {
                     Token = refreshToken,
-                    RefreshTokenExpires = DateTime.UtcNow.AddMinutes(_jwtTokenSetting.RefreshTokenExpirationDays).ToUniversalTime(),
-                    RefreshTokenIsExpired = false
-                });  
+                    RefreshTokenExpires = DateTime.UtcNow.AddDays(_jwtTokenSetting.RefreshTokenExpirationDays),
+                    UserId = userId
+                });
+
+                return await Task.Run(() => refreshToken);  
             }
             catch(Exception ex)
             {
@@ -93,41 +93,36 @@ namespace FaceLock.Authentication.ServicesImplementations
 
         public async Task<bool> RevokeRefreshToken(string refreshToken)
         {
+            if (await _tokenStateRepository.IsRefreshTokenValidAsync(refreshToken))
+            {
+                throw new ApplicationException($"Refresh token not found.");
+            }
+
+            await _tokenStateRepository.RemoveRefreshTokenAsync(refreshToken);
             return await _blacklistRepository.
                 AddTokenToBlacklistAsync(refreshToken, TimeSpan.FromDays(_jwtTokenSetting.RefreshTokenExpirationDays));
         }
 
-        public async Task<AccessToken> RefreshAccessToken(RefreshToken refreshToken)
+        public async Task<string> RefreshAccessToken(string refreshToken)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtTokenSetting.SecretKey);
+            var refreshTokenData = await _tokenStateRepository.GetRefreshTokenAsync(refreshToken);
 
-            SecurityToken validatedToken;
-            var principal = tokenHandler.ValidateToken(refreshToken.Token, new TokenValidationParameters
+            if (refreshTokenData == null)
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = false
-            }, out validatedToken);
-
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            var userId = principal.FindFirst(JwtRegisteredClaimNames.Sub).Value;
-
-            if (await _blacklistRepository.IsTokenInBlacklistAsync(refreshToken.Token) == true)
+                throw new ApplicationException("Refresh token not found.");
+            }
+            if (refreshTokenData.RefreshTokenExpires < DateTime.UtcNow)
+            {
+                throw new ApplicationException("Refresh token has expired.");
+            }
+            if (await _blacklistRepository.IsTokenInBlacklistAsync(refreshToken))
             {
                 throw new ApplicationException("Refresh token has been revoked.");
             }
 
-            if (refreshToken.RefreshTokenExpires < DateTime.UtcNow)
-            {
-                throw new ApplicationException("Refresh token has expired.");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-
+            var user = await _userManager.FindByIdAsync(refreshTokenData.UserId);
             var accessToken = await GenerateAccessToken(user);
+
             return accessToken;
         }
 
@@ -136,7 +131,6 @@ namespace FaceLock.Authentication.ServicesImplementations
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-
                 var principal = handler.ValidateToken(accessToken, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -146,7 +140,7 @@ namespace FaceLock.Authentication.ServicesImplementations
                     ClockSkew = TimeSpan.Zero
                 }, out var validatedToken);
 
-                if (!(validatedToken is JwtSecurityToken jwtSecurityToken) || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature, StringComparison.InvariantCultureIgnoreCase))
+                if (!(validatedToken is JwtSecurityToken jwtSecurityToken) || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                     throw new SecurityTokenException("Invalid token");
 
                 return await Task.Run(() => principal);

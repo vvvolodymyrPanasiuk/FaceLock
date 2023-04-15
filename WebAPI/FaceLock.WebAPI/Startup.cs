@@ -1,6 +1,7 @@
 using FaceLock.Authentication;
 using FaceLock.Authentication.Repositories;
-using FaceLock.Authentication.RepositoriesImplementations;
+using FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations;
+using FaceLock.Authentication.RepositoriesImplementations.TokenStateRepositoryImplementations;
 using FaceLock.Authentication.Services;
 using FaceLock.Authentication.ServicesImplementations;
 using FaceLock.Domain.Entities.UserAggregate;
@@ -8,7 +9,6 @@ using FaceLock.Domain.Repositories;
 using FaceLock.EF;
 using FaceLock.EF.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -103,6 +103,7 @@ namespace FaceLock.WebAPI
                     IssuerSigningKey = key,
                     ValidateIssuer = false,
                     ValidateAudience = false,
+                    ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
             });
@@ -141,6 +142,7 @@ namespace FaceLock.WebAPI
             services.AddTransient<IUserFaceRepository, UserFaceRepository>();
             services.AddTransient<IVisitRepository, VisitRepository>();
             services.AddTransient<IPlaceRepository, PlaceRepository>();
+            services.AddTransient<ITokenStateRepository, InDatabaseTokenStateRepository>();
             services.AddTransient<IBlacklistRepository, InDatabaseBlacklistRepository>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
