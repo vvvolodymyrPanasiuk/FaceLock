@@ -87,5 +87,10 @@ namespace FaceLock.Authentication.ServicesImplementations
         {
             return await _tokenService.RevokeRefreshToken(refreshToken);
         }
+
+        public async Task<string> RefreshAccessTokenAsync(string refreshToken)
+        {
+            return await _tokenService.RefreshAccessToken(refreshToken);
+        }
     }
 }

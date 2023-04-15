@@ -7,5 +7,7 @@ namespace FaceLock.Authentication.Services
         Task<(string, string)> LoginAsync(UserLoginDTO userLoginDto);
         Task<bool> RegisterAsync(UserRegisterDTO userRegisterDto);
         Task<bool> LogoutAsync(string refreshToken);
+        Task<string> RefreshAccessTokenAsync(string refreshToken);
+
     }
 }

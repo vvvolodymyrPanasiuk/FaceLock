@@ -128,8 +128,7 @@ namespace FaceLock.WebAPI.Controllers
         {
             try
             {
-                string accessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                //string refreshToken = await HttpContext.GetTokenAsync("refreshToken");
+                //string accessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
                 string refreshToken = HttpContext.Request.Headers["refreshToken"].ToString();
 
                 if (string.IsNullOrEmpty(refreshToken))
@@ -149,10 +148,6 @@ namespace FaceLock.WebAPI.Controllers
                     return StatusCode(StatusCodes.Status204NoContent, "logged out successfully!");
                 }
 
-                // Revoke the refresh token
-                //await _userManager.RemoveAuthenticationTokenAsync(user, JwtBearerDefaults.AuthenticationScheme, "JwtTokenSettings");
-                //await _signInManager.SignOutAsync();
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during logout.");
             }
             catch (Exception ex)
@@ -161,6 +156,49 @@ namespace FaceLock.WebAPI.Controllers
                 _logger.LogError($"Error during logout: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during logout.");
             }
-        }  
+        }
+
+
+
+
+        // POST api/authentication/refresh
+        // Метод для оновлення токену доступу на основі refreshToken
+        [HttpPost("refresh")]
+        [Authorize]
+        public async Task<IActionResult> Refresh()
+        {
+            try
+            {
+                // Get refreshToken from HttpOnlyCookie and Header
+                string refreshTokenCookies = Request.Cookies["refreshToken"];
+                string refreshTokenHeader = HttpContext.Request.Headers["refreshToken"].ToString();
+
+                // Check exist refreshToken
+                if (string.IsNullOrEmpty(refreshTokenCookies) && string.IsNullOrEmpty(refreshTokenHeader))
+                {
+                    _logger.LogError("Authorization: refreshToken is missing from HttpOnlyCookie");
+                    return StatusCode(StatusCodes.Status401Unauthorized, "refreshToken is missing");
+                }
+
+                string accessToken = await _authenticationService.RefreshAccessTokenAsync(refreshTokenCookies);
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    accessToken = await _authenticationService.RefreshAccessTokenAsync(refreshTokenHeader);
+                }
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    _logger.LogError($"Authorization: Invalid tokens");
+                    return StatusCode(StatusCodes.Status401Unauthorized, "Invalid tokens");
+                }
+
+                return StatusCode(StatusCodes.Status200OK, $"accessToken - {accessToken}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
     }
 }
