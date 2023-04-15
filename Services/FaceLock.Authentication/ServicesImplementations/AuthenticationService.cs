@@ -7,6 +7,9 @@ using System.Security.Authentication;
 
 namespace FaceLock.Authentication.ServicesImplementations
 {
+    /// <summary>
+    /// Authentication service implementation that implements IAuthenticationService interface.
+    /// </summary>
     public class AuthenticationService : IAuthenticationService
     {
         private readonly UserManager<User> _userManager;
@@ -39,7 +42,6 @@ namespace FaceLock.Authentication.ServicesImplementations
             }
             // Check password
             var result = await _signInManager.CheckPasswordSignInAsync(user, userLoginDto.Password, false);
-            // If password is incorrect, return authorization error
             if (!result.Succeeded)
             {
                 _logger.LogWarning($"Failed to authenticate user with login {userLoginDto.Email}");
@@ -73,7 +75,6 @@ namespace FaceLock.Authentication.ServicesImplementations
             };
             // Save user to database
             var result = await _userManager.CreateAsync(user, userRegisterDto.Password);
-            // Check result
             if (!result.Succeeded)
             {
                 var errorMessage = string.Join("; ", result.Errors.Select(e => e.Description));

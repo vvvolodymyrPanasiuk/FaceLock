@@ -3,6 +3,9 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
+    /// <summary>
+    /// Implementation of IBlacklistRepository that uses IMemoryCache as an in-memory cache to store blacklisted tokens.
+    /// </summary>
     public class InMemoryCacheBlacklistRepository : IBlacklistRepository
     {
         private readonly IMemoryCache _cache;

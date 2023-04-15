@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
+    /// <summary>
+    /// Implementation of IBlacklistRepository that stores blacklisted tokens in a file(JSON).
+    /// </summary>
     public class InFileBlacklistRepository : IBlacklistRepository
     {
         private readonly string _filePath;

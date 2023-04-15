@@ -4,6 +4,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateRepositoryImplementations
 {
+    /// <summary>
+    /// Implementation of ITokenStateRepository that stores token state information in a SQL database.
+    /// </summary>
     public class InDatabaseTokenStateRepository : ITokenStateRepository
     {
         private readonly string _connectionString;

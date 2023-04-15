@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -121,17 +120,17 @@ namespace FaceLock.WebAPI.Controllers
         /// Logs out the user and clears cookies.
         /// </summary>
         /// <param></param>
-        /// <returns>Returns status 200 or an error message.</returns>
+        /// <returns>Returns status 204 or an error message.</returns>
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
             try
             {
-                //string accessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                string refreshTokenCookies = Request.Cookies["refreshToken"];
                 string refreshToken = HttpContext.Request.Headers["refreshToken"].ToString();
 
-                if (string.IsNullOrEmpty(refreshToken))
+                if (string.IsNullOrEmpty(refreshToken) && string.IsNullOrEmpty(refreshTokenCookies))
                 {
                     return BadRequest();
                 }
@@ -143,7 +142,11 @@ namespace FaceLock.WebAPI.Controllers
                 }
                 // Revoke the refresh token
                 bool result = await _authenticationService.LogoutAsync(refreshToken);
-                if(result)
+                if (!result)
+                {
+                    result = await _authenticationService.LogoutAsync(refreshTokenCookies);
+                }
+                if (result)
                 {
                     return StatusCode(StatusCodes.Status204NoContent, "logged out successfully!");
                 }
@@ -158,11 +161,12 @@ namespace FaceLock.WebAPI.Controllers
             }
         }
 
-
-
-
-        // POST api/authentication/refresh
-        // Метод для оновлення токену доступу на основі refreshToken
+        // POST: api/<AuthenticationController>/refresh
+        /// <summary>
+        /// Refresh accessToken by refreshToken.
+        /// </summary>
+        /// <param></param>
+        /// <returns>Returns status 200 with accessToken or an error message.</returns>
         [HttpPost("refresh")]
         [Authorize]
         public async Task<IActionResult> Refresh()

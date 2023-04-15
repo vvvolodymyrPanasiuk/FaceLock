@@ -4,6 +4,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
+    /// <summary>
+    /// Implementation of IBlacklistRepository that stores blacklisted tokens in a SQL database.
+    /// </summary>
     public class InDatabaseBlacklistRepository : IBlacklistRepository
     {
         private readonly string _connectionString;

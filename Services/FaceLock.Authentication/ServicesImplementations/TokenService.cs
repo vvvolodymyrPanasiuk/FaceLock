@@ -11,6 +11,9 @@ using System.Text;
 
 namespace FaceLock.Authentication.ServicesImplementations
 {
+    /// <summary>
+    /// Token service implementation interface ITokenService for generating, refreshing and revoking JWT tokens.
+    /// </summary>
     public class TokenService : ITokenService
     {
         private readonly JwtTokenSettings _jwtTokenSetting;
@@ -39,7 +42,6 @@ namespace FaceLock.Authentication.ServicesImplementations
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.GivenName, user.FirstName),
                     new Claim(ClaimTypes.Surname, user.LastName),
                     new Claim(ClaimTypes.Role, user.Status)
@@ -71,11 +73,13 @@ namespace FaceLock.Authentication.ServicesImplementations
         {
             try
             {
+                // Generate token
                 var randomNumber = new byte[32];
                 using var rng = RandomNumberGenerator.Create();
                 rng.GetBytes(randomNumber);
                 var refreshToken = Convert.ToBase64String(randomNumber);
 
+                // Save token in store
                 await _tokenStateRepository.AddRefreshTokenAsync(new RefreshToken
                 {
                     Token = refreshToken,
@@ -121,8 +125,12 @@ namespace FaceLock.Authentication.ServicesImplementations
             }
 
             var user = await _userManager.FindByIdAsync(refreshTokenData.UserId);
-            var accessToken = await GenerateAccessToken(user);
+            if (user == null)
+            {
+                throw new ApplicationException("User not found.");
+            }
 
+            var accessToken = await GenerateAccessToken(user);
             return accessToken;
         }
 
