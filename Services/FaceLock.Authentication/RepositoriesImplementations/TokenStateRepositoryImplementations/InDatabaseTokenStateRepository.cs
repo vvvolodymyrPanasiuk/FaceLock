@@ -96,8 +96,8 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
             {
                 await connection.OpenAsync();
                 
-                var query = "INSERT INTO TokenStates (Token, UserId, RefreshTokenExpires) " +
-                            "VALUES (@token, @userId, @expires, @country, @city, @device, @timeCreated)";
+                var query = "INSERT INTO TokenStates(Token, UserId, RefreshTokenExpires, Country, City, Device, TimeCreated) " +
+                            "VALUES(@token, @userId, @expires, @country, @city, @device, @timeCreated)";
 
                 using (var command = new SqlCommand(query, connection))
                 {

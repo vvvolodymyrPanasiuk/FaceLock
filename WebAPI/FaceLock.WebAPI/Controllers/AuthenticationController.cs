@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -104,11 +105,12 @@ namespace FaceLock.WebAPI.Controllers
                     // Create cookie with HttpOnly for refreshToken 
                     Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions 
                     { 
-                        HttpOnly = true, 
+                        HttpOnly = true,
                         Secure = true
                     });
 
-                    return StatusCode(StatusCodes.Status200OK, $"accessToken - {accessToken}, refreshToken - {refreshToken}");
+
+                    return StatusCode(StatusCodes.Status200OK, new { accessToken = accessToken, refreshToken = refreshToken});
                 }
                 catch (Exception ex)
                 {

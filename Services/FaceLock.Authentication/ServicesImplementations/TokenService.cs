@@ -102,7 +102,7 @@ namespace FaceLock.Authentication.ServicesImplementations
 
         public async Task<bool> RevokeRefreshToken(string refreshToken)
         {
-            if (await _tokenStateRepository.IsRefreshTokenValidAsync(refreshToken))
+            if (!(await _tokenStateRepository.IsRefreshTokenValidAsync(refreshToken)))
             {
                 throw new ApplicationException($"Refresh token not found.");
             }
