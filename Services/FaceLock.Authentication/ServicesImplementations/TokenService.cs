@@ -66,7 +66,7 @@ namespace FaceLock.Authentication.ServicesImplementations
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"Error generating JWT token, error: {ex.Message}");
+                throw new Exception($"Error generating JWT token, error: {ex.Message}");
             }
         }
 
@@ -96,7 +96,7 @@ namespace FaceLock.Authentication.ServicesImplementations
             }
             catch(Exception ex)
             {
-                throw new ApplicationException($"Error generating JWT token, error: {ex.Message}");
+                throw new Exception($"Error generating JWT token, error: {ex.Message}");
             }
         }
 
@@ -104,7 +104,7 @@ namespace FaceLock.Authentication.ServicesImplementations
         {
             if (!(await _tokenStateRepository.IsRefreshTokenValidAsync(refreshToken)))
             {
-                throw new ApplicationException($"Refresh token not found.");
+                throw new Exception($"Refresh token not found.");
             }
 
             await _tokenStateRepository.RemoveRefreshTokenAsync(refreshToken);
@@ -154,7 +154,7 @@ namespace FaceLock.Authentication.ServicesImplementations
                 }, out var validatedToken);
 
                 if (!(validatedToken is JwtSecurityToken jwtSecurityToken) || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                    throw new SecurityTokenException("Invalid token");
+                    throw new ApplicationException("Invalid token");
 
                 return await Task.Run(() => principal);
             }

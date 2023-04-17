@@ -80,7 +80,7 @@ namespace FaceLock.Authentication.ServicesImplementations
             {
                 var errorMessage = string.Join("; ", result.Errors.Select(e => e.Description));
                 _logger.LogError($"Failed to register user {user.UserName}: {errorMessage}");
-                throw new AuthenticationException(errorMessage);
+                throw new Exception(errorMessage);
             }
             return result.Succeeded;
         }

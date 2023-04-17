@@ -131,7 +131,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
                     var result = await command.ExecuteScalarAsync() as int?;
                     if (result == null)
                     {
-                        throw new ApplicationException("Failed to check if token is in tokenStateDB.");
+                        throw new Exception("Failed to check if token is in tokenStateDB.");
                     }
 
                     return result > 0;

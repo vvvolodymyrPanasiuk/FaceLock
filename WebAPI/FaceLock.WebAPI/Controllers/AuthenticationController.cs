@@ -8,6 +8,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Security.Authentication;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -53,14 +54,20 @@ namespace FaceLock.WebAPI.Controllers
                     // Check result
                     if (result)
                     {
-                        // If user was created successfully, return status 200
+                        // If user was created successfully, return status 201
                         return StatusCode(StatusCodes.Status201Created, $"Welcome, {model.FirstName} {model.LastName}!");
                     }
-
+                    
                     // If there was an error, return error message
                     return StatusCode(StatusCodes.Status500InternalServerError, "Error creating user");
                 }
-                catch(Exception ex)
+                catch (AuthenticationException ex)
+                {
+                    // Handle authentication exception and return 400 response
+                    _logger.LogWarning($"Authorization: {ex.Message}");
+                    return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
+                }
+                catch (Exception ex)
                 {
                     // Log error and return 500 response
                     _logger.LogError($"Error: {ex.Message}");
@@ -84,6 +91,16 @@ namespace FaceLock.WebAPI.Controllers
             {
                 try
                 {
+                    string country = HttpContext.Request.Headers["country"].ToString();
+                    string city = HttpContext.Request.Headers["city"].ToString();
+                    string device = HttpContext.Request.Headers["device"].ToString();
+
+                    if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(city) || string.IsNullOrEmpty(device))
+                    {
+                        _logger.LogError($"Authorization: Invalid user metadata");
+                        return StatusCode(StatusCodes.Status400BadRequest, "Invalid user metadata");
+                    }
+
                     (string accessToken, string refreshToken) = await _authenticationService.
                         LoginAsync(new Authentication.DTO.UserLoginDTO
                         {
@@ -91,26 +108,24 @@ namespace FaceLock.WebAPI.Controllers
                             Password = model.Password
                         }, new Authentication.DTO.UserMetaDataDTO 
                         {
-                            Country = HttpContext.Request.Headers["country"].ToString(),
-                            City = HttpContext.Request.Headers["city"].ToString(),
-                            Device = HttpContext.Request.Headers["device"].ToString()
+                            Country = country,
+                            City = city,
+                            Device = device
                         });
 
                     if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken)) 
                     {
                         _logger.LogError($"Authorization: Invalid tokens");
-                        return StatusCode(StatusCodes.Status401Unauthorized, "Invalid tokens");
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Invalid tokens");
                     }
 
-                    // Create cookie with HttpOnly for refreshToken 
-                    Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions 
-                    { 
-                        HttpOnly = true,
-                        Secure = true
-                    });
-
-
                     return StatusCode(StatusCodes.Status200OK, new { accessToken = accessToken, refreshToken = refreshToken});
+                }
+                catch (AuthenticationException ex)
+                {
+                    // Handle authentication exception and return 400 response
+                    _logger.LogWarning($"Authorization: {ex.Message}");
+                    return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
                 }
                 catch (Exception ex)
                 {
@@ -134,31 +149,31 @@ namespace FaceLock.WebAPI.Controllers
         {
             try
             {
-                string refreshTokenCookies = Request.Cookies["refreshToken"];
                 string refreshToken = HttpContext.Request.Headers["refreshToken"].ToString();
-
-                if (string.IsNullOrEmpty(refreshToken) && string.IsNullOrEmpty(refreshTokenCookies))
+                if (string.IsNullOrEmpty(refreshToken))
                 {
-                    return BadRequest();
+                    return StatusCode(StatusCodes.Status401Unauthorized, "Refresh token is empty.");
                 }
 
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                 {
-                    return BadRequest();
+                    return StatusCode(StatusCodes.Status401Unauthorized, "User is not already exists");
                 }
                 // Revoke the refresh token
                 bool result = await _authenticationService.LogoutAsync(refreshToken);
-                if (!result)
-                {
-                    result = await _authenticationService.LogoutAsync(refreshTokenCookies);
-                }
                 if (result)
                 {
                     return StatusCode(StatusCodes.Status204NoContent, "logged out successfully!");
                 }
 
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred during logout.");
+            }
+            catch (AuthenticationException ex)
+            {
+                // Handle authentication exception and return 400 response
+                _logger.LogWarning($"Authorization: {ex.Message}");
+                return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (Exception ex)
             {
@@ -180,29 +195,29 @@ namespace FaceLock.WebAPI.Controllers
         {
             try
             {
-                // Get refreshToken from HttpOnlyCookie and Header
-                string refreshTokenCookies = Request.Cookies["refreshToken"];
-                string refreshTokenHeader = HttpContext.Request.Headers["refreshToken"].ToString();
+                string refreshToken = HttpContext.Request.Headers["refreshToken"].ToString();
 
                 // Check exist refreshToken
-                if (string.IsNullOrEmpty(refreshTokenCookies) && string.IsNullOrEmpty(refreshTokenHeader))
+                if (string.IsNullOrEmpty(refreshToken))
                 {
                     _logger.LogError("Authorization: refreshToken is missing from HttpOnlyCookie");
                     return StatusCode(StatusCodes.Status401Unauthorized, "refreshToken is missing");
                 }
 
-                string accessToken = await _authenticationService.RefreshAccessTokenAsync(refreshTokenCookies);
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    accessToken = await _authenticationService.RefreshAccessTokenAsync(refreshTokenHeader);
-                }
+                var accessToken = await _authenticationService.RefreshAccessTokenAsync(refreshToken);
                 if (string.IsNullOrEmpty(accessToken))
                 {
                     _logger.LogError($"Authorization: Invalid tokens");
-                    return StatusCode(StatusCodes.Status401Unauthorized, "Invalid tokens");
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Invalid tokens");
                 }
 
-                return StatusCode(StatusCodes.Status200OK, $"accessToken - {accessToken}");
+                return StatusCode(StatusCodes.Status200OK, new {accessToken = accessToken});
+            }
+            catch (AuthenticationException ex)
+            {
+                // Handle authentication exception and return 400 response
+                _logger.LogWarning($"Authorization: {ex.Message}");
+                return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (Exception ex)
             {

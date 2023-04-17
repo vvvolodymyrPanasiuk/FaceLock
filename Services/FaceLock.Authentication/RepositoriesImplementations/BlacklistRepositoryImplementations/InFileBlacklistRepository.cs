@@ -53,7 +53,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositor
 
                     if (result is null)
                     {
-                        throw new ApplicationException("Failed loading tokens from blacklist.");
+                        throw new Exception("Failed loading tokens from blacklist.");
                     }
                     return result;
                 }

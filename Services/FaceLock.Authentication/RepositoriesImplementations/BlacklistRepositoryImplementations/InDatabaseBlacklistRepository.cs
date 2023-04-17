@@ -48,7 +48,7 @@ namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositor
 
                 if (result == null)
                 {
-                    throw new ApplicationException("Failed to check if token is in blacklist.");
+                    throw new Exception("Failed to check if token is in blacklist.");
                 }
                 return result > 0;
             }
