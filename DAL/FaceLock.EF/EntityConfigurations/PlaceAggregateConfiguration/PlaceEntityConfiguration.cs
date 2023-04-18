@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FaceLock.EF.EntityConfigurations
+namespace FaceLock.EF.EntityConfigurations.PlaceAggregateConfiguration
 {
     public class PlaceEntityConfiguration : IEntityTypeConfiguration<Place>
     {

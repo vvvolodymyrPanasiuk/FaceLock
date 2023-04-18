@@ -1,9 +1,8 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
-using FaceLock.Domain.Entities.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FaceLock.EF.EntityConfigurations
+namespace FaceLock.EF.EntityConfigurations.PlaceAggregateConfiguration
 {
     public class VisitEntityConfiguration : IEntityTypeConfiguration<Visit>
     {

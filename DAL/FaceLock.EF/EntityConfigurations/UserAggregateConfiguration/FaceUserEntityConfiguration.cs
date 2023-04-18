@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FaceLock.EF.EntityConfigurations
+namespace FaceLock.EF.EntityConfigurations.UserAggregateConfiguration
 {
     public class FaceUserEntityConfiguration : IEntityTypeConfiguration<UserFace>
     {

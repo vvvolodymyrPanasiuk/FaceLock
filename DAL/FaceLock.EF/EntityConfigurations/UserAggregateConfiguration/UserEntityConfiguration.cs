@@ -1,9 +1,8 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
 
-namespace FaceLock.EF.EntityConfigurations
+namespace FaceLock.EF.EntityConfigurations.UserAggregateConfiguration
 {
     public class UserEntityConfiguration : IEntityTypeConfiguration<User>
     {
@@ -71,6 +70,21 @@ namespace FaceLock.EF.EntityConfigurations
                 .HasDefaultValue(0);
 
             builder.HasMany(e => e.UserFaces)
+                .WithOne(e => e.User)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(e => e.Visits)
+                .WithOne(e => e.User)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(e => e.DoorLockAccesses)
+                .WithOne(e => e.User)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(e => e.DoorLockHistories)
                 .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
