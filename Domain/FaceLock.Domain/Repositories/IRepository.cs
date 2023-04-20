@@ -15,7 +15,7 @@
         /// <summary>
         /// A method that returns a list of entities from the database
         /// </summary>
-        /// <returns>List<TEntity> where List<TEntity> is a list of entities from the database</returns>
+        /// <returns>List of TEntity where list of TEntity is a list of entities from the database</returns>
         Task<List<TEntity>> GetAllAsync();
         /// <summary>
         /// A method that adds an entity to databases
