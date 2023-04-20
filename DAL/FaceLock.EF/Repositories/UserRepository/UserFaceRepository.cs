@@ -3,7 +3,7 @@ using FaceLock.Domain.Repositories.UserRepository;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace FaceLock.EF.Repositories
+namespace FaceLock.EF.Repositories.UserRepository
 {
     public class UserFaceRepository : Repository<UserFace>, IUserFaceRepository
     {

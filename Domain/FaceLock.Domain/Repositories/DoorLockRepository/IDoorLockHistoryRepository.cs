@@ -2,9 +2,22 @@
 
 namespace FaceLock.Domain.Repositories.DoorLockRepository
 {
+    /// <summary>
+    /// Interface inherited from IRepository<TEntity> for working with the DoorLockHistory table in the database
+    /// </summary>
     public interface IDoorLockHistoryRepository : IRepository<DoorLockHistory>
     {
-        Task<List<DoorLockHistory>> GetVisitsByUserIdAsync(string userId);
-        Task<List<DoorLockHistory>> GetVisitsByDoorLockIdAsync(int doorLockId);
+        ///  <summary> 
+        /// A method that retrieves the history of unlocking the door lock by user ID.
+        ///  </summary> 
+        ///  <param name="userId">User id</param> 
+        ///  <returns>List<DoorLockHistory></returns> 
+        Task<List<DoorLockHistory>> GetDoorLockHistoryByUserIdAsync(string userId);
+        ///  <summary> 
+        /// A method that retrieves the history of unlocking the door lock by door lock ID.
+        ///  </summary> 
+        ///  <param name="doorLockId">Door lock id</param> 
+        ///  <returns>List<DoorLockHistory></returns> 
+        Task<List<DoorLockHistory>> GetDoorLockHistoryByDoorLockIdAsync(int doorLockId);
     }
 }

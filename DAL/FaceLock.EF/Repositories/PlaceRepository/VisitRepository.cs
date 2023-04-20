@@ -3,7 +3,7 @@ using FaceLock.Domain.Repositories.PlaceRepository;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace FaceLock.EF.Repositories
+namespace FaceLock.EF.Repositories.PlaceRepository
 {
     public class VisitRepository : Repository<Visit>, IVisitRepository
     {
@@ -17,7 +17,7 @@ namespace FaceLock.EF.Repositories
         }
 
         public async Task<List<Visit>> GetVisitsByUserIdAsync(string userId)
-        {               
+        {
             return await _dbSet.Where(v => v.UserId == userId).ToListAsync();
         }
     }
