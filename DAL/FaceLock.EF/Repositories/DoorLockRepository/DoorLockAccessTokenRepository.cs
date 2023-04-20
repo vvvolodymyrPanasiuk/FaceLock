@@ -10,7 +10,7 @@ namespace FaceLock.EF.Repositories.DoorLockRepository
         {
         }
 
-        public async Task<List<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(int doorLockId)
+        public async Task<IEnumerable<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(int doorLockId)
         {
             return await _dbSet.Where(v => v.DoorLockId == doorLockId).ToListAsync();
         }

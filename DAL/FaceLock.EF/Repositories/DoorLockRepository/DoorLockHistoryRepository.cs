@@ -10,12 +10,12 @@ namespace FaceLock.EF.Repositories.DoorLockRepository
         {
         }
 
-        public async Task<List<DoorLockHistory>> GetDoorLockHistoryByDoorLockIdAsync(int doorLockId)
+        public async Task<IEnumerable<DoorLockHistory>> GetDoorLockHistoryByDoorLockIdAsync(int doorLockId)
         {
             return await _dbSet.Where(v => v.DoorLockId ==  doorLockId).ToListAsync();
         }
 
-        public async Task<List<DoorLockHistory>> GetDoorLockHistoryByUserIdAsync(string userId)
+        public async Task<IEnumerable<DoorLockHistory>> GetDoorLockHistoryByUserIdAsync(string userId)
         {
             return await _dbSet.Where(v => v.UserId == userId).ToListAsync();
         }

@@ -21,7 +21,7 @@ namespace FaceLock.EF.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<List<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
@@ -34,6 +34,7 @@ namespace FaceLock.EF.Repositories
 
         public async Task UpdateAsync(TEntity entity)
         {
+            _dbSet.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
             await Task.CompletedTask;
             await _context.SaveChangesAsync();
@@ -41,7 +42,30 @@ namespace FaceLock.EF.Repositories
 
         public async Task DeleteAsync(TEntity entity)
         {
+            _dbSet.Attach(entity);
             _dbSet.Remove(entity);
+            await Task.CompletedTask;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddRangeAsync(IEnumerable<TEntity> entity)
+        {
+            await _dbSet.AddRangeAsync(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<TEntity> entity)
+        {
+            _dbSet.AttachRange(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+            await Task.CompletedTask;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRangeAsync(IEnumerable<TEntity> entity)
+        {
+            _dbSet.AttachRange(entity);
+            _dbSet.RemoveRange(entity);
             await Task.CompletedTask;
             await _context.SaveChangesAsync();
         }

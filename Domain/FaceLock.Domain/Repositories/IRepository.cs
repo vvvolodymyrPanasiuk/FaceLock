@@ -16,7 +16,7 @@
         /// A method that returns a list of entities from the database
         /// </summary>
         /// <returns>List of TEntity where list of TEntity is a list of entities from the database</returns>
-        Task<List<TEntity>> GetAllAsync();
+        Task<IEnumerable<TEntity>> GetAllAsync();
         /// <summary>
         /// A method that adds an entity to databases
         /// </summary>
@@ -35,5 +35,23 @@
         /// <param name="entity">The entity to be deleted from the database</param>
         /// <returns></returns>
         Task DeleteAsync(TEntity entity);
+        /// <summary>
+        /// A method that adds an entities to databases
+        /// </summary>
+        /// <param name="entities">An entities that is added to the database</param>
+        /// <returns></returns>
+        Task AddRangeAsync(IEnumerable<TEntity> entities);
+        /// <summary>
+        /// A method that updates an entities in the database
+        /// </summary>
+        /// <param name="entities">An entities that is updated in the database</param>
+        /// <returns></returns>
+        Task UpdateRangeAsync(IEnumerable<TEntity> entities);
+        /// <summary>
+        /// A method that deletes an entities from the database
+        /// </summary>
+        /// <param name="entities">The entities to be deleted from the database</param>
+        /// <returns></returns>
+        Task DeleteRangeAsync(IEnumerable<TEntity> entities);
     }
 }

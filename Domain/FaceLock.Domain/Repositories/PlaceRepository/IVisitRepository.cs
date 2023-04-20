@@ -13,12 +13,12 @@ namespace FaceLock.Domain.Repositories.PlaceRepository
         /// </summary>
         /// <param name="userId">User id</param>
         /// <returns>List of Visit entities from the database</returns>
-        Task<List<Visit>> GetVisitsByUserIdAsync(string userId);
+        Task<IEnumerable<Visit>> GetVisitsByUserIdAsync(string userId);
         /// <summary>
         /// A method that returns a a list of visits from the database by the place's id
         /// </summary>
         /// <param name="placeId">Place id</param>
         /// <returns>List of Visit entities from the database</returns>
-        Task<List<Visit>> GetVisitsByPlaceIdAsync(int placeId);
+        Task<IEnumerable<Visit>> GetVisitsByPlaceIdAsync(int placeId);
     }
 }

@@ -11,7 +11,7 @@ namespace FaceLock.EF.Repositories.UserRepository
         {
         }
 
-        public async Task<List<UserFace>> GetAllUserFacesAsync(string userId)
+        public async Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId)
         {
             return await _dbSet.Where(f => f.UserId == userId).ToListAsync();
         }
