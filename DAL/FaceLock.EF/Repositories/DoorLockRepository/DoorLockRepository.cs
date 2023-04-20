@@ -1,5 +1,6 @@
 ﻿using FaceLock.Domain.Entities.DoorLockAggregate;
 using FaceLock.Domain.Repositories.DoorLockRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaceLock.EF.Repositories.DoorLockRepository
 {

@@ -1,11 +1,6 @@
 ﻿using FaceLock.Domain.Entities.DoorLockAggregate;
-using FaceLock.Domain.Repositories;
 using FaceLock.Domain.Repositories.DoorLockRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaceLock.EF.Repositories.DoorLockRepository
 {
@@ -15,14 +10,14 @@ namespace FaceLock.EF.Repositories.DoorLockRepository
         {
         }
 
-        public Task<List<DoorLockHistory>> GetDoorLockHistoryByDoorLockIdAsync(int doorLockId)
+        public async Task<List<DoorLockHistory>> GetDoorLockHistoryByDoorLockIdAsync(int doorLockId)
         {
-            throw new NotImplementedException();
+            return await _dbSet.Where(v => v.DoorLockId ==  doorLockId).ToListAsync();
         }
 
-        public Task<List<DoorLockHistory>> GetDoorLockHistoryByUserIdAsync(string userId)
+        public async Task<List<DoorLockHistory>> GetDoorLockHistoryByUserIdAsync(string userId)
         {
-            throw new NotImplementedException();
+            return await _dbSet.Where(v => v.UserId == userId).ToListAsync();
         }
     }
 }

@@ -12,6 +12,6 @@ namespace FaceLock.Domain.Repositories.DoorLockRepository
         ///  </summary> 
         ///  <param name="doorLockId">Door lock id</param> 
         ///  <returns>List<DoorLockAccessToken></returns> 
-        Task<List<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(string doorLockId);
+        Task<List<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(int doorLockId);
     }
 }

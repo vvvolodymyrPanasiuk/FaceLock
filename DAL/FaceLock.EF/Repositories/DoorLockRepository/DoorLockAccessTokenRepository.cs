@@ -1,5 +1,6 @@
 ﻿using FaceLock.Domain.Entities.DoorLockAggregate;
 using FaceLock.Domain.Repositories.DoorLockRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaceLock.EF.Repositories.DoorLockRepository
 {
@@ -9,9 +10,9 @@ namespace FaceLock.EF.Repositories.DoorLockRepository
         {
         }
 
-        public Task<List<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(string doorLockId)
+        public async Task<List<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(int doorLockId)
         {
-            throw new NotImplementedException();
+            return await _dbSet.Where(v => v.DoorLockId == doorLockId).ToListAsync();
         }
     }
 }
