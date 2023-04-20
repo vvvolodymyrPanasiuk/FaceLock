@@ -5,7 +5,6 @@ using FaceLock.Authentication.RepositoriesImplementations.TokenStateRepositoryIm
 using FaceLock.Authentication.Services;
 using FaceLock.Authentication.ServicesImplementations;
 using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.Domain.Repositories;
 using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.EF;
