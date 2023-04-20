@@ -1,5 +1,5 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.Domain.Repositories;
+using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.EF.Repositories;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;

@@ -1,7 +1,7 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 
 
-namespace FaceLock.Domain.Repositories
+namespace FaceLock.Domain.Repositories.UserRepository
 {
     /// <summary>
     /// Interface inherited from IRepository<TEntity> for working with the Users table in the database

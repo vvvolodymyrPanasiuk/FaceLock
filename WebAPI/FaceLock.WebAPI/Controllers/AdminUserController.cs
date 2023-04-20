@@ -1,5 +1,6 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
+using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.WebAPI.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

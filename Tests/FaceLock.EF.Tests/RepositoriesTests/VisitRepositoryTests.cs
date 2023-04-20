@@ -1,5 +1,5 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
-using FaceLock.Domain.Repositories;
+using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.EF.Repositories;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;

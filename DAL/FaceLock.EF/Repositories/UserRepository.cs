@@ -1,5 +1,5 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.Domain.Repositories;
+using FaceLock.Domain.Repositories.UserRepository;
 using Microsoft.EntityFrameworkCore;
 
 

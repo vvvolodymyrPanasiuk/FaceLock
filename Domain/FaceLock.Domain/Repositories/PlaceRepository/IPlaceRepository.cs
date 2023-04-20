@@ -1,7 +1,7 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
 
 
-namespace FaceLock.Domain.Repositories
+namespace FaceLock.Domain.Repositories.PlaceRepository
 {
     /// <summary>
     /// Interface inherited from IRepository<TEntity> for working with the Places table in the database

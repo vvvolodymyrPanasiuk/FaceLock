@@ -1,6 +1,7 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.Domain.Repositories;
+using FaceLock.Domain.Repositories.PlaceRepository;
+using FaceLock.Domain.Repositories.UserRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
