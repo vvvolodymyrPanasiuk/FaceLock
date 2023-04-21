@@ -1,6 +1,10 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
+using FaceLock.Domain.Repositories;
 using FaceLock.Domain.Repositories.PlaceRepository;
+using FaceLock.Domain.Repositories.UserRepository;
+using FaceLock.EF.Repositories;
 using FaceLock.EF.Repositories.PlaceRepository;
+using FaceLock.EF.Repositories.UserRepository;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,14 +14,14 @@ namespace FaceLock.EF.Tests.RepositoriesTests
     [TestFixture]
     public class VisitRepositoryTests : FaceLockDBTestBase
     {
-        private IVisitRepository _visitRepository;
+        private IUnitOfWork _unitOfWork;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            _visitRepository = new VisitRepository(_context);
+            _unitOfWork = new UnitOfWork(_context, visitRepository: new Lazy<IVisitRepository>(() => new VisitRepository(_context)));
         }
-        
+
         [Test]
         public async Task GetByIdAsync_WhenVisitExists_ReturnsVisit()
         {
@@ -25,7 +29,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             int visitId = 2;
 
             // Act
-            var visit = await _visitRepository.GetByIdAsync(visitId);
+            var visit = await _unitOfWork.VisitRepository.GetByIdAsync(visitId);
 
             // Assert
             Assert.IsNotNull(visit);
@@ -39,7 +43,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             int visitId = 10;
 
             // Act
-            var visit = await _visitRepository.GetByIdAsync(visitId);
+            var visit = await _unitOfWork.VisitRepository.GetByIdAsync(visitId);
 
             // Assert
             Assert.IsNull(visit);
@@ -52,7 +56,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var expectedVisits = await _context.Visits.ToListAsync();
 
             // Act
-            var actualVisits = await _visitRepository.GetAllAsync();
+            var actualVisits = await _unitOfWork.VisitRepository.GetAllAsync();
 
             // Assert
             Assert.AreEqual(expectedVisits.Count, actualVisits.Count());
@@ -78,10 +82,10 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             };
 
             // Act
-            await _visitRepository.AddAsync(visit);
-
+            await _unitOfWork.VisitRepository.AddAsync(visit);
+            await _unitOfWork.SaveChangesAsync();
             // Assert
-            var resultvisit = await _visitRepository.GetByIdAsync(visit.Id);
+            var resultvisit = await _unitOfWork.VisitRepository.GetByIdAsync(visit.Id);
 
             Assert.AreEqual(roomId, resultvisit.PlaceId);
             Assert.AreEqual(checkInTime, resultvisit.CheckInTime);
@@ -98,14 +102,16 @@ namespace FaceLock.EF.Tests.RepositoriesTests
                 PlaceId = 1,
                 CheckInTime = DateTime.Now,
             };
-            await _visitRepository.AddAsync(visit);
+            await _unitOfWork.VisitRepository.AddAsync(visit);
+            await _unitOfWork.SaveChangesAsync();
 
             // Act
             visit.CheckOutTime = DateTime.Now;
-            await _visitRepository.UpdateAsync(visit);
+            await _unitOfWork.VisitRepository.UpdateAsync(visit);
+            await _unitOfWork.SaveChangesAsync();
 
             // Assert
-            var result = await _visitRepository.GetByIdAsync(visit.Id);
+            var result = await _unitOfWork.VisitRepository.GetByIdAsync(visit.Id);
             Assert.AreEqual(visit.CheckOutTime, result.CheckOutTime);
         }
 
@@ -124,10 +130,11 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             // Act
-            await _visitRepository.DeleteAsync(visit);
+            await _unitOfWork.VisitRepository.DeleteAsync(visit);
+            await _unitOfWork.SaveChangesAsync();
 
             // Assert
-            var deletedVisit = await _visitRepository.GetByIdAsync(visit.Id);
+            var deletedVisit = await _unitOfWork.VisitRepository.GetByIdAsync(visit.Id);
             //var deletedVisit = await _context.Visits.FindAsync(visit.Id);
             Assert.IsNull(deletedVisit);
         }
@@ -144,11 +151,11 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _visitRepository.GetVisitsByUserIdAsync(userId);
+            var result = await _unitOfWork.VisitRepository.GetVisitsByUserIdAsync(userId);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<Visit>>(result);
+            Assert.IsInstanceOf<IEnumerable<Visit>>(result);
             Assert.AreEqual(2, result.Count());
             Assert.AreEqual(userId, result.ToList()[0].UserId);
             Assert.AreEqual(userId, result.ToList()[1].UserId);
@@ -165,11 +172,11 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _visitRepository.GetVisitsByUserIdAsync(userId);
+            var result = await _unitOfWork.VisitRepository.GetVisitsByUserIdAsync(userId);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<Visit>>(result);
+            Assert.IsInstanceOf<IEnumerable<Visit>>(result);
             Assert.AreEqual(0, result.Count());
         }
 

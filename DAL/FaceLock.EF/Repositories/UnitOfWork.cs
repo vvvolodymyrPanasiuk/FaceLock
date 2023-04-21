@@ -2,6 +2,9 @@
 using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.Domain.Repositories;
+using FaceLock.EF.Repositories.DoorLockRepository;
+using FaceLock.EF.Repositories.PlaceRepository;
+using FaceLock.EF.Repositories.UserRepository;
 
 namespace FaceLock.EF.Repositories
 {
@@ -18,25 +21,33 @@ namespace FaceLock.EF.Repositories
         private readonly Lazy<IVisitRepository> _visitRepository;
 
         public UnitOfWork(
-            FaceLockDbContext context, 
-            Lazy<IUserRepository> userRepository,
-            Lazy<IUserFaceRepository> userFaceRepository, 
-            Lazy<IDoorLockAccessRepository> doorLockAccessRepository,
-            Lazy<IDoorLockAccessTokenRepository> doorLockAccessTokenRepository, 
-            Lazy<IDoorLockHistoryRepository> doorLockHistoryRepository,
-            Lazy<IDoorLockRepository> doorLockRepository, 
-            Lazy<IPlaceRepository> placeRepository, 
-            Lazy<IVisitRepository> visitRepository)
+            FaceLockDbContext context,
+            Lazy<IUserRepository> userRepository = null,
+            Lazy<IUserFaceRepository> userFaceRepository = null,
+            Lazy<IDoorLockAccessRepository> doorLockAccessRepository = null,
+            Lazy<IDoorLockAccessTokenRepository> doorLockAccessTokenRepository = null,
+            Lazy<IDoorLockHistoryRepository> doorLockHistoryRepository = null,
+            Lazy<IDoorLockRepository> doorLockRepository = null,
+            Lazy<IPlaceRepository> placeRepository = null,
+            Lazy<IVisitRepository> visitRepository = null)
         {
             _context = context;
-            _userRepository = userRepository;
-            _userFaceRepository = userFaceRepository;
-            _doorLockAccessRepository = doorLockAccessRepository;
-            _doorLockAccessTokenRepository = doorLockAccessTokenRepository;
-            _doorLockHistoryRepository = doorLockHistoryRepository;
-            _doorLockRepository = doorLockRepository;
-            _placeRepository = placeRepository;
-            _visitRepository = visitRepository;
+            _userRepository = userRepository ?? 
+                new Lazy<IUserRepository>(() => new UserRepository.UserRepository(context));
+            _userFaceRepository = userFaceRepository ?? 
+                new Lazy<IUserFaceRepository>(() => new UserFaceRepository(context));
+            _doorLockAccessRepository = doorLockAccessRepository ?? 
+                new Lazy<IDoorLockAccessRepository>(() => new DoorLockAccessRepository(context));
+            _doorLockAccessTokenRepository = doorLockAccessTokenRepository ?? 
+                new Lazy<IDoorLockAccessTokenRepository>(() => new DoorLockAccessTokenRepository(context));
+            _doorLockHistoryRepository = doorLockHistoryRepository ?? 
+                new Lazy<IDoorLockHistoryRepository>(() => new DoorLockHistoryRepository(context));
+            _doorLockRepository = doorLockRepository ?? 
+                new Lazy<IDoorLockRepository>(() => new DoorLockRepository.DoorLockRepository(context));
+            _placeRepository = placeRepository ?? 
+                new Lazy<IPlaceRepository>(() => new PlaceRepository.PlaceRepository(context));
+            _visitRepository = visitRepository ?? 
+                new Lazy<IVisitRepository>(() => new VisitRepository(context));
         }
 
         public IUserRepository UserRepository => _userRepository.Value;

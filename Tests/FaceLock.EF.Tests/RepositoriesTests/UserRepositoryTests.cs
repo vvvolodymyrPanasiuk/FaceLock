@@ -1,23 +1,26 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
+using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
+using FaceLock.EF.Repositories.PlaceRepository;
+using FaceLock.EF.Repositories;
 using FaceLock.EF.Repositories.UserRepository;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;
-
+using FaceLock.Domain.Repositories;
 
 namespace FaceLock.EF.Tests.RepositoriesTests
 {
     [TestFixture]
     public class UserRepositoryTests : FaceLockDBTestBase
     {
-        private IUserRepository _userRepository;
+        private IUnitOfWork _unitOfWork;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            _userRepository = new UserRepository(_context);
+            _unitOfWork = new UnitOfWork(_context, userRepository: new Lazy<IUserRepository>(() => new UserRepository(_context)));
         }
-        
+
         [Test]
         public async Task GetUserByUsernameAsync_UserExists_ReturnsUser()
         {
@@ -25,7 +28,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             string username = "johndoe";
 
             // Act
-            var result = await _userRepository.GetUserByUsernameAsync(username);
+            var result = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
 
             // Assert
             Assert.NotNull(result);
@@ -39,7 +42,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             string username = "nonexistentuser";
 
             // Act
-            var result = await _userRepository.GetUserByUsernameAsync(username);
+            var result = await _unitOfWork.UserRepository.GetUserByUsernameAsync(username);
 
             // Assert
             Assert.IsNull(result);
@@ -60,11 +63,11 @@ namespace FaceLock.EF.Tests.RepositoriesTests
                 PasswordHash = "jdfsafdbvfxdbfd32ufsdiovbhui",
                 Status = "Active"
             };
-            await _userRepository.AddAsync(expectedUser);
+            await _context.Users.AddAsync(expectedUser);
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _userRepository.GetByIdAsync(expectedUser.Id);
+            var result = await _unitOfWork.UserRepository.GetByIdAsync(expectedUser.Id);
 
             // Assert
             Assert.IsNotNull(result);
@@ -82,7 +85,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             string userId = "666";
 
             // Act
-            var result = await _userRepository.GetByIdAsync(userId);
+            var result = await _unitOfWork.UserRepository.GetByIdAsync(userId);
 
             // Assert
             Assert.IsNull(result);
@@ -95,7 +98,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var expectedCount = 3;
 
             // Act
-            var users = await _userRepository.GetAllAsync();
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
 
             // Assert
             Assert.AreEqual(expectedCount, users.Count());
@@ -118,7 +121,8 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             };
 
             // Act
-            await _userRepository.AddAsync(user);
+            await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             // Assert
             var addedUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == "TestUser");
@@ -128,7 +132,8 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             Assert.AreEqual("Doe", addedUser.LastName);
             Assert.AreEqual("Active", addedUser.Status);
 
-            await _userRepository.DeleteAsync(user);
+            await _unitOfWork.UserRepository.DeleteAsync(user);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         [Test]
@@ -146,14 +151,16 @@ namespace FaceLock.EF.Tests.RepositoriesTests
                 PasswordHash = "jdfsafdbufsdiovbhu214i1112",
                 Status = "Active"
             };
-            await _userRepository.AddAsync(user);
+            await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             // Act
             user.Status = "inactive";
-            await _userRepository.UpdateAsync(user);
+            await _unitOfWork.UserRepository.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             // Assert
-            var updatedUser = await _userRepository.GetUserByUsernameAsync(user.UserName);
+            var updatedUser = await _unitOfWork.UserRepository.GetUserByUsernameAsync(user.UserName);
             Assert.AreEqual("inactive", updatedUser.Status);
         }
 
@@ -174,10 +181,12 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             };
             //await _context.Users.AddAsync(user);
             //await _context.SaveChangesAsync(); 
-            await _userRepository.AddAsync(user);
+            await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             // Act
-            await _userRepository.DeleteAsync(user);
+            await _unitOfWork.UserRepository.DeleteAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             // Assert
             var deletedUser = await _context.Users.FindAsync(user.Id);

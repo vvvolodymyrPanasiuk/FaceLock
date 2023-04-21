@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\DAL\FaceLock.EF\FaceLock.EF.csproj" />
     <ProjectReference Include="..\..\Domain\FaceLock.Domain\FaceLock.Domain.csproj" />
     <ProjectReference Include="..\..\Services\FaceLock.Authentication\FaceLock.Authentication.csproj" />
+    <ProjectReference Include="..\..\Services\FaceLock.DataManagement\FaceLock.DataManagement.csproj" />
   </ItemGroup>
 
 
