@@ -13,6 +13,6 @@ namespace FaceLock.Domain.Repositories.UserRepository
         /// </summary>
         /// <param name="userId">User id</param>
         /// <returns>List of UserFace entities from the database</returns>
-        Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId);
+        Task<IQueryable<UserFace>> GetAllUserFacesAsync(string userId);
     }
 }

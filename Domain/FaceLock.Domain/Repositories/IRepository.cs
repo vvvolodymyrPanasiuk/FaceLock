@@ -16,7 +16,7 @@
         /// A method that returns a list of entities from the database
         /// </summary>
         /// <returns>List of TEntity where list of TEntity is a list of entities from the database</returns>
-        Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<IQueryable<TEntity>> GetAllAsync();
         /// <summary>
         /// A method that adds an entity to databases
         /// </summary>

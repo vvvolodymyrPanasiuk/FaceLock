@@ -11,14 +11,14 @@ namespace FaceLock.EF.Repositories.PlaceRepository
         {
         }
 
-        public async Task<IEnumerable<Visit>> GetVisitsByPlaceIdAsync(int placeId)
+        public async Task<IQueryable<Visit>> GetVisitsByPlaceIdAsync(int placeId)
         {
-            return await _dbSet.Where(v => v.PlaceId == placeId).ToListAsync();
+            return _dbSet.Where(x => x.PlaceId == placeId);
         }
 
-        public async Task<IEnumerable<Visit>> GetVisitsByUserIdAsync(string userId)
+        public async Task<IQueryable<Visit>> GetVisitsByUserIdAsync(string userId)
         {
-            return await _dbSet.Where(v => v.UserId == userId).ToListAsync();
+            return _dbSet.Where(v => v.UserId == userId);
         }
     }
 }
