@@ -338,7 +338,7 @@ namespace FaceLock.WebAPI.Controllers
             var userFaces = await _userFaceRepository.GetAllUserFacesAsync(id);
 
             // Find the face to delete
-            var userFaceToDelete = userFaces.Find(f => f.Id == faceId);
+            var userFaceToDelete = userFaces.FirstOrDefault(f => f.Id == faceId);
 
             // If the face doesn't exist, return NotFound
             if (userFaceToDelete == null)

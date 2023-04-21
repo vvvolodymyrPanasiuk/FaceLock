@@ -1,6 +1,6 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Repositories.PlaceRepository;
-using FaceLock.EF.Repositories;
+using FaceLock.EF.Repositories.PlaceRepository;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,7 +42,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var rooms = await _placeRepository.GetAllAsync();
 
             // Assert
-            Assert.AreEqual(expectedCount, rooms.Count);
+            Assert.AreEqual(expectedCount, rooms.Count());
         }
 
         [Test]

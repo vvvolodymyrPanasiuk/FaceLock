@@ -40,7 +40,7 @@ namespace FaceLock.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<FaceLockDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("name=ConnectionStrings:DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.Configure<JwtTokenSettings>(Configuration.GetSection("JwtTokenSettings"));
 

@@ -10,9 +10,42 @@ namespace FaceLock.EF.Tests.FaceLockDBTests
         {
             var users = new[]
             {
-                new User { Id = "1", FirstName = "John", LastName = "Doe", UserName = "johndoe", Email = "johndoe@example.com" },
-                new User { Id = "2", FirstName = "Jane", LastName = "Doe", UserName = "janedoe", Email = "janedoe@example.com" },
-                new User { Id = "3", FirstName = "Bob", LastName = "Smith", UserName = "bobsmith", Email = "bobsmith@example.com" }
+                new User 
+                { 
+                    Id = "1", 
+                    FirstName = "John", 
+                    LastName = "Doe", 
+                    UserName = "johndoe", 
+                    Email = "johndoe@example.com",
+                    NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
+                    NormalizedUserName ="JOHNDOE",
+                    PasswordHash = "jdfsavbhui",
+                    Status ="Admin"
+                },
+                new User 
+                { 
+                    Id = "2", 
+                    FirstName = "Jane", 
+                    LastName = "Doe", 
+                    UserName = "janedoe", 
+                    Email = "janedoe@example.com",
+                    NormalizedEmail = "JANEDOE@EXAMPLE.COM",
+                    NormalizedUserName ="JANEDOE",
+                    PasswordHash = "jdfsafdbufsdiovbhui",
+                    Status ="User"
+                },
+                new User 
+                { 
+                    Id = "3", 
+                    FirstName = "Bob", 
+                    LastName = "Smith", 
+                    UserName = "bobsmith", 
+                    Email = "bobsmith@example.com",
+                    NormalizedEmail = "BOBSMITH@EXAMPLE.COM",
+                    NormalizedUserName ="BOBSMITH",
+                    PasswordHash = "ijbhofsd;jbospdf",
+                    Status ="User"
+                }
             };
 
             _context.Users.AddRange(users);

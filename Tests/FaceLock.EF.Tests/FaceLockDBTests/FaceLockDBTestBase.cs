@@ -3,7 +3,7 @@
 
 namespace FaceLock.EF.Tests.FaceLockDBTests
 {
-    public class FaceLockDBTestBase
+    public class FaceLockDBTestBase : IDisposable
     {
         private readonly DbContextOptions<FaceLockDbContext> _options;
         protected readonly FaceLockDbContext _context;

@@ -1,6 +1,6 @@
 ﻿using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Repositories.PlaceRepository;
-using FaceLock.EF.Repositories;
+using FaceLock.EF.Repositories.PlaceRepository;
 using FaceLock.EF.Tests.FaceLockDBTests;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,7 +55,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             var actualVisits = await _visitRepository.GetAllAsync();
 
             // Assert
-            Assert.AreEqual(expectedVisits.Count, actualVisits.Count);
+            Assert.AreEqual(expectedVisits.Count, actualVisits.Count());
             Assert.IsTrue(expectedVisits.Select(v => v.Id).SequenceEqual(actualVisits.Select(v => v.Id)));
         }
 
@@ -149,9 +149,9 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<List<Visit>>(result);
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(userId, result[0].UserId);
-            Assert.AreEqual(userId, result[1].UserId);
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual(userId, result.ToList()[0].UserId);
+            Assert.AreEqual(userId, result.ToList()[1].UserId);
         }
 
         [Test]
@@ -170,7 +170,7 @@ namespace FaceLock.EF.Tests.RepositoriesTests
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<List<Visit>>(result);
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(0, result.Count());
         }
 
     }
