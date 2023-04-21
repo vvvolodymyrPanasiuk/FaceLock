@@ -34,7 +34,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{79751805-AF81-4740-AA22-D59E42817AA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceLock.Authentication", "..\..\Services\FaceLock.Authentication\FaceLock.Authentication.csproj", "{ACF7DE13-6725-473E-B105-C73D29A6C270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.Authentication", "..\..\Services\FaceLock.Authentication\FaceLock.Authentication.csproj", "{ACF7DE13-6725-473E-B105-C73D29A6C270}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceLock.DataManagement", "..\..\Services\FaceLock.DataManagement\FaceLock.DataManagement.csproj", "{8F315145-88A0-4E88-9D66-B98E33E06E0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{ACF7DE13-6725-473E-B105-C73D29A6C270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACF7DE13-6725-473E-B105-C73D29A6C270}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACF7DE13-6725-473E-B105-C73D29A6C270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{A19B3899-E0F9-48B4-AAF5-460A7910DD53} = {C60648B7-340E-4BFB-8144-DAD1906CDB23}
 		{A79D40EC-A0E9-4B3C-AC97-34E70980320E} = {1EEF6A80-4E86-4310-AA51-FFD63456ABD6}
 		{ACF7DE13-6725-473E-B105-C73D29A6C270} = {79751805-AF81-4740-AA22-D59E42817AA7}
+		{8F315145-88A0-4E88-9D66-B98E33E06E0B} = {79751805-AF81-4740-AA22-D59E42817AA7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AE4EA4CF-778D-4281-A892-B36231707020}
