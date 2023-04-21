@@ -5,9 +5,13 @@ using FaceLock.Authentication.RepositoriesImplementations.TokenStateRepositoryIm
 using FaceLock.Authentication.Services;
 using FaceLock.Authentication.ServicesImplementations;
 using FaceLock.Domain.Entities.UserAggregate;
+using FaceLock.Domain.Repositories;
+using FaceLock.Domain.Repositories.DoorLockRepository;
 using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.EF;
+using FaceLock.EF.Repositories;
+using FaceLock.EF.Repositories.DoorLockRepository;
 using FaceLock.EF.Repositories.PlaceRepository;
 using FaceLock.EF.Repositories.UserRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -139,13 +143,18 @@ namespace FaceLock.WebAPI
             services.AddSwaggerDocument();
 
             // Application services
-            //services.AddScoped<IUserRepository, UserRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IUserFaceRepository, UserFaceRepository>();
-            services.AddTransient<IVisitRepository, VisitRepository>();
-            services.AddTransient<IPlaceRepository, PlaceRepository>();
-            services.AddTransient<ITokenStateRepository, InDatabaseTokenStateRepository>();
-            services.AddTransient<IBlacklistRepository, InDatabaseBlacklistRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserFaceRepository, UserFaceRepository>();
+            services.AddScoped<IVisitRepository, VisitRepository>();
+            services.AddScoped<IPlaceRepository, PlaceRepository>();
+            services.AddScoped<IDoorLockAccessRepository, DoorLockAccessRepository>();
+            services.AddScoped<IDoorLockAccessTokenRepository, DoorLockAccessTokenRepository>();
+            services.AddScoped<IDoorLockHistoryRepository, DoorLockHistoryRepository>();
+            services.AddScoped<IDoorLockRepository, DoorLockRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<ITokenStateRepository, InDatabaseTokenStateRepository>();
+            services.AddScoped<IBlacklistRepository, InDatabaseBlacklistRepository>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
         }
