@@ -49,7 +49,7 @@ namespace FaceLock.DataManagement.Services
         /// Adds multiple new UserFace entities to the data store.
         /// </summary>
         /// <param name="userFaces">An IEnumerable of UserFace entities to add.</param>
-        Task AddUserFacesAsync(IEnumerable<UserFace> userFace);
+        Task AddUserFacesAsync(IEnumerable<UserFace> userFaces);
         /// <summary>
         /// Deletes an existing UserFace entity from the data store.
         /// </summary>
