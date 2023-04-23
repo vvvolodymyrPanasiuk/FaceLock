@@ -8,6 +8,25 @@ namespace FaceLock.DataManagement.Services.Queries
     public interface IQueryDoorLockService
     {
         /// <summary>
+        /// Gets a door lock by ID.
+        /// </summary>
+        /// <param name="doorLockId">The ID of the door lock.</param>
+        /// <returns>A DoorLock object representing the door lock.</returns>
+        Task<DoorLock> GetDoorLockByIdAsync(int doorLockId);
+        /// <summary>
+        /// Gets all the door locks.
+        /// </summary>
+        /// <returns>An IEnumerable of DoorLock objects representing all the door locks.</returns>
+        Task<IEnumerable<DoorLock>> GetAllDoorLocksAsync();
+
+
+        /// <summary>
+        /// Gets a user access to door lock by ID.
+        /// </summary>
+        /// <param name="userDoorLockAccessId">The ID of the door lock.</param>
+        /// <returns>A UserDoorLockAccess object representing the user access to door lock .</returns>
+        Task<UserDoorLockAccess> GetUserDoorLockAccessByIdAsync(int userDoorLockAccessId);
+        /// <summary>
         /// Gets all the door lock accesses for a user by user ID.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
@@ -19,12 +38,14 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <param name="doorLockId">The ID of the door lock.</param>
         /// <returns>An IEnumerable of UserDoorLockAccess objects representing the door lock accesses for the door lock.</returns>
         Task<IEnumerable<UserDoorLockAccess>> GetAccessByDoorLockIdAsync(int doorLockId);
+
+
         /// <summary>
-        /// Gets all the access tokens for a door lock by door lock ID.
+        /// Gets a info about one history of door lock by ID.
         /// </summary>
-        /// <param name="doorLockId">The ID of the door lock.</param>
-        /// <returns>An IEnumerable of DoorLockAccessToken objects representing the access tokens for the door lock.</returns>
-        Task<IEnumerable<DoorLockAccessToken>> GetAccessTokenByDoorLockIdAsync(int doorLockId);
+        /// <param name="doorLockHistoryId">The ID of the door lock.</param>
+        /// <returns>A DoorLockHistory object representing the door lock history.</returns>
+        Task<DoorLockHistory> GetDoorLockHistoryByIdAsync(int doorLockHistoryId);
         /// <summary>
         /// Gets all the door lock history records for a user by user ID.
         /// </summary>
@@ -37,16 +58,13 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <param name="doorLockId">The ID of the door lock.</param>
         /// <returns>An IEnumerable of DoorLockHistory objects representing the door lock history records for the door lock.</returns>
         Task<IEnumerable<DoorLockHistory>> GetDoorLockHistoryByDoorLockIdAsync(int doorLockId);
+
+
         /// <summary>
-        /// Gets a door lock by ID.
+        /// Gets all the access tokens for a door lock by door lock ID.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock.</param>
-        /// <returns>A DoorLock object representing the door lock.</returns>
-        Task<DoorLock> GetDoorLockByIdAsync(int doorLockId);
-        /// <summary>
-        /// Gets all the door locks.
-        /// </summary>
-        /// <returns>An IEnumerable of DoorLock objects representing all the door locks.</returns>
-        Task<IEnumerable<DoorLock>> GetAllDoorLocksAsync();
+        /// <returns>An IEnumerable of DoorLockAccessToken objects representing the access tokens for the door lock.</returns>
+        Task<IEnumerable<DoorLockAccessToken>> GetAccessTokensByDoorLockIdAsync(int doorLockId);    
     }
 }

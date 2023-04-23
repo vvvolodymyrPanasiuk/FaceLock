@@ -22,6 +22,8 @@ namespace FaceLock.DataManagement.Services.Commands
         /// </summary>
         /// <param name="doorLock">The DoorLock object representing the door lock to be deleted.</param>
         Task DeleteDoorLockAsync(DoorLock doorLock);
+
+
         /// <summary>
         /// Adds a new door lock access for user.
         /// </summary>
@@ -52,6 +54,8 @@ namespace FaceLock.DataManagement.Services.Commands
         /// </summary>
         /// <param name="userDoorLockAccess">The UserDoorLockAccess objects to delete.</param>
         Task DeleteDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess);
+
+
         /// <summary>
         /// Adds a door lock history for user.
         /// </summary>
@@ -67,5 +71,29 @@ namespace FaceLock.DataManagement.Services.Commands
         /// </summary>
         /// <param name="doorLockHistory">The DoorLockHistory object to delete.</param>
         Task DeleteDoorLockHistoryAsync(DoorLockHistory doorLockHistory);
+
+
+        /// <summary>
+        /// Creates new access tokens for a door lock by door lock ID.
+        /// </summary>
+        /// <param name="doorLock">The DoorLock object representing the door lock for which to create the access tokens.</param>
+        /// <returns>An IEnumerable of DoorLockAccessToken objects representing the newly created access tokens for the door lock.</returns>
+        Task CreateAccessTokensAsync(int doorLock);
+        /// <summary>
+        /// Uses an unused access token for a door lock by door lock ID.
+        /// </summary>
+        /// <param name="doorLockId">The ID of the door lock.</param>
+        /// <returns>A DoorLockAccessToken object representing the unused access token for the door lock.</returns>
+        Task<DoorLockAccessToken> UseUnusedAccessTokenAsync(int doorLockId);
+        /// <summary>
+        /// Updates an existing access token for a door lock.
+        /// </summary>
+        /// <param name="accessToken">The DoorLockAccessToken object representing the access token to update.</param>
+        Task UpdateAccessTokenAsync(DoorLockAccessToken accessToken);
+        /// <summary>
+        /// Updates multiple existing access tokens for a door lock.
+        /// </summary>
+        /// <param name="accessTokens">An IEnumerable of DoorLockAccessToken objects representing the access tokens to update.</param>
+        Task UpdateAccessTokensAsync(IEnumerable<DoorLockAccessToken> accessTokens);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FaceLock.DataManagement.Services.Commands;
 using FaceLock.Domain.Entities.DoorLockAggregate;
 using FaceLock.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
 {
@@ -12,64 +13,145 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             _unitOfWork = unitOfWork;
         }
 
-        public Task AddDoorLockAccessAsync(UserDoorLockAccess userDoorLockAccess)
+        #region DoorLockAccessTokenRepository
+        public async Task CreateAccessTokensAsync(int doorLockId)
         {
-            throw new NotImplementedException();
+            List<DoorLockAccessToken> doorLockAccessTokens = new List<DoorLockAccessToken>();
+            
+            for(int i = 0; i <= 100; i++)
+            {
+                doorLockAccessTokens.Add(new DoorLockAccessToken()
+                {
+                    DoorLockId = doorLockId,
+                    AccessToken = Guid.NewGuid().ToString(), //_ITokenService
+                    Utilized = false
+                });
+            }
+
+            await _unitOfWork.DoorLockAccessTokenRepository.AddRangeAsync(doorLockAccessTokens);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task AddDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess)
+        public async Task<DoorLockAccessToken> UseUnusedAccessTokenAsync(int doorLockId)
         {
-            throw new NotImplementedException();
+            _unitOfWork.BeginTransaction();
+
+            var tokens = await _unitOfWork.DoorLockAccessTokenRepository.GetAccessTokenByDoorLockIdAsync(doorLockId);
+            if (tokens.Where(x => x.Utilized == false).Count() <= 1)
+            {
+                await UpdateAccessTokensAsync(tokens);
+            }
+            
+            var token = await tokens.FirstOrDefaultAsync(x => x.Utilized == false);
+            await UpdateAccessTokenAsync(token);
+            
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
+            return token;
         }
 
-        public Task AddDoorLockAsync(DoorLock doorLock)
+        public async Task UpdateAccessTokenAsync(DoorLockAccessToken accessToken)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockAccessTokenRepository.UpdateAsync(new DoorLockAccessToken()
+            {
+                Id = accessToken.Id,
+                Utilized = true,
+                DoorLockId = accessToken.DoorLockId,
+                AccessToken = accessToken.AccessToken,
+                DoorLock = accessToken.DoorLock
+            });
+            //await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task AddDoorLockHistoryAsync(DoorLockHistory doorLockHistory)
+        public async Task UpdateAccessTokensAsync(IEnumerable<DoorLockAccessToken> accessTokens)
         {
-            throw new NotImplementedException();
+            foreach (var doorToken in accessTokens)
+            {
+                doorToken.Utilized = false;
+            }
+
+            await _unitOfWork.DoorLockAccessTokenRepository.UpdateRangeAsync(accessTokens);
+            //await _unitOfWork.SaveChangesAsync();
+        }
+        #endregion
+
+        #region DoorLock
+        public async Task AddDoorLockAsync(DoorLock doorLock)
+        {
+            await CreateAccessTokensAsync(doorLock.Id);
+            await _unitOfWork.DoorLockRepository.AddAsync(doorLock);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task DeleteDoorLockAccessAsync(UserDoorLockAccess userDoorLockAccess)
+        public async Task DeleteDoorLockAsync(DoorLock doorLock)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockRepository.DeleteAsync(doorLock);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task DeleteDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess)
+        public async Task UpdateDoorLockAsync(DoorLock doorLock)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockRepository.UpdateAsync(doorLock);
+            await _unitOfWork.SaveChangesAsync();
+        }  
+        #endregion
+
+        #region DoorLockHistoryRepository
+        public async Task AddDoorLockHistoryAsync(DoorLockHistory doorLockHistory)
+        {
+            await _unitOfWork.DoorLockHistoryRepository.AddAsync(doorLockHistory);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task DeleteDoorLockAsync(DoorLock doorLock)
+        public async Task DeleteDoorLockHistoryAsync(DoorLockHistory doorLockHistory)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockHistoryRepository.DeleteAsync(doorLockHistory);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task DeleteDoorLockHistoryAsync(DoorLockHistory doorLockHistory)
+        public async Task UpdateDoorLockHistoryAsync(DoorLockHistory doorLockHistory)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockHistoryRepository.UpdateAsync(doorLockHistory);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        #endregion
+
+        #region DoorLockAccessRepository
+        public async Task AddDoorLockAccessAsync(UserDoorLockAccess userDoorLockAccess)
+        {
+            await _unitOfWork.DoorLockAccessRepository.AddAsync(userDoorLockAccess);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task UpdateDoorLockAccessAsync(UserDoorLockAccess userDoorLockAccess)
+        public async Task AddDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockAccessRepository.AddRangeAsync(userDoorLockAccess);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task UpdateDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess)
+        public async Task DeleteDoorLockAccessAsync(UserDoorLockAccess userDoorLockAccess)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockAccessRepository.DeleteAsync(userDoorLockAccess);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task UpdateDoorLockAsync(DoorLock doorLock)
+        public async Task DeleteDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockAccessRepository.DeleteRangeAsync(userDoorLockAccess);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public Task UpdateDoorLockHistoryAsync(DoorLockHistory doorLockHistory)
+        public async Task UpdateDoorLockAccessAsync(UserDoorLockAccess userDoorLockAccess)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.DoorLockAccessRepository.UpdateAsync(userDoorLockAccess);
+            await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task UpdateDoorLockAccessesAsync(IEnumerable<UserDoorLockAccess> userDoorLockAccess)
+        {
+            await _unitOfWork.DoorLockAccessRepository.UpdateRangeAsync(userDoorLockAccess);
+            await _unitOfWork.SaveChangesAsync();
+        } 
+        #endregion
     }
 }
