@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="ServicesImplementations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Domain\FaceLock.Domain\FaceLock.Domain.csproj" />
   </ItemGroup>
 

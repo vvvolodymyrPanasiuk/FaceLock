@@ -1,17 +1,16 @@
-﻿using FaceLock.DataManagement.Services;
+﻿using FaceLock.DataManagement.Services.Commands;
 using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Repositories;
 
-namespace FaceLock.DataManagement.ServicesImplementations
+namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
 {
-    public class PlaceService : IPlaceService
+    public partial class PlaceService : ICommandPlaceService
     {
         private readonly IUnitOfWork _unitOfWork;
         public PlaceService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-
         public async Task AddPlaceAsync(Place place)
         {
             await _unitOfWork.PlaceRepository.AddAsync(place);
@@ -34,26 +33,6 @@ namespace FaceLock.DataManagement.ServicesImplementations
         {
             await _unitOfWork.VisitRepository.DeleteAsync(visit);
             await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<Place>> GetAllPlacesAsync()
-        {
-            return await _unitOfWork.PlaceRepository.GetAllAsync();
-        }
-
-        public async Task<Place> GetPlaceByIdAsync(int placeId)
-        {
-            return await _unitOfWork.PlaceRepository.GetByIdAsync(placeId);
-        }
-
-        public async Task<IEnumerable<Visit>> GetVisitsByPlaceIdAsync(int placeId)
-        {
-            return await _unitOfWork.VisitRepository.GetVisitsByPlaceIdAsync(placeId);
-        }
-
-        public async Task<IEnumerable<Visit>> GetVisitsByUserIdAsync(string userId)
-        {
-            return await _unitOfWork.VisitRepository.GetVisitsByUserIdAsync(userId);
         }
 
         public async Task UpdatePlaceAsync(Place place)

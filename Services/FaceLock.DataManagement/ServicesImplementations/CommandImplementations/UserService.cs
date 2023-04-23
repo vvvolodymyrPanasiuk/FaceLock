@@ -1,13 +1,13 @@
-﻿using FaceLock.DataManagement.Services;
+﻿using FaceLock.DataManagement.Services.Commands;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
 
-namespace FaceLock.DataManagement.ServicesImplementations
+namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
 {
-    public class UserService : IUserService
+    public partial class UserService : ICommandUserServicecs
     {
         private readonly IUnitOfWork _unitOfWork;
-        public UserService(IUnitOfWork unitOfWork) 
+        public UserService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -26,7 +26,7 @@ namespace FaceLock.DataManagement.ServicesImplementations
 
         public async Task AddUserFacesAsync(IEnumerable<UserFace> userFaces)
         {
-            foreach(var userFace in  userFaces)
+            foreach (var userFace in userFaces)
             {
                 await _unitOfWork.UserFaceRepository.AddAsync(userFace);
             }
@@ -43,21 +43,6 @@ namespace FaceLock.DataManagement.ServicesImplementations
         {
             await _unitOfWork.UserFaceRepository.DeleteAsync(userFace);
             await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId)
-        {
-            return await _unitOfWork.UserFaceRepository.GetAllUserFacesAsync(userId);
-        }
-
-        public async Task<User> GetUserByIdAsync(string userId)
-        {
-            return await _unitOfWork.UserRepository.GetByIdAsync(userId);
-        }
-
-        public async Task<User> GetUserByUsernameAsync(string userName)
-        {
-            return await _unitOfWork.UserRepository.GetUserByUsernameAsync(userName);
         }
 
         public async Task UpdateUserAsync(User user)

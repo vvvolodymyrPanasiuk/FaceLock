@@ -1,30 +1,12 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
 
-namespace FaceLock.DataManagement.Services
+namespace FaceLock.DataManagement.Services.Commands
 {
     /// <summary>
-    /// Interface to manage user data that interacts with the user aggregate repositories through the unit of work.
+    /// Interface to manage user data (Write) that interacts with the user aggregate repositories through the unit of work.
     /// </summary>
-    public interface IUserService
+    public interface ICommandUserServicecs
     {
-        /// <summary>
-        /// Gets a User entity by user ID.
-        /// </summary>
-        /// <param name="userId">The ID of the User entity to retrieve.</param>
-        /// <returns>The User entity with the specified ID.</returns>
-        Task<User> GetUserByIdAsync(string userId);
-        /// <summary>
-        /// Gets a User entity by user username.
-        /// </summary>
-        /// <param name="userName">The username of the User entity to retrieve.</param>
-        /// <returns>The User entity with the specified username.</returns>
-        Task<User> GetUserByUsernameAsync(string userName);
-        /// <summary>
-        /// Gets all UserFace entities for a User entity.
-        /// </summary>
-        /// <param name="userId">The ID of the User entity to retrieve UserFace entities for.</param>
-        /// <returns>An IEnumerable of UserFace entities for the specified User entity.</returns>
-        Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId);
         /// <summary>
         /// Adds a new User entity to the data store.
         /// </summary>
