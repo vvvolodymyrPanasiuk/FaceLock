@@ -10,8 +10,4 @@
     <ProjectReference Include="..\..\Domain\FaceLock.Domain\FaceLock.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ServicesImplementations\DoorLockTokenImplementations\" />
-  </ItemGroup>
-
 </Project>

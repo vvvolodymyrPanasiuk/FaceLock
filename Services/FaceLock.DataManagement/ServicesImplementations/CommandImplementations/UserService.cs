@@ -4,7 +4,7 @@ using FaceLock.Domain.Repositories;
 
 namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
 {
-    public partial class UserService : ICommandUserServicecs
+    public partial class UserService : ICommandUserService
     {
         private readonly IUnitOfWork _unitOfWork;
         public UserService(IUnitOfWork unitOfWork)

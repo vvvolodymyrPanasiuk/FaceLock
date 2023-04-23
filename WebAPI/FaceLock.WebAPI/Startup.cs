@@ -4,6 +4,11 @@ using FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImp
 using FaceLock.Authentication.RepositoriesImplementations.TokenStateRepositoryImplementations;
 using FaceLock.Authentication.Services;
 using FaceLock.Authentication.ServicesImplementations;
+using FaceLock.DataManagement.Services;
+using FaceLock.DataManagement.Services.Commands;
+using FaceLock.DataManagement.Services.Queries;
+using FaceLock.DataManagement.ServicesImplementations.CommandImplementations;
+using FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplementation;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
 using FaceLock.Domain.Repositories.DoorLockRepository;
@@ -68,7 +73,6 @@ namespace FaceLock.WebAPI
             })
                 .AddEntityFrameworkStores<FaceLockDbContext>()
                 .AddDefaultTokenProviders();
-                //.AddTokenProvider("MyApp", typeof(DataProtectorTokenProvider<User>));
             
             // Configure identity options
             services.Configure<IdentityOptions>(options =>
@@ -152,6 +156,14 @@ namespace FaceLock.WebAPI
             services.AddScoped<IDoorLockHistoryRepository, DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, DoorLockRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddTransient<ITokenGeneratorService, SecureRandomTokenGeneratorStrategy>();
+            services.AddScoped<ICommandUserService, DataManagement.ServicesImplementations.CommandImplementations.UserService>();
+            services.AddScoped<IQueryUserService, DataManagement.ServicesImplementations.QueryImplementations.UserService>();
+            services.AddScoped<ICommandPlaceService, DataManagement.ServicesImplementations.CommandImplementations.PlaceService>();
+            services.AddScoped<IQueryPlaceService, DataManagement.ServicesImplementations.QueryImplementations.PlaceService>();
+            services.AddScoped<ICommandDoorLockService, DataManagement.ServicesImplementations.CommandImplementations.DoorLockService>();
+            services.AddScoped<IQueryDoorLockService, DataManagement.ServicesImplementations.QueryImplementations.DoorLockService>();
 
             services.AddScoped<ITokenStateRepository, InDatabaseTokenStateRepository>();
             services.AddScoped<IBlacklistRepository, InDatabaseBlacklistRepository>();

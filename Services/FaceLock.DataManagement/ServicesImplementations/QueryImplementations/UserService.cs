@@ -4,7 +4,7 @@ using FaceLock.Domain.Repositories;
 
 namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
 {
-    public partial class UserService : IQueryUserServicecs
+    public partial class UserService : IQueryUserService
     {
         private readonly IUnitOfWork _unitOfWork;
         public UserService(IUnitOfWork unitOfWork)

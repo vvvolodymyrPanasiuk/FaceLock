@@ -5,7 +5,7 @@ namespace FaceLock.DataManagement.Services.Queries
     /// <summary>
     /// Interface to manage user data (Read) that interacts with the user aggregate repositories through the unit of work.
     /// </summary>
-    public interface IQueryUserServicecs
+    public interface IQueryUserService
     {
         /// <summary>
         /// Gets a User entity by user ID.

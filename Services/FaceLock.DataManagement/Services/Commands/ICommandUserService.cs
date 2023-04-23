@@ -5,7 +5,7 @@ namespace FaceLock.DataManagement.Services.Commands
     /// <summary>
     /// Interface to manage user data (Write) that interacts with the user aggregate repositories through the unit of work.
     /// </summary>
-    public interface ICommandUserServicecs
+    public interface ICommandUserService
     {
         /// <summary>
         /// Adds a new User entity to the data store.

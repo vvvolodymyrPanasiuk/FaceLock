@@ -1,4 +1,5 @@
-﻿using FaceLock.DataManagement.Services.Commands;
+﻿using FaceLock.DataManagement.Services;
+using FaceLock.DataManagement.Services.Commands;
 using FaceLock.Domain.Entities.DoorLockAggregate;
 using FaceLock.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,11 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
 {
     public partial class DoorLockService : ICommandDoorLockService
     {
+        private readonly ITokenGeneratorService _tokenGeneratorService;
         private readonly IUnitOfWork _unitOfWork;
-        public DoorLockService(IUnitOfWork unitOfWork)
+        public DoorLockService(IUnitOfWork unitOfWork, ITokenGeneratorService tokenGeneratorService)
         {
+            _tokenGeneratorService = tokenGeneratorService;
             _unitOfWork = unitOfWork;
         }
 
@@ -23,7 +26,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
                 doorLockAccessTokens.Add(new DoorLockAccessToken()
                 {
                     DoorLockId = doorLockId,
-                    AccessToken = Guid.NewGuid().ToString(), //_ITokenService
+                    AccessToken = await _tokenGeneratorService.GenerateTokenAsync(),
                     Utilized = false
                 });
             }
