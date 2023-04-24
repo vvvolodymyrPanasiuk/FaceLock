@@ -25,5 +25,10 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <param name="userId">The ID of the User entity to retrieve UserFace entities for.</param>
         /// <returns>An IEnumerable of UserFace entities for the specified User entity.</returns>
         Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId);
+        /// <summary>
+        /// Gets all User entities for a User entity.
+        /// </summary>
+        /// <returns>An IEnumerable of User entities.</returns>
+        Task<IEnumerable<User>> GetAllUsersAsync();
     }
 }

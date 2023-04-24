@@ -17,6 +17,11 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             return await _unitOfWork.UserFaceRepository.GetAllUserFacesAsync(userId);
         }
 
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _unitOfWork.UserRepository.GetAllAsync();
+        }
+
         public async Task<User> GetUserByIdAsync(string userId)
         {
             return await _unitOfWork.UserRepository.GetByIdAsync(userId);

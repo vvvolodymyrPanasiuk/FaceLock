@@ -1,10 +1,15 @@
-﻿using FaceLock.Domain.Entities.UserAggregate;
+﻿using FaceLock.DataManagement.Services;
+using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories.UserRepository;
+using FaceLock.EF.Repositories.UserRepository;
 using FaceLock.WebAPI.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,20 +22,18 @@ namespace FaceLock.WebAPI.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminUserController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IUserFaceRepository _userFaceRepository;
-        private readonly UserManager<User> _userManager;
+        private readonly IDataServiceFactory _dataServiceFactory;
+        private readonly ILogger<AdminUserController> _logger;
+
         public AdminUserController(
-            UserManager<User> userManager, 
-            IUserRepository userRepository,
-            IUserFaceRepository userFaceRepository)
+            IDataServiceFactory dataServiceFactory,
+            ILogger<AdminUserController> logger)
         {
-            _userManager = userManager;
-            _userRepository = userRepository;
-            _userFaceRepository = userFaceRepository;
+            _dataServiceFactory = dataServiceFactory;
+            _logger = logger;
         }
 
 
@@ -41,59 +44,43 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="model">UserViewModel with required fields</param>
         /// <returns>Status code 200 if successful, BadRequest if ModelState invalid, Conflict if user already exists</returns>
         [HttpPost("CreateUser")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] UserViewModel model)
         {
             if (ModelState.IsValid)
             {
-                /*
-                // Check if required fields are present
-                if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+                try
                 {
-                    return BadRequest("Username and password are required");
-                }
-                */
+                    // Check if the username is available
+                    var query = _dataServiceFactory.CreateQueryUserService();
+                    var existingUser = query.GetUserByUsernameAsync(model.Username);
+                    if (existingUser != null)
+                    {
+                        return Conflict("User already exists.");
+                    }
 
-                // Check if the username is available
-                var existingUser = await _userRepository.GetUserByUsernameAsync(model.Username);
-                if (existingUser != null)
-                {
-                    return Conflict("User already exists.");
-                }
+                    // Create the new user
+                    var user = new User
+                    {
+                        UserName = model.Username,
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Status = model.Status
+                    };
 
-                // Create the new user
-                var user = new User
-                {
-                    UserName = model.Username,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Status = model.Status
-                };
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.AddUserAsync(user);
 
-                var result = await _userManager.CreateAsync(user);
-                //var result = await _userRepository.AddAsync(user);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result.Errors);
+                    return StatusCode(StatusCodes.Status201Created);
                 }
-
-                // Assign the "user" role to the new user
-                result = await _userManager.AddToRoleAsync(user, "user");
-                if (result.Succeeded)
+                catch(Exception ex)
                 {
-                    return Ok();
-                }
-
-                // If adding the role failed, add errors to ModelState
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }                    
             }
-
-
-            // If ModelState is invalid, return BadRequest with ModelState errors
             return BadRequest(ModelState);
         }
 
@@ -104,13 +91,12 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <returns>Status code 200 with a list of UserViewModels if successful, BadRequest otherwise</returns>
         [HttpGet("GetUsers")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
-            // Retrieve the users from the repository
-            var users = await _userRepository.GetAllAsync();
+            var query = _dataServiceFactory.CreateQueryUserService();
+            var users = await query.GetAllUsersAsync();
 
-            // Map the user entity to a UserViewModel object
             var result = users.Select(u => new UserViewModel
             {
                 Id = u.Id,
@@ -122,7 +108,7 @@ namespace FaceLock.WebAPI.Controllers
             });
 
             // Return the list of UserViewModel object with a status code of 200
-            return Ok(result);
+            return Ok(users);
         }
 
 
@@ -133,11 +119,12 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="id">The user's ID</param>
         /// <returns>Status code 200 with a UserViewModel if successful, NotFound otherwise</returns>
         [HttpGet("GetUser/{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser(string id)
         {
             // Retrieve the user with the specified ID from the repository
-            var user = await _userRepository.GetByIdAsync(id);
+            var query = _dataServiceFactory.CreateQueryUserService();
+            var user = await query.GetUserByIdAsync(id);
 
             // Check if the user was found in the repository
             if (user == null)
@@ -172,13 +159,14 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="model">The UserViewModel containing the updated user information.</param>
         /// <returns>Returns an IActionResult object indicating the success or failure of the operation.</returns>
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UserViewModel model)
         {
             if (ModelState.IsValid)
             {
                 // Retrieve the user with the specified ID from the repository
-                var user = await _userRepository.GetByIdAsync(id);
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(id);
                 if (user == null)
                 {
                     return NotFound();
@@ -192,9 +180,12 @@ namespace FaceLock.WebAPI.Controllers
                 user.Status = model.Status ?? user.Status;
 
                 // Update the user in the database using the UserManager
-                var result = await _userManager.UpdateAsync(user);
+                var command = _dataServiceFactory.CreateCommandUserService();
+                await command.UpdateUserAsync(user);
+                //var result = await _userManager.UpdateAsync(user);
                 //await _userRepository.UpdateAsync(user);
 
+                return Ok();
                 /*
                 // Remove old roles first
                 var roles = await _userManager.GetRolesAsync(user);
@@ -202,18 +193,7 @@ namespace FaceLock.WebAPI.Controllers
 
                 // Add new role
                 await _userManager.AddToRoleAsync(user, userDto.Role);
-                */
-
-                if (result.Succeeded)
-                {
-                    // Return an OK response if the update was successful
-                    return Ok();
-                }
-                else
-                {
-                    // Return a BadRequest response if there were errors during the update
-                    return BadRequest(result.Errors);
-                }
+                */    
             }
 
             // Return a BadRequest response if the ModelState is invalid
@@ -228,10 +208,11 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="id">The id of the user to delete.</param>
         /// <returns>An IActionResult indicating whether the user was successfully deleted or an error message.</returns>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var query = _dataServiceFactory.CreateQueryUserService();
+            var user = await query.GetUserByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -239,18 +220,11 @@ namespace FaceLock.WebAPI.Controllers
 
             // Delete the user.
             //await _userRepository.DeleteAsync(user);
-            var result = await _userManager.DeleteAsync(user);
+            var command = _dataServiceFactory.CreateCommandUserService();
+            await command.DeleteUserAsync(user);
+            
+            return Ok();
 
-            if (result.Succeeded)
-            {
-                //return NoContent();
-                return Ok();
-            }
-            else
-            {
-                // Return any errors that occurred during deletion.
-                return BadRequest(result.Errors);
-            }
         }
 
 
@@ -263,13 +237,14 @@ namespace FaceLock.WebAPI.Controllers
         /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
         /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
         [HttpPost("{id}/photo")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserPhoto(string id, [FromForm] IFormFileCollection file)
         {
             if (ModelState.IsValid)
             {
                 // Check if a user with the given ID exists
-                var user = await _userRepository.GetByIdAsync(id);
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(id);
             
                 if (user == null)
                 {
@@ -305,7 +280,8 @@ namespace FaceLock.WebAPI.Controllers
                             ImageMimeType = item.ContentType,
                             UserId = user.Id
                         };
-                        await _userFaceRepository.AddAsync(userFace);
+                        var command = _dataServiceFactory.CreateCommandUserService();
+                        await command.AddUserFaceAsync(userFace);
                         return Ok(userFace);
                     }
                 }    
@@ -323,10 +299,12 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="faceId">The id of the user's photo to delete</param>
         /// <returns>An IActionResult indicating success or failure</returns>
         [HttpDelete("{id}/DeleteUserPhoto/{faceId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserPhoto(string id, int faceId)
         {
             // Get the user with the given id
-            var user = await _userRepository.GetByIdAsync(id);
+            var query = _dataServiceFactory.CreateQueryUserService();
+            var user = query.GetUserByIdAsync(id);
 
             // If the user doesn't exist, return NotFound
             if (user == null)
@@ -335,7 +313,7 @@ namespace FaceLock.WebAPI.Controllers
             }
 
             // Get all of the user's faces
-            var userFaces = await _userFaceRepository.GetAllUserFacesAsync(id);
+            var userFaces = await query.GetAllUserFacesAsync(user.Result.Id);
 
             // Find the face to delete
             var userFaceToDelete = userFaces.FirstOrDefault(f => f.Id == faceId);
@@ -347,7 +325,8 @@ namespace FaceLock.WebAPI.Controllers
             }
 
             // Delete the face
-            await _userFaceRepository.DeleteAsync(userFaceToDelete);
+            var command = _dataServiceFactory.CreateCommandUserService();
+            await command.DeleteUserFaceAsync(userFaceToDelete);
 
             // Return Ok
             return Ok();
