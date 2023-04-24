@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Authentication;
+using FaceLock.WebAPI.Models.AuthenticationModels.Request;
+using FaceLock.WebAPI.Models.AuthenticationModels.Response;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -37,7 +39,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <returns>Status 200 or error message</returns>
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterRequest model)
         {
             // Check if user data is valid
             if (ModelState.IsValid)
@@ -85,7 +87,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <returns>Status 200 with token or error message</returns>
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
             if (ModelState.IsValid)
             {
@@ -119,7 +121,7 @@ namespace FaceLock.WebAPI.Controllers
                         return StatusCode(StatusCodes.Status500InternalServerError, "Invalid tokens");
                     }
 
-                    return StatusCode(StatusCodes.Status200OK, new { accessToken = accessToken, refreshToken = refreshToken});
+                    return StatusCode(StatusCodes.Status200OK, new LoginResponse(refreshToken, accessToken));
                 }
                 catch (AuthenticationException ex)
                 {
@@ -211,7 +213,7 @@ namespace FaceLock.WebAPI.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "Invalid tokens");
                 }
 
-                return StatusCode(StatusCodes.Status200OK, new {accessToken = accessToken});
+                return StatusCode(StatusCodes.Status200OK, new RefreshResponse(accessToken));
             }
             catch (AuthenticationException ex)
             {

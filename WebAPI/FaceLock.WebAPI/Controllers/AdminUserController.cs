@@ -2,6 +2,8 @@
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.EF.Repositories.UserRepository;
+using FaceLock.WebAPI.Models.AdminUserModels.Request;
+using FaceLock.WebAPI.Models.AdminUserModels.Response;
 using FaceLock.WebAPI.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -45,7 +47,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <returns>Status code 200 if successful, BadRequest if ModelState invalid, Conflict if user already exists</returns>
         [HttpPost("CreateUser")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateUser([FromBody] UserViewModel model)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest model)
         {
             if (ModelState.IsValid)
             {
@@ -53,7 +55,7 @@ namespace FaceLock.WebAPI.Controllers
                 {
                     // Check if the username is available
                     var query = _dataServiceFactory.CreateQueryUserService();
-                    var existingUser = query.GetUserByUsernameAsync(model.Username);
+                    var existingUser = query.GetUserByUsernameAsync(model.UserName);
                     if (existingUser != null)
                     {
                         return Conflict("User already exists.");
@@ -62,7 +64,7 @@ namespace FaceLock.WebAPI.Controllers
                     // Create the new user
                     var user = new User
                     {
-                        UserName = model.Username,
+                        UserName = model.UserName,
                         Email = model.Email,
                         FirstName = model.FirstName,
                         LastName = model.LastName,
@@ -97,18 +99,11 @@ namespace FaceLock.WebAPI.Controllers
             var query = _dataServiceFactory.CreateQueryUserService();
             var users = await query.GetAllUsersAsync();
 
-            var result = users.Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                //UserName = u.UserName,
-                Email = u.Email,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Status = u.Status
-            });
+            var result = users.Select(u => 
+                new GetUserResponse(u.Id, u.UserName, u.Email, u.FirstName, u.LastName, u.Status));
 
             // Return the list of UserViewModel object with a status code of 200
-            return Ok(users);
+            return StatusCode(StatusCodes.Status200OK, new GetUsersResponse(result));
         }
 
 
@@ -135,19 +130,11 @@ namespace FaceLock.WebAPI.Controllers
             
             // TODO: добавити фото користувачів в резалт що повертає метод
 
-            // Map the user entity to a UserViewModel object
-            var result = new UserViewModel
-            {
-                Id = user.Id,
-                //UserName = user.UserName,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Status = user.Status
-            };
 
             // Return the UserViewModel object with a status code of 200
-            return Ok(result);
+            return StatusCode(StatusCodes.Status200OK, 
+                new GetUserResponse(user.Id, user.UserName, user.Email, 
+                    user.FirstName, user.LastName, user.Status));
         }
 
 
@@ -160,7 +147,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <returns>Returns an IActionResult object indicating the success or failure of the operation.</returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UserViewModel model)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest model)
         {
             if (ModelState.IsValid)
             {
@@ -173,7 +160,7 @@ namespace FaceLock.WebAPI.Controllers
                 }
 
                 // Update the user object with the data from the UserViewModel object
-                //user.UserName = model.UserName ?? user.UserName;
+                user.UserName = model.UserName ?? user.UserName;
                 user.Email = model.Email ?? user.Email;
                 user.FirstName = model.FirstName ?? user.FirstName;
                 user.LastName = model.LastName ?? user.LastName;
@@ -228,17 +215,17 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // POST api/<AdminUserController>/AddUserPhoto/{id}
+        // POST api/<AdminUserController>/AddUserPhotos/{id}
         /// <summary>
         /// Adds a photo to the specified user's collection of faces.
         /// </summary>
         /// <param name="id">The id of the user to which to add the photo.</param>
-        /// <param name="file">The file containing the photo to add.</param>
+        /// <param name="files">The file containing the photo to add.</param>
         /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
         /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
         [HttpPost("{id}/photo")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddUserPhoto(string id, [FromForm] IFormFileCollection file)
+        public async Task<IActionResult> AddUserPhotos(string id, [FromForm] AddUserPhotosRequest files)
         {
             if (ModelState.IsValid)
             {
@@ -251,7 +238,7 @@ namespace FaceLock.WebAPI.Controllers
                     return NotFound("User not found");
                 }
             
-                foreach (var item in file)
+                foreach (var item in files.Files)
                 {
                     // Check the file type. We're only allowing image files, so uncomment the following block if you want to validate that.
                     /*
@@ -282,7 +269,7 @@ namespace FaceLock.WebAPI.Controllers
                         };
                         var command = _dataServiceFactory.CreateCommandUserService();
                         await command.AddUserFaceAsync(userFace);
-                        return Ok(userFace);
+                        return Ok();
                     }
                 }    
             }

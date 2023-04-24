@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FaceLock.WebAPI.ViewModel
+namespace FaceLock.WebAPI.Models.AuthenticationModels.Request
 {
-    public class RegisterViewModel
+    public class RegisterRequest
     {
         [Required(ErrorMessage = "The Email field is required.")]
         [EmailAddress(ErrorMessage = "Invalid Email Address.")]
