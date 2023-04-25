@@ -1,17 +1,14 @@
 ﻿using FaceLock.DataManagement.Services;
 using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.Domain.Repositories.UserRepository;
-using FaceLock.EF.Repositories.UserRepository;
 using FaceLock.WebAPI.Models.AdminUserModels.Request;
 using FaceLock.WebAPI.Models.AdminUserModels.Response;
-using FaceLock.WebAPI.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -214,16 +211,48 @@ namespace FaceLock.WebAPI.Controllers
 
         }
 
+        // DELETE api/<AdminUserController>/DeleteUsers
+        /// <summary>
+        /// Deletes a users by id
+        /// </summary>
+        /// <param name="usersId">The id of the users to delete.</param>
+        /// <returns>An IActionResult indicating whether the user was successfully deleted or an error message.</returns>
+        [HttpDelete("deleteUsers")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUsers([FromBody] DeleteUsersRequest usersId)
+        {
+            var query = _dataServiceFactory.CreateQueryUserService();
+            var usersForDelete = new List<User>();
+
+            foreach(var userId in usersId.UsersId)
+            {
+                usersForDelete.Add(await query.GetUserByIdAsync(userId));
+            }
+            if (usersForDelete == null)
+            {
+                return NotFound();
+            }
+
+            // Delete the user.
+            //await _userRepository.DeleteAsync(user);
+            var command = _dataServiceFactory.CreateCommandUserService();
+            foreach(var user in usersForDelete)
+            {
+                command.DeleteUserAsync(user);
+            }
+
+            return Ok();
+        }
 
         // POST api/<AdminUserController>/AddUserPhotos/{id}
         /// <summary>
-        /// Adds a photo to the specified user's collection of faces.
+        /// Adds a photos to the specified user's collection of faces.
         /// </summary>
         /// <param name="id">The id of the user to which to add the photo.</param>
-        /// <param name="files">The file containing the photo to add.</param>
+        /// <param name="files">The files containing the photo to add.</param>
         /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
         /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
-        [HttpPost("{id}/photo")]
+        [HttpPost("{id}/photos")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserPhotos(string id, [FromForm] AddUserPhotosRequest files)
         {
@@ -277,6 +306,55 @@ namespace FaceLock.WebAPI.Controllers
             return BadRequest(ModelState);
         }
 
+        // POST api/<AdminUserController>/AddUserPhoto/{id}
+        /// <summary>
+        /// Adds a photo to the specified user's collection of faces.
+        /// </summary>
+        /// <param name="id">The id of the user to which to add the photo.</param>
+        /// <param name="file">The file containing the photo to add.</param>
+        /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
+        /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
+        [HttpPost("{id}/photo")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddUserPhoto(string id, [FromForm] AddUserPhotoRequest file)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if a user with the given ID exists
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                if (file.File == null || file.File.Length == 0)
+                {
+                    return BadRequest("No file was sent");
+                }
+
+                // Save the user's photo
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.File.CopyToAsync(memoryStream);
+                    // Upload the file if less than 2 MB  
+                    //if (memoryStream.Length < 2097152) {}
+
+                    var userFace = new UserFace
+                    {
+                        ImageData = memoryStream.ToArray(),
+                        ImageMimeType = file.File.ContentType,
+                        UserId = user.Id
+                    };
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.AddUserFaceAsync(userFace);
+                    return Ok();
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
 
         // DELETE api/<AdminUserController>/{id}/DeleteUserPhoto/{id}
         /// <summary>
@@ -318,5 +396,105 @@ namespace FaceLock.WebAPI.Controllers
             // Return Ok
             return Ok();
         }
+
+        // DELETE api/<AdminUserController>/{id}/DeleteUserPhotos
+        /// <summary>
+        /// Deletes a user's photos with the given faceId
+        /// </summary>
+        /// <param name="id">The id of the user</param>
+        /// <param name="userFacesId">The list of id of the user's photo to delete</param>
+        /// <returns>An IActionResult indicating success or failure</returns>
+        [HttpDelete("{id}/DeleteUserPhotos")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserPhotos(string id, [FromBody] DeleteUserPhotosRequest userFacesId)
+        {
+            // Get the user with the given id
+            var query = _dataServiceFactory.CreateQueryUserService();
+            var user = query.GetUserByIdAsync(id);
+
+            // If the user doesn't exist, return NotFound
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Get all of the user's faces
+            var userFaces = await query.GetAllUserFacesAsync(user.Result.Id);
+            var userFaceToDelete = new List<UserFace>();
+            // Find the face to delete
+            foreach (var faceId in userFacesId.userFacesId)
+            {
+                userFaceToDelete.Add(userFaces.FirstOrDefault(f => f.Id == faceId));
+            }
+
+            // If the face doesn't exist, return NotFound
+            if (userFaceToDelete == null)
+            {
+                return NotFound();
+            }
+
+            // Delete the face
+            var command = _dataServiceFactory.CreateCommandUserService();
+            foreach(var face in userFaceToDelete)
+            {
+                await command.DeleteUserFaceAsync(face);
+            }
+
+            // Return Ok
+            return Ok();
+        }
+
+
+
+        // GET api/<AdminUserController>/AddUserPhoto/{id}
+        /// <summary>
+        /// Adds a photo to the specified user's collection of faces.
+        /// </summary>
+        /// <param name="id">The id of the user to which to add the photo.</param>
+        /// <param name="file">The file containing the photo to add.</param>
+        /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
+        /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
+        [HttpGet("{id}/photo")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserPhoto(string id, int faceId)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if a user with the given ID exists
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                if (file.File == null || file.File.Length == 0)
+                {
+                    return BadRequest("No file was sent");
+                }
+
+                // Save the user's photo
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.File.CopyToAsync(memoryStream);
+                    // Upload the file if less than 2 MB  
+                    //if (memoryStream.Length < 2097152) {}
+
+                    var userFace = new UserFace
+                    {
+                        ImageData = memoryStream.ToArray(),
+                        ImageMimeType = file.File.ContentType,
+                        UserId = user.Id
+                    };
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.AddUserFaceAsync(userFace);
+                    return Ok();
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
     }
 }

@@ -1,5 +1,4 @@
 ﻿using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.WebAPI.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Authentication;
 using FaceLock.WebAPI.Models.AuthenticationModels.Request;
 using FaceLock.WebAPI.Models.AuthenticationModels.Response;
@@ -20,11 +18,11 @@ namespace FaceLock.WebAPI.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly ILogger<AuthenticationController> _logger;
-        private readonly FaceLock.Authentication.Services.IAuthenticationService _authenticationService;
+        private readonly Authentication.Services.IAuthenticationService _authenticationService;
         public AuthenticationController(
             UserManager<User> userManager, 
             ILogger<AuthenticationController> logger,
-            FaceLock.Authentication.Services.IAuthenticationService authenticationService)
+            Authentication.Services.IAuthenticationService authenticationService)
         {
             _userManager = userManager;
             _logger = logger;
