@@ -22,8 +22,7 @@ namespace FaceLock.EF.EntityConfigurations.UserAggregateConfiguration
                 .IsRequired();
 
             builder.Property(e => e.NormalizedEmail)
-                .HasMaxLength(256)
-                .HasComputedColumnSql("LOWER(Email)");
+                .HasMaxLength(256);
 
             builder.Property(e => e.FirstName)
                 .HasMaxLength(100)
@@ -39,14 +38,14 @@ namespace FaceLock.EF.EntityConfigurations.UserAggregateConfiguration
                 .IsRequired();
 
             builder.Property(e => e.NormalizedUserName)
-                .HasMaxLength(256)
-                .HasComputedColumnSql("LOWER(UserName)");
+                .HasMaxLength(256);
 
             builder.Property(e => e.Status)
                 .HasMaxLength(100)
                 .IsRequired();
 
-            builder.Property(e => e.PasswordHash);
+            builder.Property(e => e.PasswordHash)
+                .IsRequired(false);
 
             builder.Property(e => e.SecurityStamp)
                 .HasMaxLength(256);
