@@ -47,9 +47,7 @@ namespace FaceLock.WebAPI.Controllers
                 try
                 {
                     var query = _dataServiceFactory.CreateQueryUserService();
-                    var existingUser = query.GetUserByEmailAsync(model.Email);
-
-                    if (existingUser.Result != null)
+                    if (query.IsExistUserByEmailAsync(model.Email).Result == true)
                     {
                         return StatusCode(StatusCodes.Status409Conflict, "User already exists.");
                     }
@@ -184,11 +182,6 @@ namespace FaceLock.WebAPI.Controllers
                 var query = _dataServiceFactory.CreateQueryUserService();
                 var user = await query.GetUserByIdAsync(userId);
 
-                if (user == null)
-                {
-                    return StatusCode(StatusCodes.Status404NotFound);
-                }
-
                 return StatusCode(StatusCodes.Status200OK,
                     new GetUserResponse(user.Id, user.UserName, user.Email,
                         user.FirstName, user.LastName, user.Status));
@@ -318,10 +311,6 @@ namespace FaceLock.WebAPI.Controllers
                 {
                     var query = _dataServiceFactory.CreateQueryUserService();
                     var user = await query.GetUserByIdAsync(userId);
-                    if (user == null)
-                    {
-                        return StatusCode(StatusCodes.Status404NotFound);
-                    }
 
                     user.UserName = model.UserName ?? user.UserName;
                     user.Email = model.Email ?? user.Email;
@@ -363,10 +352,6 @@ namespace FaceLock.WebAPI.Controllers
             {
                 var query = _dataServiceFactory.CreateQueryUserService();
                 var user = await query.GetUserByIdAsync(userId);
-                if (user == null)
-                {
-                    return StatusCode(StatusCodes.Status204NoContent);
-                }
 
                 var command = _dataServiceFactory.CreateCommandUserService();
                 await command.DeleteUserAsync(user);
@@ -397,11 +382,6 @@ namespace FaceLock.WebAPI.Controllers
                 var query = _dataServiceFactory.CreateQueryUserService();
                 var usersForDelete = await query.GetUsersByIdAsync(usersId.UsersId);
 
-                if (usersForDelete == null)
-                {
-                    return StatusCode(StatusCodes.Status404NotFound);
-                }
-
                 var command = _dataServiceFactory.CreateCommandUserService();
                 await command.DeleteUsersAsync(usersForDelete);
 
@@ -431,11 +411,6 @@ namespace FaceLock.WebAPI.Controllers
             {
                 var query = _dataServiceFactory.CreateQueryUserService();
                 var userFaceToDelete = await query.GetUserFaceByIdAsync(userId, faceId);
-
-                if (userFaceToDelete == null)
-                {
-                    return StatusCode(StatusCodes.Status404NotFound);
-                }
 
                 var command = _dataServiceFactory.CreateCommandUserService();
                 await command.DeleteUserFaceAsync(userFaceToDelete);
@@ -478,7 +453,6 @@ namespace FaceLock.WebAPI.Controllers
                 _logger.LogError($"Error: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
-
         }
 
         #endregion

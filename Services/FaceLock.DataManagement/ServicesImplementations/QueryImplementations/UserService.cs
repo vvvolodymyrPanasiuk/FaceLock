@@ -12,76 +12,141 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId)
-        {
-            return await _unitOfWork.UserFaceRepository.GetAllUserFacesAsync(userId);
-        }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
-        {
-            return await _unitOfWork.UserRepository.GetAllAsync();
-        }
-
-        public async Task<User> GetUserByEmailAsync(string userEmail)
-        {
-            var users = await _unitOfWork.UserRepository.GetAllAsync();            
-            return users.FirstOrDefault(e => e.Email == userEmail);
-        }
-
+        #region UserRepository
         public async Task<User> GetUserByIdAsync(string userId)
         {
-            return await _unitOfWork.UserRepository.GetByIdAsync(userId);
-        }
-
-        public async Task<User> GetUserByUsernameAsync(string userName)
-        {
-            return await _unitOfWork.UserRepository.GetUserByUsernameAsync(userName);
-        }
-
-        public async Task<UserFace> GetUserFaceByIdAsync(string userId, int faceId)
-        {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-            if(user == null)
-            {
-                throw new Exception("User not exists");
-            }
-
-            var userFace = await _unitOfWork.UserFaceRepository.GetByIdAsync(faceId);
-            if (userFace == null)
-            {
-                throw new Exception("UserFace not exists");
-            }
-            return userFace;
-        }
-
-        public async Task<IEnumerable<UserFace>> GetUserFacesByIdAsync(string userId, IEnumerable<int> facesId)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            
             if (user == null)
             {
                 throw new Exception("User not exists");
             }
-            var userFaces = new List<UserFace>();
-            foreach (var faceId in facesId)
+
+            return user;
+        }
+        
+        public async Task<User> GetUserByEmailAsync(string userEmail)
+        {
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var user = users.FirstOrDefault(e => e.Email == userEmail);
+            
+            if (user == null)
             {
-                userFaces.Add(await _unitOfWork.UserFaceRepository.GetByIdAsync(faceId));
+                throw new Exception("User not exists");
             }
-            if (userFaces == null)
+
+            return user;
+        }
+
+        public async Task<User> GetUserByUsernameAsync(string userName)
+        {
+            var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(userName);
+
+            if (user == null)
             {
-                throw new Exception("UserFaces not exists");
+                throw new Exception("User not exists");
             }
-            return userFaces;
+
+            return user;
+        }
+
+        public async Task<bool> IsExistUserByEmailAsync(string userEmail)
+        {
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var user = users.FirstOrDefault(e => e.Email == userEmail);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            var users = await _unitOfWork.UserRepository.GetAllAsync();
+
+            if (users == null)
+            {
+                throw new Exception("Users not exists");
+            }
+
+            return users;
         }
 
         public async Task<IEnumerable<User>> GetUsersByIdAsync(IEnumerable<string> usersId)
         {
             var usersResult = new List<User>();
-            foreach(var userId in usersId)
+            foreach (var userId in usersId)
             {
                 usersResult.Add(await _unitOfWork.UserRepository.GetByIdAsync(userId));
             }
 
+            if (usersResult == null)
+            {
+                throw new Exception("Users not exists");
+            }
+
             return usersResult;
         }
+        #endregion
+
+        #region UserFaceRepository
+        public async Task<UserFace> GetUserFaceByIdAsync(string userId, int faceId)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new Exception("User not exists");
+            }
+
+            var userFace = await _unitOfWork.UserFaceRepository.GetByIdAsync(faceId);
+
+            if (userFace == null)
+            {
+                throw new Exception("User face not exists");
+            }
+
+            return userFace;
+        }
+
+        public async Task<IEnumerable<UserFace>> GetAllUserFacesAsync(string userId)
+        {
+            var facesResult = await _unitOfWork.UserFaceRepository.GetAllUserFacesAsync(userId);
+            
+            if (facesResult == null)
+            {
+                throw new Exception("User faces not exists");
+            }
+
+            return facesResult;
+        }
+
+        public async Task<IEnumerable<UserFace>> GetUserFacesByIdAsync(string userId, IEnumerable<int> facesId)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new Exception("User not exists");
+            }
+
+            var userFaces = new List<UserFace>();
+            foreach (var faceId in facesId)
+            {
+                userFaces.Add(await _unitOfWork.UserFaceRepository.GetByIdAsync(faceId));
+            }
+
+            if (userFaces == null)
+            {
+                throw new Exception("User faces not exists");
+            }
+
+            return userFaces;
+        }
+        #endregion    
     }
 }

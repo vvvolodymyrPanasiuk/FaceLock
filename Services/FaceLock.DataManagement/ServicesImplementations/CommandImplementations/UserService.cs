@@ -1,5 +1,4 @@
-﻿using FaceLock.DataManagement.Services;
-using FaceLock.DataManagement.Services.Commands;
+﻿using FaceLock.DataManagement.Services.Commands;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -14,24 +13,17 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             _unitOfWork = unitOfWork;
         }
 
+
+        #region UserRepository
         public async Task AddUserAsync(User user)
         {
             await _unitOfWork.UserRepository.AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task AddUserFaceAsync(UserFace userFace)
+        public async Task UpdateUserAsync(User user)
         {
-            await _unitOfWork.UserFaceRepository.AddAsync(userFace);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task AddUserFacesAsync(IEnumerable<UserFace> userFaces)
-        {
-            foreach (var userFace in userFaces)
-            {
-                await _unitOfWork.UserFaceRepository.AddAsync(userFace);
-            }
+            await _unitOfWork.UserRepository.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -46,16 +38,28 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             await _unitOfWork.UserRepository.DeleteRangeAsync(users);
             await _unitOfWork.SaveChangesAsync();
         }
+        #endregion
+
+        #region UserFaceRepository
+        public async Task AddUserFaceAsync(UserFace userFace)
+        {
+            await _unitOfWork.UserFaceRepository.AddAsync(userFace);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task AddUserFacesAsync(IEnumerable<UserFace> userFaces)
+        {
+            foreach (var userFace in userFaces)
+            {
+                await _unitOfWork.UserFaceRepository.AddAsync(userFace);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+        }
 
         public async Task DeleteUserFaceAsync(UserFace userFace)
         {
             await _unitOfWork.UserFaceRepository.DeleteAsync(userFace);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task UpdateUserAsync(User user)
-        {
-            await _unitOfWork.UserRepository.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -68,7 +72,8 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
         public async Task AddUserFaceAsync(string userId, IFormFile userFace)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-            if(user == null)
+
+            if (user == null)
             {
                 throw new Exception("User not exist");
             }
@@ -82,24 +87,22 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             using (var memoryStream = new MemoryStream())
             {
                 await userFace.CopyToAsync(memoryStream);
-                // Upload the file if less than 2 MB  
-                //if (memoryStream.Length < 2097152) {}
 
-                var userFaceEntity = new UserFace
-                {
-                    ImageData = memoryStream.ToArray(),
-                    ImageMimeType = userFace.ContentType,
-                    UserId = user.Id
-                };
-                await _unitOfWork.UserFaceRepository.AddAsync(userFaceEntity);
+                await _unitOfWork.UserFaceRepository
+                    .AddAsync(new UserFace
+                    {
+                        ImageData = memoryStream.ToArray(),
+                        ImageMimeType = userFace.ContentType,
+                        UserId = user.Id
+                    });
             }
-
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task AddUserFacesAsync(string userId, IFormFileCollection userFaces)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+
             if (user == null)
             {
                 throw new Exception("User not exist");
@@ -116,20 +119,18 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
                 using (var memoryStream = new MemoryStream())
                 {
                     await face.CopyToAsync(memoryStream);
-                    // Upload the file if less than 2 MB  
-                    //if (memoryStream.Length < 2097152) {}
 
-                    var userFaceEntity = new UserFace
-                    {
-                        ImageData = memoryStream.ToArray(),
-                        ImageMimeType = face.ContentType,
-                        UserId = user.Id
-                    };
-                    await _unitOfWork.UserFaceRepository.AddAsync(userFaceEntity);
+                    await _unitOfWork.UserFaceRepository
+                        .AddAsync(new UserFace
+                        {
+                            ImageData = memoryStream.ToArray(),
+                            ImageMimeType = face.ContentType,
+                            UserId = user.Id
+                        });
                 }
             }
-
             await _unitOfWork.SaveChangesAsync();
         }
+        #endregion
     }
 }

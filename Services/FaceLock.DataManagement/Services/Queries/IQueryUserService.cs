@@ -26,6 +26,12 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <returns>The User entity with the user email.</returns>
         Task<User> GetUserByEmailAsync(string userEmail);
         /// <summary>
+        /// Gets a boolen that User entity is exist by user email.
+        /// </summary>
+        /// <param name="userEmail">The user email of the User entity to retrieve.</param>
+        /// <returns>The true if user exist with the user email.</returns>
+        Task<bool> IsExistUserByEmailAsync(string userEmail);
+        /// <summary>
         /// Gets all User entities for a User entity.
         /// </summary>
         /// <param name="usersId">The list ID of the User entity to retrieve list of User entities.</param>
