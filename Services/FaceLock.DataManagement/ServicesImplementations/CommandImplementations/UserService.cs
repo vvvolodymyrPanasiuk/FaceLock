@@ -68,7 +68,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
         public async Task AddUserFaceAsync(string userId, IFormFile userFace)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-            if(user != null)
+            if(user == null)
             {
                 throw new Exception("User not exist");
             }
@@ -100,7 +100,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
         public async Task AddUserFacesAsync(string userId, IFormFileCollection userFaces)
         {
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-            if (user != null)
+            if (user == null)
             {
                 throw new Exception("User not exist");
             }

@@ -22,6 +22,12 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             return await _unitOfWork.UserRepository.GetAllAsync();
         }
 
+        public async Task<User> GetUserByEmailAsync(string userEmail)
+        {
+            var users = await _unitOfWork.UserRepository.GetAllAsync();            
+            return users.FirstOrDefault(e => e.Email == userEmail);
+        }
+
         public async Task<User> GetUserByIdAsync(string userId)
         {
             return await _unitOfWork.UserRepository.GetByIdAsync(userId);

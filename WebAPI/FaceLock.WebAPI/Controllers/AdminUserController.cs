@@ -2,25 +2,17 @@
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.WebAPI.Models.AdminUserModels.Request;
 using FaceLock.WebAPI.Models.AdminUserModels.Response;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 
 namespace FaceLock.WebAPI.Controllers
 {
-    /// <summary>
-    /// Controller for managing users with admin roles
-    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     //[Authorize(Roles = "Admin")]
@@ -38,12 +30,14 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // POST api/<AdminUserController>/CreateUser
+        #region POST Metods
+
+        // POST: api/<AuthenticationController>/CreateUser
         /// <summary>
-        /// Creates a new user
+        /// Creates a new user with the given details.
         /// </summary>
-        /// <param name="model">UserViewModel with required fields</param>
-        /// <returns>Status code 200 if successful, BadRequest if ModelState invalid, Conflict if user already exists</returns>
+        /// <param name="model">The details of the user to be created.</param>
+        /// <returns>Returns status 201 if successful or an error message if not.</returns>
         [HttpPost("CreateUser")]
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest model)
@@ -52,372 +46,442 @@ namespace FaceLock.WebAPI.Controllers
             {
                 try
                 {
-                    // Check if the username is available
                     var query = _dataServiceFactory.CreateQueryUserService();
-                    var existingUser = query.GetUserByUsernameAsync(model.UserName);
+                    var existingUser = query.GetUserByEmailAsync(model.Email);
+
                     if (existingUser.Result != null)
                     {
-                        return Conflict("User already exists.");
+                        return StatusCode(StatusCodes.Status409Conflict, "User already exists.");
                     }
 
-                    // Create the new user
-                    var user = new User
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.AddUserAsync(new User
                     {
-                        UserName = model.UserName,
                         Email = model.Email,
                         FirstName = model.FirstName,
                         LastName = model.LastName,
-                        Status = model.Status,
-                        NormalizedEmail = model.Email.ToUpper()
-                    };
-
-                    var command = _dataServiceFactory.CreateCommandUserService();
-                    await command.AddUserAsync(user);
+                        Status = model.Status
+                    });
 
                     return StatusCode(StatusCodes.Status201Created);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Log error and return 500 response
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
-                }                    
+                }
             }
             return BadRequest(ModelState);
         }
 
+        // POST api/<AdminUserController>/{userId}/AddUserPhotos
+        /// <summary>
+        /// Adds one or more photos to the user's account.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose account the photos are being added to.</param>
+        /// <param name="files">The files to be uploaded as the user's photo(s).</param>
+        /// <returns>Returns status 201 or an error message.</returns>
+        [HttpPost("{userId}/AddUserPhotos")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddUserPhotos(string userId, [FromForm] AddUserPhotosRequest files)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.AddUserFacesAsync(userId, files.Files);
+
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }               
+            }
+            return BadRequest(ModelState);
+        }
+
+        // POST api/<AdminUserController>/{userId}/AddUserPhoto
+        /// <summary>
+        /// Adds a photo to a user's face by the user ID.
+        /// </summary>
+        /// <param name="userId">The user ID to add a photo to.</param>
+        /// <param name="file">The file to upload as the user's face photo.</param>
+        /// <returns>Returns status 201 if the photo was added successfully, or an error message otherwise.</returns>
+        [HttpPost("{userId}/AddUserPhoto")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddUserPhoto(string userId, [FromForm] AddUserPhotoRequest file)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.AddUserFaceAsync(userId, file.File);
+
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }     
+            }
+            return BadRequest(ModelState);
+        }
+
+        #endregion
+
+
+        #region GET Metods
 
         // GET api/<AdminUserController>/GetUsers
         /// <summary>
-        /// Gets all users
+        /// Retrieves a list of all users.
         /// </summary>
-        /// <returns>Status code 200 with a list of UserViewModels if successful, BadRequest otherwise</returns>
+        /// <returns>Returns a list of GetUserResponse objects or an error message.</returns>
         [HttpGet("GetUsers")]
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
-            var query = _dataServiceFactory.CreateQueryUserService();
-            var users = await query.GetAllUsersAsync();
-
-            var result = users.Select(u => 
-                new GetUserResponse(u.Id, u.UserName, u.Email, u.FirstName, u.LastName, u.Status));
-
-            // Return the list of UserViewModel object with a status code of 200
-            return StatusCode(StatusCodes.Status200OK, new GetUsersResponse(result));
-        }
-
-
-        // GET api/<AdminUserController>/GetUser/{id}
-        /// <summary>
-        /// Gets a user by their ID
-        /// </summary>
-        /// <param name="id">The user's ID</param>
-        /// <returns>Status code 200 with a UserViewModel if successful, NotFound otherwise</returns>
-        [HttpGet("GetUser/{id}")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetUser(string id)
-        {
-            // Retrieve the user with the specified ID from the repository
-            var query = _dataServiceFactory.CreateQueryUserService();
-            var user = await query.GetUserByIdAsync(id);
-
-            // Check if the user was found in the repository
-            if (user == null)
+            try
             {
-                // If the user was not found, return a NotFound status code
-                return NotFound();
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var users = await query.GetAllUsersAsync();
+
+                var result = users.Select(u =>
+                    new GetUserResponse(u.Id, u.UserName, u.Email, u.FirstName, u.LastName, u.Status));
+
+                return StatusCode(StatusCodes.Status200OK, new GetUsersResponse(result));
             }
-            
-            // TODO: добавити фото користувачів в резалт що повертає метод
-
-
-            // Return the UserViewModel object with a status code of 200
-            return StatusCode(StatusCodes.Status200OK, 
-                new GetUserResponse(user.Id, user.UserName, user.Email, 
-                    user.FirstName, user.LastName, user.Status));
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }           
         }
 
 
-        // PUT api/<AdminUserController>/UpdateUser/{id}
+        // GET api/<AdminUserController>/GetUser/{userId}
         /// <summary>
-        /// Updates a user by id
+        /// Retrieves the user with the specified ID from the repository.
         /// </summary>
-        /// <param name="id">The id of the user to update.</param>
-        /// <param name="model">The UserViewModel containing the updated user information.</param>
-        /// <returns>Returns an IActionResult object indicating the success or failure of the operation.</returns>
-        [HttpPut("{id}")]
+        /// <param name="userId">The ID of the user to retrieve.</param>
+        /// <returns>Returns status 200 and the user data or 404 
+        /// if the user is not found or 500 if an error occurred.</returns>
+        [HttpGet("GetUser/{userId}")]
         //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest model)
+        public async Task<IActionResult> GetUser(string userId)
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(userId);
+
+                if (user == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound);
+                }
+
+                return StatusCode(StatusCodes.Status200OK,
+                    new GetUserResponse(user.Id, user.UserName, user.Email,
+                        user.FirstName, user.LastName, user.Status));
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }          
+        }
+
+
+        // GET api/<AdminUserController>/{userId}/GetUserPhoto/{faceId}
+        /// <summary>
+        /// Retrieves a user's photo by ID and face ID.
+        /// </summary>
+        /// <param name="userId">User ID.</param>
+        /// <param name="faceId">Face ID.</param>
+        /// <returns>Returns the user's photo or an error message.</returns>
+        [HttpGet("{userId}/GetUserPhoto/{faceId}")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserPhoto(string userId, int faceId)
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFace = await query.GetUserFaceByIdAsync(userId, faceId);
+
+                if (userFace?.ImageData != null)
+                {
+                    // return the image as a file stream
+                    return File(userFace.ImageData, userFace.ImageMimeType);
+                }
+
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }       
+        }
+
+
+        // GET api/<AdminUserController>/{userId}/GetUserPhotos
+        /// <summary>
+        /// Retrieves all the photos of the user with the given ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>Returns a zip archive of the user's photos as a file download.</returns>
+        [HttpGet("{userId}/GetUserPhotos")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserPhotos(string userId)
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFaces = await query.GetAllUserFacesAsync(userId);
+
+                GetUserPhotosResponse result = new GetUserPhotosResponse(userId, userFaces);
+
+                return File(result.FileContents, result.ContentType, result.FileDownloadName);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+
+        // GET api/<AdminUserController>/{userId}/GetUserPhotosInfo
+        /// <summary>
+        /// Retrieves information about all photos belonging to a user with the specified ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose photos to retrieve.</param>
+        /// <returns>Returns status 200 and a list of GetUserPhotosInfoResponse objects, or an error message.</returns>
+        [HttpGet("{userId}/GetUserPhotosInfo")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserPhotosInfo(string userId)
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFaces = await query.GetAllUserFacesAsync(userId);
+
+                var result = new List<GetUserPhotosInfoResponse>();
+
+                foreach (var userFace in userFaces)
+                {
+                    result.Add(new GetUserPhotosInfoResponse(userFace.Id,
+                        userFace.ImageMimeType, userFace.UserId));
+                }
+
+                return StatusCode(StatusCodes.Status200OK, result);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+
+        #region PUT Metods
+
+        // PUT api/<AdminUserController>/{userId}/UpdateUser
+        /// <summary>
+        /// Updates a user by ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user to update.</param>
+        /// <param name="model">The model containing the updated user data.</param>
+        /// <returns>Returns status 201 if successful or an error message.</returns>
+        [HttpPut("{userId}/UpdateUser")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserRequest model)
         {
             if (ModelState.IsValid)
             {
-                // Retrieve the user with the specified ID from the repository
+                try
+                {
+                    var query = _dataServiceFactory.CreateQueryUserService();
+                    var user = await query.GetUserByIdAsync(userId);
+                    if (user == null)
+                    {
+                        return StatusCode(StatusCodes.Status404NotFound);
+                    }
+
+                    user.UserName = model.UserName ?? user.UserName;
+                    user.Email = model.Email ?? user.Email;
+                    user.FirstName = model.FirstName ?? user.FirstName;
+                    user.LastName = model.LastName ?? user.LastName;
+                    user.Status = model.Status ?? user.Status;
+
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.UpdateUserAsync(user);
+
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }          
+            }
+            return BadRequest(ModelState);
+        }
+
+        #endregion
+
+
+        #region DELETE Metods
+
+        // DELETE api/<AdminUserController>/{userId}/DeleteUser
+        /// <summary>
+        /// Deletes the user with the specified ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user to delete.</param>
+        /// <returns>Returns status 204 if successful or an error message.</returns>
+        [HttpDelete("{userId}/DeleteUser")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            try
+            {
                 var query = _dataServiceFactory.CreateQueryUserService();
-                var user = await query.GetUserByIdAsync(id);
+                var user = await query.GetUserByIdAsync(userId);
                 if (user == null)
                 {
-                    return NotFound();
+                    return StatusCode(StatusCodes.Status204NoContent);
                 }
 
-                // Update the user object with the data from the UserViewModel object
-                user.UserName = model.UserName ?? user.UserName;
-                user.Email = model.Email ?? user.Email;
-                user.FirstName = model.FirstName ?? user.FirstName;
-                user.LastName = model.LastName ?? user.LastName;
-                user.Status = model.Status ?? user.Status;
-
-                // Update the user in the database using the UserManager
                 var command = _dataServiceFactory.CreateCommandUserService();
-                await command.UpdateUserAsync(user);
-                //var result = await _userManager.UpdateAsync(user);
-                //await _userRepository.UpdateAsync(user);
+                await command.DeleteUserAsync(user);
 
-                return Ok();
-                /*
-                // Remove old roles first
-                var roles = await _userManager.GetRolesAsync(user);
-                await _userManager.RemoveFromRolesAsync(user, roles);
-
-                // Add new role
-                await _userManager.AddToRoleAsync(user, userDto.Role);
-                */    
+                return StatusCode(StatusCodes.Status204NoContent);
             }
-
-            // Return a BadRequest response if the ModelState is invalid
-            return BadRequest(ModelState);   
-        }
-
-
-        // DELETE api/<AdminUserController>/DeleteUser/{id}
-        /// <summary>
-        /// Deletes a user by id
-        /// </summary>
-        /// <param name="id">The id of the user to delete.</param>
-        /// <returns>An IActionResult indicating whether the user was successfully deleted or an error message.</returns>
-        [HttpDelete("{id}")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(string id)
-        {
-            var query = _dataServiceFactory.CreateQueryUserService();
-            var user = await query.GetUserByIdAsync(id);
-            if (user == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
-
-            // Delete the user.
-            //await _userRepository.DeleteAsync(user);
-            var command = _dataServiceFactory.CreateCommandUserService();
-            await command.DeleteUserAsync(user);
-            
-            return Ok();
-
         }
+
 
         // DELETE api/<AdminUserController>/DeleteUsers
         /// <summary>
-        /// Deletes a users by id
+        /// Deletes multiple users.
         /// </summary>
-        /// <param name="usersId">The id of the users to delete.</param>
-        /// <returns>An IActionResult indicating whether the user was successfully deleted or an error message.</returns>
+        /// <param name="usersId">The request containing the IDs of the users to be deleted.</param>
+        /// <returns>Returns status 204 if the operation was successful or an error message otherwise.</returns>
         [HttpDelete("deleteUsers")]
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUsers([FromBody] DeleteUsersRequest usersId)
         {
-            var query = _dataServiceFactory.CreateQueryUserService();
-
-            var usersForDelete = await query.GetUsersByIdAsync(usersId.UsersId);
-
-            if (usersForDelete == null)
+            try
             {
-                return NotFound();
-            }
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var usersForDelete = await query.GetUsersByIdAsync(usersId.UsersId);
 
-            // Delete the user.
-            var command = _dataServiceFactory.CreateCommandUserService();
-            await command.DeleteUsersAsync(usersForDelete);
-
-            return Ok();
-        }
-
-        // POST api/<AdminUserController>/AddUserPhotos/{id}
-        /// <summary>
-        /// Adds a photos to the specified user's collection of faces.
-        /// </summary>
-        /// <param name="id">The id of the user to which to add the photo.</param>
-        /// <param name="files">The files containing the photo to add.</param>
-        /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
-        /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
-        [HttpPost("{id}/photos")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddUserPhotos(string id, [FromForm] AddUserPhotosRequest files)
-        {
-            if (ModelState.IsValid)
-            {
-                // Check if a user with the given ID exists
-
-                var command = _dataServiceFactory.CreateCommandUserService();
-                await command.AddUserFacesAsync(id, files.Files);
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        // POST api/<AdminUserController>/AddUserPhoto/{id}
-        /// <summary>
-        /// Adds a photo to the specified user's collection of faces.
-        /// </summary>
-        /// <param name="id">The id of the user to which to add the photo.</param>
-        /// <param name="file">The file containing the photo to add.</param>
-        /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
-        /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
-        [HttpPost("{id}/photo")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddUserPhoto(string id, [FromForm] AddUserPhotoRequest file)
-        {
-            if (ModelState.IsValid)
-            {
-                // Check if a user with the given ID exists
-
-                var command = _dataServiceFactory.CreateCommandUserService();
-                await command.AddUserFaceAsync(id, file.File);
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        // DELETE api/<AdminUserController>/{id}/DeleteUserPhoto/{id}
-        /// <summary>
-        /// Deletes a user's photo with the given faceId
-        /// </summary>
-        /// <param name="id">The id of the user</param>
-        /// <param name="faceId">The id of the user's photo to delete</param>
-        /// <returns>An IActionResult indicating success or failure</returns>
-        [HttpDelete("{id}/DeleteUserPhoto/{faceId}")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUserPhoto(string id, int faceId)
-        {
-            // Get the user with the given id
-            var query = _dataServiceFactory.CreateQueryUserService();
-
-            // Get all of the user's faces
-            var userFaceToDelete = await query.GetUserFaceByIdAsync(id, faceId);
-
-            // If the face doesn't exist, return NotFound
-            if (userFaceToDelete == null)
-            {
-                return NotFound();
-            }
-
-            // Delete the face
-            var command = _dataServiceFactory.CreateCommandUserService();
-            await command.DeleteUserFaceAsync(userFaceToDelete);
-
-            // Return Ok
-            return Ok();
-        }
-
-        // DELETE api/<AdminUserController>/{id}/DeleteUserPhotos
-        /// <summary>
-        /// Deletes a user's photos with the given faceId
-        /// </summary>
-        /// <param name="id">The id of the user</param>
-        /// <param name="userFacesId">The list of id of the user's photo to delete</param>
-        /// <returns>An IActionResult indicating success or failure</returns>
-        [HttpDelete("{id}/DeleteUserPhotos")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUserPhotos(string id, [FromBody] DeleteUserPhotosRequest userFacesId)
-        {
-            // Get the user with the given id
-            var query = _dataServiceFactory.CreateQueryUserService();
-
-            // Get all of the user's faces
-            var userFaceToDelete = await query.GetUserFacesByIdAsync(id, userFacesId.userFacesId);
-
-            // Delete the face
-            var command = _dataServiceFactory.CreateCommandUserService();
-            await command.DeleteUserFacesAsync(userFaceToDelete);
-
-            // Return Ok
-            return Ok();
-        }
-
-
-
-        // GET api/<AdminUserController>/AddUserPhoto/{id}
-        /// <summary>
-        /// Adds a photo to the specified user's collection of faces.
-        /// </summary>
-        /// <param name="id">The id of the user to which to add the photo.</param>
-        /// <param name="file">The file containing the photo to add.</param>
-        /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
-        /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
-        [HttpGet("{id}/photo")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetUserPhoto(string id, int faceId)
-        {
-            // Check if a user with the given ID exists
-            var query = _dataServiceFactory.CreateQueryUserService();
-            var userFace = await query.GetUserFaceByIdAsync(id, faceId);
-
-            // Get the user's photo
-            if (userFace?.ImageData != null)
-            {
-                // return the image as a file stream
-                return File(userFace.ImageData, userFace.ImageMimeType);
-            }
-
-            // return a default image or an error message
-            return NotFound("User photo not found");
-        }
-
-
-        // GET api/<AdminUserController>/AddUserPhotos
-        /// <summary>
-        /// Adds a photo to the specified user's collection of faces.
-        /// </summary>
-        /// <param name="id">The id of the user to which to add the photo.</param>
-        /// <returns>Returns an IActionResult with HTTP status code 200 (OK) and the added user face entity if the operation is successful,
-        /// or an IActionResult with HTTP status code 400 (Bad Request) and an error message if the operation fails.</returns>
-        [HttpGet("{id}/photos")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetUserPhotos(string id)
-        {
-            // Check if a user with the given ID exists
-            var query = _dataServiceFactory.CreateQueryUserService();
-            var userFaces = await query.GetAllUserFacesAsync(id);
-
-            #region 1
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            var multipartContent = new MultipartContent();
-
-            foreach (var userFace in userFaces)
-            {
-                if (userFace.ImageData != null)
+                if (usersForDelete == null)
                 {
-                    var imageContent = new ByteArrayContent(userFace.ImageData);
-                    imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse(userFace.ImageMimeType);
-                    multipartContent.Add(imageContent);
+                    return StatusCode(StatusCodes.Status404NotFound);
                 }
+
+                var command = _dataServiceFactory.CreateCommandUserService();
+                await command.DeleteUsersAsync(usersForDelete);
+
+                return StatusCode(StatusCodes.Status204NoContent);
             }
-            response.Content = multipartContent;
-            return Ok(response);
-
-            #endregion
-
-            //return new OkObjectResult(multipartContent);
-
-            #region 2
-            /*var result = new List<FileContentResult>();
-
-            // Get user's photos
-            foreach (var face in userFaces)
+            catch (Exception ex)
             {
-                result.Add(File(face.ImageData, face.ImageMimeType, $"{user.Name}_{face.Id}.jpg"));
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+
+        // DELETE api/<AdminUserController>/{userId}/DeleteUserPhoto/{faceId}
+        /// <summary>
+        /// Deletes a user's face photo from the database by ID.
+        /// </summary>
+        /// <param name="userId">User ID.</param>
+        /// <param name="faceId">User's face ID.</param>
+        /// <returns>Returns status 204 if deleted or 404 if not found. Returns 500 if an error occurred.</returns>
+        [HttpDelete("{userId}/DeleteUserPhoto/{faceId}")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserPhoto(string userId, int faceId)
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFaceToDelete = await query.GetUserFaceByIdAsync(userId, faceId);
+
+                if (userFaceToDelete == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound);
+                }
+
+                var command = _dataServiceFactory.CreateCommandUserService();
+                await command.DeleteUserFaceAsync(userFaceToDelete);
+
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+
+        // DELETE api/<AdminUserController>/{userId}/DeleteUserPhotos
+        /// <summary>
+        /// Deletes the user's photo by id.
+        /// </summary>
+        /// <param name="userId">The id of the user whose photo needs to be deleted.</param>
+        /// <param name="userFacesId">The id of the photo to delete.</param>
+        /// <returns>Returns status 204 if successful or an error message.</returns>
+        [HttpDelete("{userId}/DeleteUserPhotos")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserPhotos(string userId, [FromBody] DeleteUserPhotosRequest userFacesId)
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFaceToDelete = await query.GetUserFacesByIdAsync(userId, userFacesId.userFacesId);
+
+                var command = _dataServiceFactory.CreateCommandUserService();
+                await command.DeleteUserFacesAsync(userFaceToDelete);
+
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
             }
 
-            return new MultiFileResult(result);*/
-            #endregion
         }
+
+        #endregion
+
     }
 }

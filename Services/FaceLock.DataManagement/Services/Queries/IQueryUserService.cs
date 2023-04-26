@@ -20,6 +20,12 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <returns>The User entity with the specified username.</returns>
         Task<User> GetUserByUsernameAsync(string userName);
         /// <summary>
+        /// Gets a User entity by user email.
+        /// </summary>
+        /// <param name="userEmail">The user email of the User entity to retrieve.</param>
+        /// <returns>The User entity with the user email.</returns>
+        Task<User> GetUserByEmailAsync(string userEmail);
+        /// <summary>
         /// Gets all User entities for a User entity.
         /// </summary>
         /// <param name="usersId">The list ID of the User entity to retrieve list of User entities.</param>
