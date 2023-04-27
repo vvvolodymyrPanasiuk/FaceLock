@@ -29,5 +29,9 @@
     <ProjectReference Include="..\..\Services\FaceLock.DataManagement\FaceLock.DataManagement.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\UserModels\Request\" />
+  </ItemGroup>
+
 
 </Project>

@@ -2,6 +2,7 @@
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.WebAPI.Models.AdminUserModels.Request;
 using FaceLock.WebAPI.Models.AdminUserModels.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace FaceLock.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminUserController : ControllerBase
     {
         private readonly IDataServiceFactory _dataServiceFactory;
@@ -39,7 +40,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="model">The details of the user to be created.</param>
         /// <returns>Returns status 201 if successful or an error message if not.</returns>
         [HttpPost("CreateUser")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest model)
         {
             if (ModelState.IsValid)
@@ -81,7 +82,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="files">The files to be uploaded as the user's photo(s).</param>
         /// <returns>Returns status 201 or an error message.</returns>
         [HttpPost("{userId}/AddUserPhotos")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserPhotos(string userId, [FromForm] AddUserPhotosRequest files)
         {
             if (ModelState.IsValid)
@@ -111,7 +112,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="file">The file to upload as the user's face photo.</param>
         /// <returns>Returns status 201 if the photo was added successfully, or an error message otherwise.</returns>
         [HttpPost("{userId}/AddUserPhoto")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserPhoto(string userId, [FromForm] AddUserPhotoRequest file)
         {
             if (ModelState.IsValid)
@@ -144,7 +145,7 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <returns>Returns a list of GetUserResponse objects or an error message.</returns>
         [HttpGet("GetUsers")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
             try
@@ -174,7 +175,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <returns>Returns status 200 and the user data or 404 
         /// if the user is not found or 500 if an error occurred.</returns>
         [HttpGet("GetUser/{userId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser(string userId)
         {
             try
@@ -203,7 +204,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="faceId">Face ID.</param>
         /// <returns>Returns the user's photo or an error message.</returns>
         [HttpGet("{userId}/GetUserPhoto/{faceId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPhoto(string userId, int faceId)
         {
             try
@@ -235,7 +236,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="userId">The ID of the user.</param>
         /// <returns>Returns a zip archive of the user's photos as a file download.</returns>
         [HttpGet("{userId}/GetUserPhotos")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPhotos(string userId)
         {
             try
@@ -263,7 +264,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="userId">The ID of the user whose photos to retrieve.</param>
         /// <returns>Returns status 200 and a list of GetUserPhotosInfoResponse objects, or an error message.</returns>
         [HttpGet("{userId}/GetUserPhotosInfo")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPhotosInfo(string userId)
         {
             try
@@ -302,7 +303,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="model">The model containing the updated user data.</param>
         /// <returns>Returns status 201 if successful or an error message.</returns>
         [HttpPut("{userId}/UpdateUser")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserRequest model)
         {
             if (ModelState.IsValid)
@@ -345,7 +346,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="userId">The ID of the user to delete.</param>
         /// <returns>Returns status 204 if successful or an error message.</returns>
         [HttpDelete("{userId}/DeleteUser")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string userId)
         {
             try
@@ -374,7 +375,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="usersId">The request containing the IDs of the users to be deleted.</param>
         /// <returns>Returns status 204 if the operation was successful or an error message otherwise.</returns>
         [HttpDelete("deleteUsers")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUsers([FromBody] DeleteUsersRequest usersId)
         {
             try
@@ -404,7 +405,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="faceId">User's face ID.</param>
         /// <returns>Returns status 204 if deleted or 404 if not found. Returns 500 if an error occurred.</returns>
         [HttpDelete("{userId}/DeleteUserPhoto/{faceId}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserPhoto(string userId, int faceId)
         {
             try
@@ -434,7 +435,7 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="userFacesId">The id of the photo to delete.</param>
         /// <returns>Returns status 204 if successful or an error message.</returns>
         [HttpDelete("{userId}/DeleteUserPhotos")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserPhotos(string userId, [FromBody] DeleteUserPhotosRequest userFacesId)
         {
             try

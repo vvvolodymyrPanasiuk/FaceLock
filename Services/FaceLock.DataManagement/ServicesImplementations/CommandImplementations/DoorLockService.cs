@@ -26,7 +26,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
                 doorLockAccessTokens.Add(new DoorLockAccessToken()
                 {
                     DoorLockId = doorLockId,
-                    AccessToken = await _tokenGeneratorService.GenerateToken(),
+                    AccessToken = _tokenGeneratorService.GenerateToken(),
                     Utilized = false
                 });
             }

@@ -1,10 +1,13 @@
-﻿using FaceLock.Domain.Entities.PlaceAggregate;
-using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.Domain.Repositories.PlaceRepository;
-using FaceLock.Domain.Repositories.UserRepository;
-using Microsoft.AspNetCore.Identity;
+﻿using FaceLock.DataManagement.Services;
+using FaceLock.WebAPI.Models.UserModels.Request;
+using FaceLock.WebAPI.Models.UserModels.Response;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 
@@ -12,159 +15,222 @@ namespace FaceLock.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly UserManager<User> _userManager; // сервіс для керування користувачами
-        private readonly IUserRepository _userRepository;
-        private readonly IVisitRepository _visitRepository;
-        private readonly IPlaceRepository _placeRepository;
-        //private readonly IWebHostEnvironment _hostEnvironment; // сервіс для доступу до папки wwwroot
+        private readonly IDataServiceFactory _dataServiceFactory;
+        private readonly ILogger<UserController> _logger;
 
         public UserController(
-            UserManager<User> userManager,
-            IUserRepository userRepository, 
-            IVisitRepository visitRepository, 
-            IPlaceRepository placeRepository
-            //IWebHostEnvironment hostEnvironment
-            )
+            IDataServiceFactory dataServiceFactory,
+            ILogger<UserController> logger)
         {
-            _userManager = userManager;
-            _userRepository = userRepository;
-            _visitRepository = visitRepository;
-            _placeRepository = placeRepository;
-            //_hostEnvironment = hostEnvironment;
+            _dataServiceFactory = dataServiceFactory;
+            _logger = logger;
         }
 
-        // TODO: Добавити перегляд відвідувач як коричстувачів
 
+        #region POST Metods
+        #endregion
+
+
+        #region GET Metods
+
+        // GET: api/<UserController>/GetUserInfo
         /// <summary>
-        /// Returns a list of all visits in the system
+        /// Gets user information for the authenticated user.
         /// </summary>
-        /// <returns>A list of all visits</returns>
-        [HttpGet("visits")]
-        public async Task<ActionResult<List<Visit>>> GetAllVisits()
+        /// <returns>Returns status 200 and user information or an error message.</returns>
+        [HttpGet("GetUserInfo")]
+        [Authorize]
+        public async Task<IActionResult> GetUserInfo()
         {
-            // Get the visit with the specified ID from the visit repository
-            var visits = await _visitRepository.GetAllAsync();
-
-            // If the visit was not found, return a 404 Not Found response
-            if (visits == null)
+            try
             {
-                return NotFound();
-            }
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(
+                    User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 
-            // Return the visit in an Ok response
-            return Ok(visits);
+                return StatusCode(StatusCodes.Status200OK,
+                    new GetUserInfoResponse(user.Id, user.UserName, user.Email,
+                        user.FirstName, user.LastName, user.Status));
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
         }
 
 
+        // GET: api/<UserController>/GetUserVisits
         /// <summary>
-        /// Returns a list of visits made by a particular user
+        /// Gets a list of user's visits to different places.
         /// </summary>
-        /// <param name="userId">The ID of the user</param>
-        /// <returns>A list of visits made by the user</returns>
-        [HttpGet("visits/{userId}")]
-        public async Task<ActionResult<List<Visit>>> GetUserVisits(string userId)
+        /// <param></param>
+        /// <returns>Returns status 200 and a list of visits or an error message.</returns>
+        [HttpGet("GetUserVisits")]
+        [Authorize]
+        public async Task<IActionResult> GetUserVisits()
         {
-            // Get the visit with the specified ID from the visit repository
-            var visits = await _visitRepository.GetVisitsByUserIdAsync(userId);
-
-            // If the visit was not found, return a 404 Not Found response
-            if (visits == null)
+            try
             {
-                return NotFound();
-            }
+                var query = _dataServiceFactory.CreateQueryPlaceService();
+                var visits = await query.GetVisitsByUserIdAsync(
+                    User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+                
+                var result = visits.Select(u =>
+                    new UserVisit(u.Id, u.UserId, u.PlaceId, u.CheckInTime, u.CheckOutTime));
 
-            // Return the visit in an Ok response
-            return Ok(visits);
+                return StatusCode(StatusCodes.Status200OK, new GetUserVisitsResponse(result));
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
         }
 
 
+        // GET: api/<UserController>/GetUserAccesses
         /// <summary>
-        /// Returns a list of visits made to a particular place
+        /// Gets the list of door lock accesses for the authenticated user.
         /// </summary>
-        /// <param name="placeId">The ID of the place</param>
-        /// <returns>A list of visits made to the place</returns>
-        [HttpGet("visits/{placeId}")]
-        public async Task<ActionResult<List<Visit>>> GetPlaceVisits(int placeId)
+        /// <param></param>
+        /// <returns>Returns a list of UserAccess objects or an error message.</returns>
+        [HttpGet("GetUserAccesses")]
+        [Authorize]
+        public async Task<IActionResult> GetUserAccesses()
         {
-            // Get the visit with the specified ID from the visit repository
-            var visits = await _visitRepository.GetVisitsByPlaceIdAsync(placeId);
-
-            // If the visit was not found, return a 404 Not Found response
-            if (visits == null)
+            try
             {
-                return NotFound();
-            }
+                var query = _dataServiceFactory.CreateQueryDoorLockService();
+                var accesses = await query.GetAccessByUserIdAsync(
+                    User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 
-            // Return the visit in an Ok response
-            return Ok(visits);
+                var result = accesses.Select(u =>
+                    new UserAccess(u.Id, u.UserId, u.DoorLockId, u.HasAccess));
+
+                return StatusCode(StatusCodes.Status200OK, new GetUserAccessesResponse(result));
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
         }
 
 
+        // GET: api/<DoorLockController>/GetUserHistories
         /// <summary>
-        /// Returns a specific visit by its ID
+        /// Retrieves the user's door lock histories.
         /// </summary>
-        /// <param name="visitId">The ID of the visit</param>
-        /// <returns>The visit with the specified ID</returns>
-        [HttpGet("visits/{visitId}")]
-        public async Task<ActionResult<Visit>> GetVisit(int visitId)
+        /// <returns>Returns status 200 and the user's door lock histories or an error message.</returns>
+        [HttpGet("GetUserHistories")]
+        [Authorize]
+        public async Task<IActionResult> GetUserHistories()
         {
-            // Get the visit with the specified ID from the visit repository
-            var visits = await _visitRepository.GetByIdAsync(visitId);
-
-            // If the visit was not found, return a 404 Not Found response
-            if (visits == null)
+            try
             {
-                return NotFound();
-            }
+                var query = _dataServiceFactory.CreateQueryDoorLockService();
+                var history = await query.GetDoorLockHistoryByUserIdAsync(
+                    User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 
-            // Return the visit in an Ok response
-            return Ok(visits);
+                var result = history.Select(u =>
+                    new UserHistory(u.Id, u.UserId, u.DoorLockId, u.OpenedDateTime));
+
+                return StatusCode(StatusCodes.Status200OK, new GetUserHistoriesResponse(result));
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
         }
 
+        #endregion
 
+
+        #region PUT Metods
+
+        // PUT api/<AdminUserController>/UpdateAccount
         /// <summary>
-        /// Returns a list of all places in the system
+        /// Updates a user account.
         /// </summary>
-        /// <returns>A list of all places</returns>
-        [HttpGet("places")]
-        public async Task<ActionResult<List<Place>>> GetAllPlaces()
+        /// <param name="model">The model containing the updated user data.</param>
+        /// <returns>Returns status 201 if successful or an error message.</returns>
+        [HttpPut("UpdateAccount")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAccount([FromBody] UpdateAccountRequest model)
         {
-            // Call the GetAllAsync method of the injected IPlaceRepository to retrieve all places.
-            var places = await _placeRepository.GetAllAsync();
-
-            // If the places was not found, return a 404 Not Found response
-            if (places == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
-            }
+                try
+                {
+                    var query = _dataServiceFactory.CreateQueryUserService();
+                    var user = await query.GetUserByIdAsync(
+                        User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 
-            // Return an HTTP 200 OK response with the retrieved places as the response body.
-            return Ok(places);
+                    user.UserName = model.UserName ?? user.UserName;
+                    user.Email = model.Email ?? user.Email;
+                    user.FirstName = model.FirstName ?? user.FirstName;
+                    user.LastName = model.LastName ?? user.LastName;
+                    user.Status = model.Status ?? user.Status;
+
+                    var command = _dataServiceFactory.CreateCommandUserService();
+                    await command.UpdateUserAsync(user);
+
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }
+            }
+            return BadRequest(ModelState);
         }
 
+        #endregion
 
+
+        #region DELETE Metods
+
+        // DELETE api/<AdminUserController>/DeleteAccount
         /// <summary>
-        /// Gets a place by its id.
+        /// Deletes the user account.
         /// </summary>
-        /// <param name="id">The id of the place.</param>
-        /// <returns>The place with the given id, or a NotFound response if the place is not found.</returns>
-        [HttpGet("places/{id}")]
-        public async Task<ActionResult<Place>> GetPlace(int id)
+        /// <returns>Returns status 204 if successful or an error message.</returns>
+        [HttpDelete("DeleteAccount")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAccount()
         {
-            // Retrieve the place by its id from the database using the PlaceRepository.
-            var place = await _placeRepository.GetByIdAsync(id);
-
-            // If the place is not found in the database, return a NotFound response.
-            if (place == null)
+            try
             {
-                return NotFound();
-            }
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var user = await query.GetUserByIdAsync(
+                    User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 
-            // Return the place in an Ok response.
-            return Ok(place);
+
+                var command = _dataServiceFactory.CreateCommandUserService();
+                await command.DeleteUserAsync(user);
+
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
         }
+
+        #endregion
 
     }
 }
