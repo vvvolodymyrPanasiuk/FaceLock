@@ -1,6 +1,4 @@
 ﻿using FaceLock.DataManagement.Services;
-using FaceLock.Domain.Entities.UserAggregate;
-using FaceLock.WebAPI.Models.AdminUserModels.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +7,6 @@ using System.Data;
 using System.Threading.Tasks;
 using System;
 using FaceLock.WebAPI.Models.PlaceModels.Request;
-using FaceLock.WebAPI.Models.AdminUserModels.Response;
 using System.Linq;
 using FaceLock.WebAPI.Models.PlaceModels.Response;
 
@@ -17,6 +14,7 @@ namespace FaceLock.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PlaceController : ControllerBase
     {
         private readonly IDataServiceFactory _dataServiceFactory;
@@ -207,7 +205,7 @@ namespace FaceLock.WebAPI.Controllers
                     var query = _dataServiceFactory.CreateQueryPlaceService();
                     var place = await query.GetPlaceByIdAsync(placeId);
 
-                    place.Name = place.Name ?? place.Name;
+                    place.Name = model.Name ?? place.Name;
                     place.Description = model.Description ?? place.Description;
 
                     var command = _dataServiceFactory.CreateCommandPlaceService();
