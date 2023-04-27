@@ -32,7 +32,6 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             }
 
             await _unitOfWork.DoorLockAccessTokenRepository.AddRangeAsync(doorLockAccessTokens);
-            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<DoorLockAccessToken> UseUnusedAccessTokenAsync(int doorLockId)
@@ -48,7 +47,6 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             var token = await tokens.FirstOrDefaultAsync(x => x.Utilized == false);
             await UpdateAccessTokenAsync(token);
             
-            await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
             return token;
         }
@@ -63,7 +61,6 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
                 AccessToken = accessToken.AccessToken,
                 DoorLock = accessToken.DoorLock
             });
-            //await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task UpdateAccessTokensAsync(IEnumerable<DoorLockAccessToken> accessTokens)
@@ -74,7 +71,6 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             }
 
             await _unitOfWork.DoorLockAccessTokenRepository.UpdateRangeAsync(accessTokens);
-            //await _unitOfWork.SaveChangesAsync();
         }
         #endregion
 

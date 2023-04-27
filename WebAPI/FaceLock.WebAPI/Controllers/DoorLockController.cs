@@ -361,8 +361,7 @@ namespace FaceLock.WebAPI.Controllers
                 try
                 {
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
-                    var accessesDoorLock = await query.GetAccessByDoorLockIdAsync(model.DoorLockId);
-                    var accessDoorLock = accessesDoorLock.FirstOrDefault(a => a.UserId == model.UserId);
+                    var accessDoorLock = await query.GetUserDoorLockAccessByIdAsync(model.UserId, model.DoorLockId);
 
                     accessDoorLock.UserId = model.UserId ?? accessDoorLock.UserId;
                     accessDoorLock.DoorLockId = model.DoorLockId;
@@ -432,14 +431,7 @@ namespace FaceLock.WebAPI.Controllers
             try
             {
                 var query = _dataServiceFactory.CreateQueryDoorLockService();
-                var accessesDoorLock = await query.GetAccessByDoorLockIdAsync(doorLockId);
-
-                var accessForDelete = accessesDoorLock.FirstOrDefault(a => a.UserId == userId);
-
-                if (accessForDelete == null)
-                {
-                    return StatusCode(StatusCodes.Status404NotFound, "Access not exist.");
-                }
+                var accessForDelete = await query.GetUserDoorLockAccessByIdAsync(userId, doorLockId);
 
                 var command = _dataServiceFactory.CreateCommandDoorLockService();
                 await command.DeleteDoorLockAccessAsync(accessForDelete);

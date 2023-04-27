@@ -27,6 +27,13 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <returns>A UserDoorLockAccess object representing the user access to door lock .</returns>
         Task<UserDoorLockAccess> GetUserDoorLockAccessByIdAsync(int userDoorLockAccessId);
         /// <summary>
+        /// Gets a user access to door lock by IDs.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="doorLockId">The ID of the door lock.</param>
+        /// <returns>A UserDoorLockAccess object representing the user access to door lock .</returns>
+        Task<UserDoorLockAccess> GetUserDoorLockAccessByIdAsync(string userId, int doorLockId);
+        /// <summary>
         /// Gets all the door lock accesses for a user by user ID.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
