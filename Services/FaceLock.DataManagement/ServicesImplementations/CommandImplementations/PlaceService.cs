@@ -11,15 +11,11 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
         {
             _unitOfWork = unitOfWork;
         }
+
+        #region PlaceRepository
         public async Task AddPlaceAsync(Place place)
         {
             await _unitOfWork.PlaceRepository.AddAsync(place);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task AddVisitAsync(Visit visit)
-        {
-            await _unitOfWork.VisitRepository.AddAsync(visit);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -29,15 +25,23 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteVisitAsync(Visit visit)
-        {
-            await _unitOfWork.VisitRepository.DeleteAsync(visit);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
         public async Task UpdatePlaceAsync(Place place)
         {
             await _unitOfWork.PlaceRepository.UpdateAsync(place);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        #endregion
+
+        #region VisitRepository
+        public async Task AddVisitAsync(Visit visit)
+        {
+            await _unitOfWork.VisitRepository.AddAsync(visit);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteVisitAsync(Visit visit)
+        {
+            await _unitOfWork.VisitRepository.DeleteAsync(visit);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -46,5 +50,6 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
             await _unitOfWork.VisitRepository.UpdateAsync(visit);
             await _unitOfWork.SaveChangesAsync();
         }
+        #endregion
     }
 }
