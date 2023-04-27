@@ -7,12 +7,12 @@ namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplemen
     {
         private const int TokenLength = 32; // length token in byte
 
-        public async Task<string> GenerateTokenAsync()
+        public string GenerateToken()
         {
             var randomNumberGenerator = RandomNumberGenerator.Create();
             var tokenBytes = new byte[TokenLength];
             randomNumberGenerator.GetBytes(tokenBytes);
-            return await Task.FromResult(Convert.ToBase64String(tokenBytes));
+            return Convert.ToBase64String(tokenBytes);
         }
     }
 }

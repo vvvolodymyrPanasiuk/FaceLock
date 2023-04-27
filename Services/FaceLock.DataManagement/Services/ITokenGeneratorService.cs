@@ -6,8 +6,8 @@
     public interface ITokenGeneratorService
     {
         /// <summary>
-        /// Generates a new token asynchronously.
+        /// Generates a new token.
         /// </summary>
-        Task<string> GenerateTokenAsync();
+        string GenerateToken();
     }
 }

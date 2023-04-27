@@ -4,9 +4,9 @@ namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplemen
 {
     public class SimpleTokenGeneratorStrategy : ITokenGeneratorService
     {
-        public async Task<string> GenerateTokenAsync()
+        public string GenerateToken()
         {
-            return await Task.FromResult(Guid.NewGuid().ToString());
+            return Guid.NewGuid().ToString();
         }
     }
 }
