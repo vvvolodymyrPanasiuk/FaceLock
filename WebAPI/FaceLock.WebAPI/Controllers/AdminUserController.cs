@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace FaceLock.WebAPI.Controllers
 {
+    /// <summary>
+    /// Admin user API controller.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
@@ -38,7 +41,17 @@ namespace FaceLock.WebAPI.Controllers
         /// Creates a new user with the given details.
         /// </summary>
         /// <param name="model">The details of the user to be created.</param>
-        /// <returns>Returns status 201 if successful or an error message if not.</returns>
+        /// <returns>Returns status 201 (Created) if the user was created successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the user was created successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="409">If a user with the same email already exists.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("CreateUser")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest model)
@@ -80,7 +93,15 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="userId">The ID of the user whose account the photos are being added to.</param>
         /// <param name="files">The files to be uploaded as the user's photo(s).</param>
-        /// <returns>Returns status 201 or an error message.</returns>
+        /// <returns>Returns status 201 (Created) if the files were added successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the files were added successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("{userId}/AddUserPhotos")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserPhotos(string userId, [FromForm] AddUserPhotosRequest files)
@@ -110,7 +131,14 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="userId">The user ID to add a photo to.</param>
         /// <param name="file">The file to upload as the user's face photo.</param>
-        /// <returns>Returns status 201 if the photo was added successfully, or an error message otherwise.</returns>
+        /// <returns>Returns status 201 (Created) if the photo was added successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the photo was added successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("{userId}/AddUserPhoto")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserPhoto(string userId, [FromForm] AddUserPhotoRequest file)
@@ -143,7 +171,13 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Retrieves a list of all users.
         /// </summary>
-        /// <returns>Returns a list of GetUserResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and the list of users or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and the list of users.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>        
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUsersResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUsers")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
@@ -172,8 +206,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves the user with the specified ID from the repository.
         /// </summary>
         /// <param name="userId">The ID of the user to retrieve.</param>
-        /// <returns>Returns status 200 and the user data or 404 
-        /// if the user is not found or 500 if an error occurred.</returns>
+        /// <returns>Returns the user details if found or an error message.</returns>
+        /// <response code="200">Returns the user details if found.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the user with the given ID was not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(typeof(GetUserResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUser/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser(string userId)
@@ -202,7 +243,15 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="userId">User ID.</param>
         /// <param name="faceId">Face ID.</param>
-        /// <returns>Returns the user's photo or an error message.</returns>
+        /// <returns>Returns the user's photo as a file stream or status 404 (Not Found) if the photo is not found.</returns>
+        /// <response code="200">Returns the user's photo as a file stream.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the photo is not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("{userId}/GetUserPhoto/{faceId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPhoto(string userId, int faceId)
@@ -234,7 +283,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves all the photos of the user with the given ID.
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
-        /// <returns>Returns a zip archive of the user's photos as a file download.</returns>
+        /// <returns>Returns the photos of the user in a compressed zip file.</returns>
+        /// <response code="200">Returns the photos of the user in a compressed zip file.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If a user with the given ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>        
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("{userId}/GetUserPhotos")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPhotos(string userId)
@@ -262,7 +319,17 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves information about all photos belonging to a user with the specified ID.
         /// </summary>
         /// <param name="userId">The ID of the user whose photos to retrieve.</param>
-        /// <returns>Returns status 200 and a list of GetUserPhotosInfoResponse objects, or an error message.</returns>
+        /// <returns>Returns status 200 (OK) with the list of user photos information or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) with the list of user photos information.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the specified user does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(typeof(List<GetUserPhotosInfoResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("{userId}/GetUserPhotosInfo")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPhotosInfo(string userId)
@@ -301,7 +368,17 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="userId">The ID of the user to update.</param>
         /// <param name="model">The model containing the updated user data.</param>
-        /// <returns>Returns status 201 if successful or an error message.</returns>
+        /// <returns>Returns status 201 (Created) if the user was updated successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the user was updated successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the user with the specified ID was not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPut("{userId}/UpdateUser")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserRequest model)
@@ -344,7 +421,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Deletes the user with the specified ID.
         /// </summary>
         /// <param name="userId">The ID of the user to delete.</param>
-        /// <returns>Returns status 204 if successful or an error message.</returns>
+        /// <returns>Returns status 204 (No Content) if the user was deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the user was deleted successfully.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If a user with the specified ID was not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("{userId}/DeleteUser")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string userId)
@@ -373,7 +458,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Deletes multiple users.
         /// </summary>
         /// <param name="usersId">The request containing the IDs of the users to be deleted.</param>
-        /// <returns>Returns status 204 if the operation was successful or an error message otherwise.</returns>
+        /// <returns>Returns status 204 (No Content) if the users were deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the users were deleted successfully.</response>
+        /// <response code="400">If the request body is invalid or the provided IDs are empty.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("deleteUsers")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUsers([FromBody] DeleteUsersRequest usersId)
@@ -403,7 +496,15 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="userId">User ID.</param>
         /// <param name="faceId">User's face ID.</param>
-        /// <returns>Returns status 204 if deleted or 404 if not found. Returns 500 if an error occurred.</returns>
+        /// <returns>Returns status 204 (No Content) if the photo was deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the photo was deleted successfully.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the user or the user photo does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("{userId}/DeleteUserPhoto/{faceId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserPhoto(string userId, int faceId)
@@ -433,7 +534,17 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="userId">The id of the user whose photo needs to be deleted.</param>
         /// <param name="userFacesId">The id of the photo to delete.</param>
-        /// <returns>Returns status 204 if successful or an error message.</returns>
+        /// <returns>Returns status 204 (No Content) if the photos were deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the photos were deleted successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the user or the specified photos do not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("{userId}/DeleteUserPhotos")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserPhotos(string userId, [FromBody] DeleteUserPhotosRequest userFacesId)

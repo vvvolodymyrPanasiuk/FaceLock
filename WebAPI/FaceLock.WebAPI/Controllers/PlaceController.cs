@@ -12,6 +12,9 @@ using FaceLock.WebAPI.Models.PlaceModels.Response;
 
 namespace FaceLock.WebAPI.Controllers
 {
+    /// <summary>
+    /// Place API controller.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -36,7 +39,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Creates a new place with the given details.
         /// </summary>
         /// <param name="model">The details of the place to be created.</param>
-        /// <returns>Returns status 201 if successful or an error message if not.</returns>
+        /// <returns>Returns status 201 (Created) if the place was created successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the place was created successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("CreatePlace")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreatePlace([FromBody] CreatePlaceRequest model)
@@ -73,7 +84,13 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Retrieves a list of all places.
         /// </summary>
-        /// <returns>Returns a list of GetPlacesResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and a list of all available places or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and a list of all available places.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetPlacesResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetPlaces")]
         [Authorize]
         public async Task<IActionResult> GetPlaces()
@@ -102,8 +119,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves the place with the specified ID from the repository.
         /// </summary>
         /// <param name="placeId">The ID of the place to retrieve.</param>
-        /// <returns>Returns status 200 and the place data or 404 
-        /// if the user is not found or 500 if an error occurred.</returns>
+        /// <returns>Returns status 200 (OK) and the details of the place or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and the details of the place.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the place with the given ID is not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetPlaceResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetPlace/{placeId}")]
         [Authorize]
         public async Task<IActionResult> GetPlace(int placeId)
@@ -130,7 +154,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves a list of all visit by place ID.
         /// </summary>
         /// <param name="placeId">The ID of the place to retrieve.</param>
-        /// <returns>Returns a list of GetVisitsResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) with the list of visits for the place or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) with the list of visits for the place.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the place with the given ID is not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetVisitsResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetVisitsByPlaceId/{placeId}")]
         [Authorize]
         public async Task<IActionResult> GetVisitsByPlaceId(int placeId)
@@ -159,7 +191,14 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves a list of all visit by user ID.
         /// </summary>
         /// <param name="userId">The ID of the user to retrieve.</param>
-        /// <returns>Returns a list of GetVisitsResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and the visits made by the user to the place or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and the visits made by the user to the place.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        /// <remarks>The place ID is passed as a route parameter.</remarks>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetVisitsResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetVisitsByUserId/{placeId}")]
         [Authorize]
         public async Task<IActionResult> GetVisitsByUserId(string userId)
@@ -193,7 +232,17 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="placeId">The ID of the place to update.</param>
         /// <param name="model">The model containing the updated place data.</param>
-        /// <returns>Returns status 201 if successful or an error message.</returns>
+        /// <returns>Returns status 201 (Created) if the place was updated successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the place was updated successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the place with the given ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPut("UpdatePlace/{placeId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdatePlace(int placeId, [FromBody] UpdatePlaceRequest model)
@@ -233,7 +282,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Deletes the place with the specified ID.
         /// </summary>
         /// <param name="placeId">The ID of the place to delete.</param>
-        /// <returns>Returns status 204 if successful or an error message.</returns>
+        /// <returns>Returns status 204 (No Content) if the place was deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the place was deleted successfully.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If a place with the specified ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("DeleteUser/{placeId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePlace(int placeId)

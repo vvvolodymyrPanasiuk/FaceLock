@@ -6,10 +6,27 @@ using System.Threading.Tasks;
 
 namespace FaceLock.WebAPI.Models.AdminUserModels.Response
 {
+    /// <summary>
+    /// Response object containing user photos.
+    /// </summary>
     public class GetUserPhotosResponse
     {
+        /// <summary>
+        /// The byte array representing the zipped user photos.
+        /// </summary>
+        /// <example>UEsDBBQACAAIAMNZMlDYWQcEBQAAAAA...</example>
         public byte[] FileContents { get; set; }
+
+        /// <summary>
+        /// The content type of the response.
+        /// </summary>
+        /// <example>application/zip</example>
         public string ContentType { get; set;}
+
+        /// <summary>
+        /// The file name of the zipped user photos.
+        /// </summary>
+        /// <example>user123_photos.zip</example>
         public string FileDownloadName { get; set;}
 
         public GetUserPhotosResponse(string userId, IEnumerable<UserFace> userFaces)

@@ -11,6 +11,9 @@ using FaceLock.WebAPI.Models.DoorLockModels.Response;
 
 namespace FaceLock.WebAPI.Controllers
 {
+    /// <summary>
+    /// Door lock API controller.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -35,7 +38,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Creates a new door lock with the given details.
         /// </summary>
         /// <param name="model">The details of the door lock to be created.</param>
-        /// <returns>Returns status 201 if successful or an error message if not.</returns>
+        /// <returns>Returns status 201 (Created) if the door lock was created successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the door lock was created successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("CreateDoorLock")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateDoorLock([FromBody] CreateDoorLockRequest model)
@@ -69,7 +80,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Creates a new access to door lock.
         /// </summary>
         /// <param name="model">The access of door lock to be created.</param>
-        /// <returns>Returns status 201 if successful or an error message if not.</returns>
+        /// <returns>Returns status 201 (Created) if the user's access to a door lock was created successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the user's access to a door lock was created successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("CreateAccessDoorLock")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAccessDoorLock([FromBody] CreateAccessDoorLockRequest model)
@@ -107,7 +126,13 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Retrieves a list of all door lock.
         /// </summary>
-        /// <returns>Returns a list of GetDoorLocksResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) with a list of door locks or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) with a list of door locks.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLocksResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLocks")]
         [Authorize]
         public async Task<IActionResult> GetDoorLocks()
@@ -136,8 +161,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves the door lock with the specified ID from the repository.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to retrieve.</param>
-        /// <returns>Returns status 200 and the door lock data or 404 
-        /// if the door lock is not found or 500 if an error occurred.</returns>
+        /// <returns>Returns status 200 (OK) and details of the door lock if successful or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and details of the door lock if successful.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If a door lock with the specified ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLockResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLock/{doorLockId}")]
         [Authorize]
         public async Task<IActionResult> GetDoorLock(int doorLockId)
@@ -164,8 +196,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves the door lock tokens with the specified ID from the repository.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to retrieve.</param>
-        /// <returns>Returns status 200 and the door lock tokens data or 404 
-        /// if the door lock is not found or 500 if an error occurred.</returns>
+        /// <returns>Returns status 200 (OK) and a list of access tokens associated with the given door lock ID.</returns>
+        /// <response code="200">Returns status 200 (OK) and a list of access tokens associated with the given door lock ID.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the door lock with the given ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLockTokensResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLockTokens/{doorLockId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetDoorLockTokens(int doorLockId)
@@ -194,7 +233,13 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves a list of all user accesses to door lock by door lock ID.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to retrieve.</param>
-        /// <returns>Returns a list of GetAccessesDoorLockResponse objects or an error message.</returns>
+        /// <returns>Returns the list of user accesses for the given door lock.</returns>
+        /// <response code="200">Returns the list of user accesses for the given door lock.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetAccessesDoorLockResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUserAccessesByDoorLockId/{doorLockId}")]
         [Authorize]
         public async Task<IActionResult> GetUserAccessesByDoorLockId(int doorLockId)
@@ -223,7 +268,13 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves a list of all user accesses to door lock by door lock ID.
         /// </summary>
         /// <param name="userId">The ID of the user to retrieve.</param>
-        /// <returns>Returns a list of GetAccessesDoorLockResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and the door lock accesses for the given user, or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and the door lock accesses for the given user.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetAccessesDoorLockResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUserAccessesByUserId/{userId}")]
         [Authorize]
         public async Task<IActionResult> GetUserAccessesByUserId(string userId)
@@ -252,7 +303,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves a list of all history to door lock by door lock ID.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to retrieve.</param>
-        /// <returns>Returns a list of GetDoorLockHistoryResponse objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and the door lock history or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and the door lock history.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If a door lock with the given ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLockHistoryResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLockHistoryByDoorLockId/{doorLockId}")]
         [Authorize]
         public async Task<IActionResult> GetDoorLockHistoryByDoorLockId(int doorLockId)
@@ -281,7 +340,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Retrieves a list of all history to door lock by door lock ID.
         /// </summary>
         /// <param name="userId">The ID of the user to retrieve.</param>
-        /// <returns>Returns a list of GetDoorLockHistoryResponse objects or an error message.</returns>
+        /// <returns>Returns the door lock history for the specified user ID or an error message.</returns>
+        /// <response code="200">Returns the door lock history for the specified user ID.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If no door lock history is found for the specified user ID.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLockHistoryResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLockHistoryByUserId/{userId}")]
         [Authorize]
         public async Task<IActionResult> GetDoorLockHistoryByUserId(string userId)
@@ -315,7 +382,17 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to update.</param>
         /// <param name="model">The model containing the updated door lock data.</param>
-        /// <returns>Returns status 201 if successful or an error message.</returns>
+        /// <returns>Returns status 201 (Created) if the door lock was updated successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the door lock was updated successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the door lock with the given ID is not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPut("UpdateDoorLock/{doorLockId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateDoorLock(int doorLockId, [FromBody] UpdateDoorLockRequest model)
@@ -351,7 +428,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Updates a user access to door lock.
         /// </summary>
         /// <param name="model">The model containing the updated user access to door lock data.</param>
-        /// <returns>Returns status 201 if successful or an error message.</returns>
+        /// <returns>Returns status 201 (Created) if the access level was updated successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the access level was updated successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPut("UpdateAccessDoorLock")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAccessDoorLock([FromBody] UpdateAccessDoorLockRequest model)
@@ -393,7 +478,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Deletes the door lock with the specified ID.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to delete.</param>
-        /// <returns>Returns status 204 if successful or an error message.</returns>
+        /// <returns>Returns status 204 (No Content) if the door lock was deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the door lock was deleted successfully.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the door lock with the given ID was not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("DeleteDoorLock/{placeId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteDoorLock(int doorLockId)
@@ -423,7 +516,15 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to delete.</param>        
         /// <param name="userkId">The ID of the user to delete.</param>
-        /// <returns>Returns status 204 if successful or an error message.</returns>
+        /// <returns>Returns status 204 (No Content) if the access was deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the access was deleted successfully.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the specified user or door lock does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("{doorLockId}/DeleteAccessDoorLock/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAccessDoorLock(int doorLockId, string userId)

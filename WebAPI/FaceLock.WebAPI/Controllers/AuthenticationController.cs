@@ -12,6 +12,9 @@ using FaceLock.WebAPI.Models.AuthenticationModels.Response;
 
 namespace FaceLock.WebAPI.Controllers
 {
+    /// <summary>
+    /// Authentication API controller.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
@@ -34,7 +37,13 @@ namespace FaceLock.WebAPI.Controllers
         /// User registration
         /// </summary>
         /// <param name="model">User data to be registered</param>
-        /// <returns>Status 200 or error message</returns>
+        /// <returns>Returns status 201 (Created) if the user was registered successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the user was registered successfully.</response>
+        /// <response code="400">If the model state is not valid or there was an authentication exception.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest model)
@@ -81,8 +90,14 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Login a user
         /// </summary>
-        /// <param name="model">User credentials required for login</param>
-        /// <returns>Status 200 with token or error message</returns>
+        /// <param name="model">User credentials required for login</param>   
+        /// <returns>Returns status 200 (OK) with access and refresh tokens if authentication was successful or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) with access and refresh tokens if authentication was successful.</response>
+        /// <response code="400">If the model state is not valid or the user metadata is invalid.</response>
+        /// <response code="500">If an error occurred during the operation or the tokens are invalid.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
@@ -142,7 +157,19 @@ namespace FaceLock.WebAPI.Controllers
         /// Logs out the user and clears cookies.
         /// </summary>
         /// <param></param>
-        /// <returns>Returns status 204 or an error message.</returns>
+        /// <remarks>
+        /// This endpoint logs out the user by revoking the refresh token and clearing cookies.
+        /// The user must be authenticated to use this endpoint.
+        /// </remarks>
+        /// <returns>Returns status 204 (No Content) if the user was logged out successfully, or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the user was logged out successfully.</response>
+        /// <response code="400">If the authentication token is missing or invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
@@ -188,7 +215,18 @@ namespace FaceLock.WebAPI.Controllers
         /// Refresh accessToken by refreshToken.
         /// </summary>
         /// <param></param>
-        /// <returns>Returns status 200 with accessToken or an error message.</returns>
+        /// <remarks>
+        /// Requires an authorized user to perform this action. Returns a new access token if the given refresh token is valid and not expired.
+        /// </remarks>
+        /// <returns>Returns status 200 (OK) with a new access token if the given refresh token is valid and not expired or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) with a new access token if the given refresh token is valid and not expired.</response>
+        /// <response code="400">If the authorization header is missing or the refresh token is invalid or expired.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RefreshResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("refresh")]
         [Authorize]
         public async Task<IActionResult> Refresh()

@@ -8,7 +8,6 @@ using FaceLock.DataManagement.Services;
 using FaceLock.DataManagement.Services.Commands;
 using FaceLock.DataManagement.Services.Queries;
 using FaceLock.DataManagement.ServicesImplementations;
-using FaceLock.DataManagement.ServicesImplementations.CommandImplementations;
 using FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplementation;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.Domain.Repositories;
@@ -32,6 +31,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System;
+using System.IO;
+using System.Reflection;
 using System.Text;
 
 
@@ -142,10 +143,48 @@ namespace FaceLock.WebAPI
                 options.ExpirationScanFrequency = TimeSpan.FromMinutes(60);
                 options.SizeLimit = 256;
             });
-            // Add API controllers
-            services.AddControllers();
+
             // Register the Swagger services
-            services.AddSwaggerDocument();
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "FaceLockWebAPI",
+                    Version = "v1",
+                    Description = "More information will follow later"
+                });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                config.IncludeXmlComments(xmlPath);
+
+                config.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Please insert token",
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                config.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
+
+            // Add API controllers
+            services.AddControllers();           
 
             // Application services
             services.AddScoped<IUserRepository, UserRepository>();
@@ -175,20 +214,24 @@ namespace FaceLock.WebAPI
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            // Register the Swagger generator and the Swagger UI middlewares
+            app.UseSwagger();
+            app.UseSwaggerUI(config =>
+            {
+                config.RoutePrefix = "swagger";
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "FaceLockWebAPI");
+            });
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseStaticFiles();
-
-            // Register the Swagger generator and the Swagger UI middlewares
-            app.UseOpenApi();
-            app.UseSwaggerUi3();
 
             // Add CORS handling
             app.UseCors(options =>

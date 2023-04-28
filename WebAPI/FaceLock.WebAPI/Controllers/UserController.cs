@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 
 namespace FaceLock.WebAPI.Controllers
 {
+    /// <summary>
+    /// User API controller.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -40,7 +43,13 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Gets user information for the authenticated user.
         /// </summary>
-        /// <returns>Returns status 200 and user information or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and the user information or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and the user information.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserInfoResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUserInfo")]
         [Authorize]
         public async Task<IActionResult> GetUserInfo()
@@ -69,7 +78,13 @@ namespace FaceLock.WebAPI.Controllers
         /// Gets a list of user's visits to different places.
         /// </summary>
         /// <param></param>
-        /// <returns>Returns status 200 and a list of visits or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and the list of visits made by the user.</returns>
+        /// <response code="200">Returns status 200 (OK) and the list of visits made by the user.</response>
+        /// <response code="401">If the user is not authenticated to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserVisitsResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUserVisits")]
         [Authorize]
         public async Task<IActionResult> GetUserVisits()
@@ -81,7 +96,7 @@ namespace FaceLock.WebAPI.Controllers
                     User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
                 
                 var result = visits.Select(u =>
-                    new UserVisit(u.Id, u.UserId, u.PlaceId, u.CheckInTime, u.CheckOutTime));
+                    new UserVisitByUserResponse(u.Id, u.UserId, u.PlaceId, u.CheckInTime, u.CheckOutTime));
 
                 return StatusCode(StatusCodes.Status200OK, new GetUserVisitsResponse(result));
             }
@@ -99,7 +114,13 @@ namespace FaceLock.WebAPI.Controllers
         /// Gets the list of door lock accesses for the authenticated user.
         /// </summary>
         /// <param></param>
-        /// <returns>Returns a list of UserAccess objects or an error message.</returns>
+        /// <returns>Returns status 200 (OK) and a list of accesses if successful or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and a list of accesses if successful.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserAccessesResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUserAccesses")]
         [Authorize]
         public async Task<IActionResult> GetUserAccesses()
@@ -128,7 +149,14 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Retrieves the user's door lock histories.
         /// </summary>
-        /// <returns>Returns status 200 and the user's door lock histories or an error message.</returns>
+        /// <remarks>The user must be authenticated to access this endpoint.</remarks>
+        /// <returns>Returns status 200 (OK) and a list of door lock usage history or an error message.</returns>
+        /// <response code="200">Returns status 200 (OK) and a list of door lock usage history.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserHistoriesResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetUserHistories")]
         [Authorize]
         public async Task<IActionResult> GetUserHistories()
@@ -162,7 +190,15 @@ namespace FaceLock.WebAPI.Controllers
         /// Updates a user account.
         /// </summary>
         /// <param name="model">The model containing the updated user data.</param>
-        /// <returns>Returns status 201 if successful or an error message.</returns>
+        /// <returns>Returns status 201 (Created) if the account was updated successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the account was updated successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPut("UpdateAccount")]
         [Authorize]
         public async Task<IActionResult> UpdateAccount([FromBody] UpdateAccountRequest model)
@@ -205,7 +241,13 @@ namespace FaceLock.WebAPI.Controllers
         /// <summary>
         /// Deletes the user account.
         /// </summary>
-        /// <returns>Returns status 204 if successful or an error message.</returns>
+        /// <returns>Returns status 204 (No Content) if the account was deleted successfully or an error message.</returns>
+        /// <response code="204">Returns status 204 (No Content) if the account was deleted successfully.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpDelete("DeleteAccount")]
         [Authorize]
         public async Task<IActionResult> DeleteAccount()
