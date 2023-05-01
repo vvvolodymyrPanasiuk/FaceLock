@@ -1,0 +1,54 @@
+version: '3.4'
+
+
+services:
+  facelock.webapi:
+    image: volodymyrpanasiukkk/facelockwebapi:1.0.0
+    container_name: facelock_webapi
+    #image: ${DOCKER_REGISTRY-}facelockwebapi
+    restart: always
+    build:
+      context: .
+      dockerfile: WebAPI/FaceLock.WebAPI/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - facelockdb
+      #- tokendb
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DatabaseServer: "facelockdb"
+      DatabasePort: "1433"
+      DatabaseUser: "SA"
+      DatabasePassword: "P@ssw0rd"
+      DatabaseName: "FaceLockDb"
+      #ConnectionStrings__TokenDB: "Server=tokendb, 1434; Initial Catalog=TokenDB; User ID=SA; Password=P@ssw0rd; TrustServerCertificate=true;"
+
+  facelockdb:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    container_name: facelock_db
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "P@ssw0rd"
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - facelockdb:/var/opt/mssql
+
+  #tokendb:
+  #  image: "mcr.microsoft.com/mssql/server:2019-latest"
+  #  environment:
+  #    ACCEPT_EULA: "Y"
+  #    SA_PASSWORD: "P@ssw0rd"
+  #    MSSQL_PID: Express
+  #  ports:
+  #    - "1434:1433"
+  #  volumes:
+  #    - tokendb:/var/opt/mssql
+      #- ./scripts/token-db-init.sql:/docker-entrypoint-initdb.d/token-db-init.sql
+
+volumes:
+  facelockdb:
+  #tokendb:

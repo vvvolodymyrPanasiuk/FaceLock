@@ -65,6 +65,16 @@ namespace FaceLock.Authentication.ServicesImplementations
                 _logger.LogError($"Failed to register user: A user with this login already exists.");
                 throw new AuthenticationException("A user with this email already exists.");
             }
+            //TODO: Delete this for release
+            string status;
+            if(userRegisterDto.FirstName == "Admin")
+            {
+                status = "Admin";
+            }
+            else
+            {
+                status = "User";
+            }
             // Create user with provided data
             var user = new User
             {
@@ -72,7 +82,7 @@ namespace FaceLock.Authentication.ServicesImplementations
                 Email = userRegisterDto.Email,
                 FirstName = userRegisterDto.FirstName,
                 LastName = userRegisterDto.LastName,
-                Status = "User"
+                Status = status
             };
             // Save user to database
             var result = await _userManager.CreateAsync(user, userRegisterDto.Password);

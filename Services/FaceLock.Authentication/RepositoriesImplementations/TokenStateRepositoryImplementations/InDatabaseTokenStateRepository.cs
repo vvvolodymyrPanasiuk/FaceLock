@@ -1,6 +1,7 @@
 ﻿using FaceLock.Authentication.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateRepositoryImplementations
 {
@@ -13,7 +14,20 @@ namespace FaceLock.Authentication.RepositoriesImplementations.TokenStateReposito
 
         public InDatabaseTokenStateRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("TokenStateConnection");
+            var server = Environment.GetEnvironmentVariable("DatabaseServer");
+            var port = Environment.GetEnvironmentVariable("DatabasePort");
+            var user = Environment.GetEnvironmentVariable("DatabaseUser");
+            var password = Environment.GetEnvironmentVariable("DatabasePassword");
+            var database = Environment.GetEnvironmentVariable("DatabaseName");
+
+            if (server == null || port == null || user == null || password == null)
+            {
+                _connectionString = configuration.GetConnectionString("TokenStateConnection");
+            }
+            else
+            {
+                _connectionString = $"Server={server}, {port}; Initial Catalog={database}; User ID={user}; Password={password};TrustServerCertificate=true;";
+            }     
         }
 
 

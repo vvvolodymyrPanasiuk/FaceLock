@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Authentication;
 using FaceLock.WebAPI.Models.AuthenticationModels.Request;
 using FaceLock.WebAPI.Models.AuthenticationModels.Response;
+using FaceLock.WebAPI.Models.AdminUserModels.Request;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -30,6 +31,55 @@ namespace FaceLock.WebAPI.Controllers
             _userManager = userManager;
             _logger = logger;
             _authenticationService = authenticationService;
+        }
+
+
+        // POST api/<AdminUserController>/Identification
+        /// <summary>
+        /// Identification user by user's photos.
+        /// </summary>
+        /// <param name="files">The files to be identification as the user.</param>
+        /// <returns>Returns status 200 (Ok) if the identification successfully or an error message.</returns>
+        /// <response code="20o">Returns status 200 (Ok) if identification successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+        [HttpPost("Identification")]
+        public async Task<IActionResult> Identification([FromForm] AddUserPhotosRequest files)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    foreach (var face in files.Files)
+                    {
+                        if (face == null || face.Length == 0)
+                        {
+                            ModelState.AddModelError("File", "File error.");
+                            return BadRequest(ModelState);
+                        }
+
+                        if (face.Length > (50 * 1024 * 1024))
+                        {
+                            ModelState.AddModelError("File", "The file size must not exceed 50 MB.");
+                            return BadRequest(ModelState);
+                        }
+                    }
+
+                    await Task.Delay(5000);
+
+                    return StatusCode(StatusCodes.Status200OK, new { Identification = true });
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }
+            }
+            return BadRequest(ModelState);
         }
 
         // POST: api/<AuthenticationController>/register

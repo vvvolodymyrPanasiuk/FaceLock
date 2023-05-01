@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.WebAPI", "FaceLock.WebAPI.csproj", "{67778985-AF74-446F-8E6D-7284B86096F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.WebAPI", "D:\progect\GraduationProject\WebAPI\FaceLock.WebAPI\FaceLock.WebAPI.csproj", "{67778985-AF74-446F-8E6D-7284B86096F9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A19B3899-E0F9-48B4-AAF5-460A7910DD53} = {A19B3899-E0F9-48B4-AAF5-460A7910DD53}
 		{F860A2C9-6C93-4006-9DC5-1784B1887F6F} = {F860A2C9-6C93-4006-9DC5-1784B1887F6F}
@@ -15,28 +15,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{C60648B7-340
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{522BBAD6-B18A-4FA1-B56E-B95743B617DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.Domain", "..\..\Domain\FaceLock.Domain\FaceLock.Domain.csproj", "{F860A2C9-6C93-4006-9DC5-1784B1887F6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.Domain", "D:\progect\GraduationProject\Domain\FaceLock.Domain\FaceLock.Domain.csproj", "{F860A2C9-6C93-4006-9DC5-1784B1887F6F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF", "..\..\DAL\FaceLock.EF\FaceLock.EF.csproj", "{A19B3899-E0F9-48B4-AAF5-460A7910DD53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF", "D:\progect\GraduationProject\DAL\FaceLock.EF\FaceLock.EF.csproj", "{A19B3899-E0F9-48B4-AAF5-460A7910DD53}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1EEF6A80-4E86-4310-AA51-FFD63456ABD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF.Tests", "..\..\Tests\FaceLock.EF.Tests\FaceLock.EF.Tests.csproj", "{A79D40EC-A0E9-4B3C-AC97-34E70980320E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF.Tests", "D:\progect\GraduationProject\Tests\FaceLock.EF.Tests\FaceLock.EF.Tests.csproj", "{A79D40EC-A0E9-4B3C-AC97-34E70980320E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F860A2C9-6C93-4006-9DC5-1784B1887F6F} = {F860A2C9-6C93-4006-9DC5-1784B1887F6F}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{780863FD-FD64-4FCC-B02F-21FCB5384607}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\.gitattributes = ..\..\.gitattributes
-		..\..\.gitignore = ..\..\.gitignore
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{79751805-AF81-4740-AA22-D59E42817AA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.Authentication", "..\..\Services\FaceLock.Authentication\FaceLock.Authentication.csproj", "{ACF7DE13-6725-473E-B105-C73D29A6C270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.Authentication", "D:\progect\GraduationProject\Services\FaceLock.Authentication\FaceLock.Authentication.csproj", "{ACF7DE13-6725-473E-B105-C73D29A6C270}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceLock.DataManagement", "..\..\Services\FaceLock.DataManagement\FaceLock.DataManagement.csproj", "{8F315145-88A0-4E88-9D66-B98E33E06E0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.DataManagement", "D:\progect\GraduationProject\Services\FaceLock.DataManagement\FaceLock.DataManagement.csproj", "{8F315145-88A0-4E88-9D66-B98E33E06E0B}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{C8C15E37-7475-4F90-8EAA-7D62E77F0076}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{E294139B-4DE8-4565-B390-623E0E07E0B7}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\token-db-init.sql = scripts\token-db-init.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +75,10 @@ Global
 		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F315145-88A0-4E88-9D66-B98E33E06E0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8C15E37-7475-4F90-8EAA-7D62E77F0076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8C15E37-7475-4F90-8EAA-7D62E77F0076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8C15E37-7475-4F90-8EAA-7D62E77F0076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8C15E37-7475-4F90-8EAA-7D62E77F0076}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

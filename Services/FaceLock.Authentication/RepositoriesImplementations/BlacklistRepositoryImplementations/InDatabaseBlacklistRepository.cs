@@ -1,6 +1,7 @@
 ﻿using FaceLock.Authentication.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
 {
@@ -13,9 +14,22 @@ namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositor
 
         public InDatabaseBlacklistRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("BlacklistConnection");
-        }
+            var server = Environment.GetEnvironmentVariable("DatabaseServer");
+            var port = Environment.GetEnvironmentVariable("DatabasePort");
+            var user = Environment.GetEnvironmentVariable("DatabaseUser");
+            var password = Environment.GetEnvironmentVariable("DatabasePassword");
+            var database = Environment.GetEnvironmentVariable("DatabaseName");
 
+            if (server == null || port == null || user == null || password == null)
+            {
+                _connectionString = configuration.GetConnectionString("BlacklistConnection");
+            }
+            else
+            {
+                _connectionString = $"Server={server}, {port}; Initial Catalog={database}; User ID={user}; Password={password};TrustServerCertificate=true;";
+            }
+        }
+        
 
         public async Task<bool> AddTokenToBlacklistAsync(string refreshToken, TimeSpan expirationTime)
         {

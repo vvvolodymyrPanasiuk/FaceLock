@@ -33,7 +33,7 @@ namespace FaceLock.WebAPI.Controllers
             _logger = logger;
         }
 
-
+        
         #region POST Metods
 
         // POST: api/<AuthenticationController>/CreateUser

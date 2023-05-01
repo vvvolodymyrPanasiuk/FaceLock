@@ -50,8 +50,24 @@ namespace FaceLock.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var server = Environment.GetEnvironmentVariable("DatabaseServer");
+            var port = Environment.GetEnvironmentVariable("DatabasePort");
+            var user = Environment.GetEnvironmentVariable("DatabaseUser");
+            var password = Environment.GetEnvironmentVariable("DatabasePassword");
+            var database = Environment.GetEnvironmentVariable("DatabaseName");
+            
+            string connectionString;
+            if (server == null || port == null || user == null || password == null)
+            {
+                connectionString = Configuration.GetConnectionString("DefaultConnection");
+            }
+            else
+            {
+                connectionString = $"Server={server}, {port}; Initial Catalog={database}; User ID={user}; Password={password};TrustServerCertificate=true;";
+            }
+
             services.AddDbContext<FaceLockDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             services.Configure<JwtTokenSettings>(Configuration.GetSection("JwtTokenSettings"));
 
@@ -125,16 +141,16 @@ namespace FaceLock.WebAPI
             {
                 options.AddPolicy("admin", policy => policy.RequireRole("admin"));
                 options.AddPolicy("user", policy => policy.RequireRole("user"));
-            });          
+            });
 
             // Add CORS policy
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", builder =>
+                options.AddDefaultPolicy(builder =>
                 {
-                    builder.AllowAnyHeader();
-                    builder.AllowAnyMethod();
-                    builder.AllowAnyOrigin();
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
             });
 
@@ -213,13 +229,14 @@ namespace FaceLock.WebAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)      
         {
+            InitDockerDatabase.Init(app);         
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
             // Register the Swagger generator and the Swagger UI middlewares
             app.UseSwagger();
             app.UseSwaggerUI(config =>
@@ -234,13 +251,13 @@ namespace FaceLock.WebAPI
             app.UseStaticFiles();
 
             // Add CORS handling
-            app.UseCors(options =>
+            /*app.UseCors(options =>
                 options.AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod());
+                .AllowAnyMethod());*/
+            app.UseCors();            
             //app.UseCors("AllowAll");
-            //app.UseCors("AllowAll");
-            
+
             // Add authentication and authorization
             app.UseAuthentication();
             app.UseAuthorization();
