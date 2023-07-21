@@ -28,6 +28,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System;
@@ -40,34 +41,86 @@ namespace FaceLock.WebAPI
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
         {
+            _env = env;
+
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            Configuration = builder.Build();
+
             Configuration = configuration;
         }
 
+        public Microsoft.AspNetCore.Hosting.IHostingEnvironment _env;
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var server = Environment.GetEnvironmentVariable("DatabaseServer");
-            var port = Environment.GetEnvironmentVariable("DatabasePort");
-            var user = Environment.GetEnvironmentVariable("DatabaseUser");
-            var password = Environment.GetEnvironmentVariable("DatabasePassword");
-            var database = Environment.GetEnvironmentVariable("DatabaseName");
-            
-            string connectionString;
-            if (server == null || port == null || user == null || password == null)
-            {
-                connectionString = Configuration.GetConnectionString("DefaultConnection");
-            }
-            else
-            {
-                connectionString = $"Server={server}, {port}; Initial Catalog={database}; User ID={user}; Password={password};TrustServerCertificate=true;";
-            }
+            services.AddAzureAppConfiguration();
+            services.AddFeatureManagement();
 
-            services.AddDbContext<FaceLockDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            string connectionString;
+            //Ckeck environment of project
+            if (_env.EnvironmentName == "Docker")
+            {
+                connectionString = 
+                    $"Server={Environment.GetEnvironmentVariable("DatabaseServer")}, " +
+                    $"{Environment.GetEnvironmentVariable("DatabasePort")}; " +
+                    $"Initial Catalog={Environment.GetEnvironmentVariable("DatabaseName")}; " +
+                    $"User ID={Environment.GetEnvironmentVariable("DatabaseUser")}; " +
+                    $"Password={Environment.GetEnvironmentVariable("DatabasePassword")};" +
+                    $"TrustServerCertificate={true};";
+                
+                services.AddDbContext<FaceLockDbContext>(options =>
+                    options.UseSqlServer(connectionString));
+
+                // Add identity
+                services.AddIdentity<User, IdentityRole>(config =>
+                {
+                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireUppercase = false;
+                    config.Password.RequireLowercase = false;
+                })
+                    .AddEntityFrameworkStores<FaceLockDbContext>()
+                    .AddDefaultTokenProviders();
+
+            }
+            if (_env.IsDevelopment())
+            {
+                services.AddDbContext<FaceLockDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+                // Add identity
+                services.AddIdentity<User, IdentityRole>(config =>
+                {
+                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireUppercase = false;
+                    config.Password.RequireLowercase = false;
+                })
+                    .AddEntityFrameworkStores<FaceLockDbContext>()
+                    .AddDefaultTokenProviders();
+            }
+            if(_env.IsProduction())
+            {
+                connectionString = Configuration["DefaultConnection"];
+                services.AddDbContext<FaceLockDbContext>(options =>
+                options.UseMySql(Configuration["DefaultConnection"], new MySqlServerVersion(new Version(8, 0))));
+
+                // Add identity
+                services.AddIdentity<User, IdentityRole>(config =>
+                {
+                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireUppercase = false;
+                    config.Password.RequireLowercase = false;
+                })
+                    .AddEntityFrameworkStores<FaceLockDbContext>()
+                    .AddDefaultTokenProviders();
+            }
 
             services.Configure<JwtTokenSettings>(Configuration.GetSection("JwtTokenSettings"));
 
@@ -80,17 +133,7 @@ namespace FaceLock.WebAPI
                      .WriteTo.Console()
                      .WriteTo.File("./logs/log.txt", rollingInterval: RollingInterval.Day)
                      .CreateLogger());
-            });
-
-            // Add identity
-            services.AddIdentity<User, IdentityRole>(config =>
-            {
-                config.Password.RequireNonAlphanumeric = false;
-                config.Password.RequireUppercase = false;
-                config.Password.RequireLowercase = false;
-            })
-                .AddEntityFrameworkStores<FaceLockDbContext>()
-                .AddDefaultTokenProviders();
+            });           
             
             // Configure identity options
             services.Configure<IdentityOptions>(options =>
@@ -231,11 +274,29 @@ namespace FaceLock.WebAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)      
         {
-            InitDockerDatabase.Init(app);         
+            if(env.EnvironmentName == "Docker")
+            {
+                InitDockerDatabase.Init(app);
+            }
+            if (env.IsProduction())
+            {
+                /*using (var serviceScope = app.ApplicationServices.CreateScope())
+                {
+                    var services = serviceScope.ServiceProvider;
+             
+                var dbContext = services.GetRequiredService<MySqlDbContext>();
+                    if (dbContext.Database.GetPendingMigrations().Any())
+                    {
+                        dbContext.Database.Migrate();
+                    }
+                }*/
+            }                 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseAzureAppConfiguration();
 
             // Register the Swagger generator and the Swagger UI middlewares
             app.UseSwagger();
@@ -250,13 +311,8 @@ namespace FaceLock.WebAPI
             app.UseRouting();
             app.UseStaticFiles();
 
-            // Add CORS handling
-            /*app.UseCors(options =>
-                options.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod());*/
-            app.UseCors();            
-            //app.UseCors("AllowAll");
+            // Add CORS handling        
+            app.UseCors();                     
 
             // Add authentication and authorization
             app.UseAuthentication();
