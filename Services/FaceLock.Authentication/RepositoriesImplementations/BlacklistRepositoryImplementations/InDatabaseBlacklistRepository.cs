@@ -1,6 +1,7 @@
 ﻿using FaceLock.Authentication.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositoryImplementations
@@ -14,19 +15,22 @@ namespace FaceLock.Authentication.RepositoriesImplementations.BlacklistRepositor
 
         public InDatabaseBlacklistRepository(IConfiguration configuration)
         {
-            var server = Environment.GetEnvironmentVariable("DatabaseServer");
-            var port = Environment.GetEnvironmentVariable("DatabasePort");
-            var user = Environment.GetEnvironmentVariable("DatabaseUser");
-            var password = Environment.GetEnvironmentVariable("DatabasePassword");
-            var database = Environment.GetEnvironmentVariable("DatabaseName");
-
-            if (server == null || port == null || user == null || password == null)
+            if (Environments.Development == Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
             {
                 _connectionString = configuration.GetConnectionString("BlacklistConnection");
             }
+            else if (Environments.Production == Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
+            {
+                _connectionString = configuration["DefaultConnection"];
+            }
             else
             {
-                _connectionString = $"Server={server}, {port}; Initial Catalog={database}; User ID={user}; Password={password};TrustServerCertificate=true;";
+                _connectionString = $"Server={Environment.GetEnvironmentVariable("DatabaseServer")}, " +
+                    $"{Environment.GetEnvironmentVariable("DatabasePort")};" +
+                    $"Initial Catalog={Environment.GetEnvironmentVariable("DatabaseName")};" +
+                    $"User ID={Environment.GetEnvironmentVariable("DatabaseUser")};" +
+                    $"Password={Environment.GetEnvironmentVariable("DatabasePassword")};" +
+                    $"TrustServerCertificate={true};";
             }
         }
         

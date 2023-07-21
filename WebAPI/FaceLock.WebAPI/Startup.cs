@@ -14,11 +14,7 @@ using FaceLock.Domain.Repositories;
 using FaceLock.Domain.Repositories.DoorLockRepository;
 using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
-using FaceLock.EF;
-using FaceLock.EF.Repositories;
-using FaceLock.EF.Repositories.DoorLockRepository;
-using FaceLock.EF.Repositories.PlaceRepository;
-using FaceLock.EF.Repositories.UserRepository;
+using FaceLock.EF.MySql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,7 +29,9 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 
@@ -75,51 +73,17 @@ namespace FaceLock.WebAPI
                     $"User ID={Environment.GetEnvironmentVariable("DatabaseUser")}; " +
                     $"Password={Environment.GetEnvironmentVariable("DatabasePassword")};" +
                     $"TrustServerCertificate={true};";
-                
-                services.AddDbContext<FaceLockDbContext>(options =>
-                    options.UseSqlServer(connectionString));
 
-                // Add identity
-                services.AddIdentity<User, IdentityRole>(config =>
-                {
-                    config.Password.RequireNonAlphanumeric = false;
-                    config.Password.RequireUppercase = false;
-                    config.Password.RequireLowercase = false;
-                })
-                    .AddEntityFrameworkStores<FaceLockDbContext>()
-                    .AddDefaultTokenProviders();
-
+                ConfigureServicesDevelopment(services, connectionString);
             }
             if (_env.IsDevelopment())
             {
-                services.AddDbContext<FaceLockDbContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-                // Add identity
-                services.AddIdentity<User, IdentityRole>(config =>
-                {
-                    config.Password.RequireNonAlphanumeric = false;
-                    config.Password.RequireUppercase = false;
-                    config.Password.RequireLowercase = false;
-                })
-                    .AddEntityFrameworkStores<FaceLockDbContext>()
-                    .AddDefaultTokenProviders();
+                connectionString = Configuration.GetConnectionString("DefaultConnection");
+                ConfigureServicesDevelopment(services, connectionString);            
             }
             if(_env.IsProduction())
             {
-                connectionString = Configuration["DefaultConnection"];
-                services.AddDbContext<FaceLockDbContext>(options =>
-                options.UseMySql(Configuration["DefaultConnection"], new MySqlServerVersion(new Version(8, 0))));
-
-                // Add identity
-                services.AddIdentity<User, IdentityRole>(config =>
-                {
-                    config.Password.RequireNonAlphanumeric = false;
-                    config.Password.RequireUppercase = false;
-                    config.Password.RequireLowercase = false;
-                })
-                    .AddEntityFrameworkStores<FaceLockDbContext>()
-                    .AddDefaultTokenProviders();
+                ConfigureServicesProduction(services);                   
             }
 
             services.Configure<JwtTokenSettings>(Configuration.GetSection("JwtTokenSettings"));
@@ -156,10 +120,9 @@ namespace FaceLock.WebAPI
                 options.User.RequireUniqueEmail = true;
             });
 
-            // Add JWT authentication           
-            var jwtTokenSettings = Configuration.GetSection("JwtTokenSettings");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtTokenSettings.GetValue<string>("SecretKey")));
-
+            // Add JWT authentication
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtTokenSecretKey"]));
+            
             services.AddAuthentication(o =>
             {
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -246,16 +209,6 @@ namespace FaceLock.WebAPI
             services.AddControllers();           
 
             // Application services
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserFaceRepository, UserFaceRepository>();
-            services.AddScoped<IVisitRepository, VisitRepository>();
-            services.AddScoped<IPlaceRepository, PlaceRepository>();
-            services.AddScoped<IDoorLockAccessRepository, DoorLockAccessRepository>();
-            services.AddScoped<IDoorLockAccessTokenRepository, DoorLockAccessTokenRepository>();
-            services.AddScoped<IDoorLockHistoryRepository, DoorLockHistoryRepository>();
-            services.AddScoped<IDoorLockRepository, DoorLockRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-
             services.AddTransient<ITokenGeneratorService, SecureRandomTokenGeneratorStrategy>();
             services.AddScoped<ICommandUserService, DataManagement.ServicesImplementations.CommandImplementations.UserService>();
             services.AddScoped<IQueryUserService, DataManagement.ServicesImplementations.QueryImplementations.UserService>();
@@ -265,10 +218,67 @@ namespace FaceLock.WebAPI
             services.AddScoped<IQueryDoorLockService, DataManagement.ServicesImplementations.QueryImplementations.DoorLockService>();
             services.AddTransient<IDataServiceFactory, DataServiceFactory>();
 
-            services.AddScoped<ITokenStateRepository, InDatabaseTokenStateRepository>();
-            services.AddScoped<IBlacklistRepository, InDatabaseBlacklistRepository>();
+            services.AddScoped<ITokenStateRepository, InFileTokenStateRepository>();
+            services.AddScoped<IBlacklistRepository, InFileBlacklistRepository>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
+        }
+
+        private void ConfigureServicesProduction(IServiceCollection services)
+        {
+            /*
+            services.AddDbContext<EF.MySql.FaceLockMySqlDbContext>(options =>
+                options.UseMySql(Configuration["DefaultConnection"], new MySqlServerVersion(new Version(8, 0))));
+            */
+            services.AddDbContext<EF.FaceLockDbContext>(options =>
+                options.UseInMemoryDatabase(databaseName: "FaceLockInMemoryDatabase"));
+
+            // Add identity
+            services.AddIdentity<User, IdentityRole>(config =>
+            {
+                config.Password.RequireNonAlphanumeric = false;
+                config.Password.RequireUppercase = false;
+                config.Password.RequireLowercase = false;
+            })
+                .AddEntityFrameworkStores<EF.FaceLockDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddScoped<IUserRepository, EF.Repositories.UserRepository.UserRepository>();
+            services.AddScoped<IUserFaceRepository, EF.Repositories.UserRepository.UserFaceRepository>();
+            services.AddScoped<IVisitRepository, EF.Repositories.PlaceRepository.VisitRepository>();
+            services.AddScoped<IPlaceRepository, EF.Repositories.PlaceRepository.PlaceRepository>();
+            services.AddScoped<IDoorLockAccessRepository, EF.Repositories.DoorLockRepository.DoorLockAccessRepository>();
+            services.AddScoped<IDoorLockAccessTokenRepository, EF.Repositories.DoorLockRepository.DoorLockAccessTokenRepository>();
+            services.AddScoped<IDoorLockHistoryRepository, EF.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
+            services.AddScoped<IDoorLockRepository, EF.Repositories.DoorLockRepository.DoorLockRepository>();
+            services.AddScoped<IUnitOfWork, EF.Repositories.UnitOfWork>();
+        }
+
+        private void ConfigureServicesDevelopment(IServiceCollection services, string connectionString)
+        {
+            services.AddDbContext<EF.FaceLockDbContext>(options =>
+                    options.UseSqlServer(connectionString));
+
+            // Add identity
+            services.AddIdentity<User, IdentityRole>(config =>
+            {
+                config.Password.RequireNonAlphanumeric = false;
+                config.Password.RequireUppercase = false;
+                config.Password.RequireLowercase = false;
+            })
+                .AddEntityFrameworkStores<EF.FaceLockDbContext>()
+                .AddDefaultTokenProviders();
+
+            // Application services
+            services.AddScoped<IUserRepository, EF.Repositories.UserRepository.UserRepository>();
+            services.AddScoped<IUserFaceRepository, EF.Repositories.UserRepository.UserFaceRepository>();
+            services.AddScoped<IVisitRepository, EF.Repositories.PlaceRepository.VisitRepository>();
+            services.AddScoped<IPlaceRepository, EF.Repositories.PlaceRepository.PlaceRepository>();
+            services.AddScoped<IDoorLockAccessRepository, EF.Repositories.DoorLockRepository.DoorLockAccessRepository>();
+            services.AddScoped<IDoorLockAccessTokenRepository, EF.Repositories.DoorLockRepository.DoorLockAccessTokenRepository>();
+            services.AddScoped<IDoorLockHistoryRepository, EF.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
+            services.AddScoped<IDoorLockRepository, EF.Repositories.DoorLockRepository.DoorLockRepository>();
+            services.AddScoped<IUnitOfWork, EF.Repositories.UnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -280,17 +290,18 @@ namespace FaceLock.WebAPI
             }
             if (env.IsProduction())
             {
-                /*using (var serviceScope = app.ApplicationServices.CreateScope())
+                /*
+                using (var serviceScope = app.ApplicationServices.CreateScope())
                 {
                     var services = serviceScope.ServiceProvider;
              
-                var dbContext = services.GetRequiredService<MySqlDbContext>();
+                    var dbContext = services.GetRequiredService<EF.MySql.FaceLockMySqlDbContext>();
                     if (dbContext.Database.GetPendingMigrations().Any())
                     {
                         dbContext.Database.Migrate();
                     }
                 }*/
-            }                 
+            }
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

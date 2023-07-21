@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DAL\FaceLock.EF\FaceLock.EF.csproj" />
     <ProjectReference Include="..\..\Domain\FaceLock.Domain\FaceLock.Domain.csproj" />
   </ItemGroup>
 

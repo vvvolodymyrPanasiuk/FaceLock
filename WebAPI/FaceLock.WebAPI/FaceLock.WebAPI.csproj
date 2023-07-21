@@ -18,11 +18,12 @@
     <PackageReference Include="Azure.Identity" Version="1.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="6.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
@@ -36,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DAL\FaceLock.EF.MySql\FaceLock.EF.MySql.csproj" />
     <ProjectReference Include="..\..\DAL\FaceLock.EF\FaceLock.EF.csproj" />
     <ProjectReference Include="..\..\Domain\FaceLock.Domain\FaceLock.Domain.csproj" />
     <ProjectReference Include="..\..\Services\FaceLock.Authentication\FaceLock.Authentication.csproj" />
