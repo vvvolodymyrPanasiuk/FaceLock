@@ -15,9 +15,11 @@ blacklist.json
 tokenstate.json
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+.vscode/
 
 #secrets
 appsettings.Production.json
+settings.json
 
 # Build results
 [Dd]ebug/
