@@ -61,7 +61,7 @@ namespace FaceLock.WebAPI.Controllers
                 try
                 {
                     var query = _dataServiceFactory.CreateQueryUserService();
-                    if (query.IsExistUserByEmailAsync(model.Email).Result == true)
+                    if (await query.IsExistUserByEmailAsync(model.Email) == true)
                     {
                         return StatusCode(StatusCodes.Status409Conflict, "User already exists.");
                     }
@@ -72,6 +72,7 @@ namespace FaceLock.WebAPI.Controllers
                         Email = model.Email,
                         FirstName = model.FirstName,
                         LastName = model.LastName,
+                        UserName = $"{model.FirstName}.{model.LastName}",
                         Status = model.Status
                     });
 

@@ -97,11 +97,17 @@ namespace FaceLock.WebAPI.Controllers
             {
                 try
                 {
-                    var command = _dataServiceFactory.CreateCommandDoorLockService();
-                    await command.AddDoorLockAccessAsync(new Domain.Entities.DoorLockAggregate.UserDoorLockAccess
+                    var queryUser = _dataServiceFactory.CreateQueryUserService();
+                    var user = await queryUser.GetUserByIdAsync(model.UserId);
+
+                    var queryDoorLock = _dataServiceFactory.CreateQueryDoorLockService();
+                    var doorLock = await queryDoorLock.GetDoorLockByIdAsync(model.DoorLockId);
+
+                    var commandDoorLock = _dataServiceFactory.CreateCommandDoorLockService();
+                    await commandDoorLock.AddDoorLockAccessAsync(new Domain.Entities.DoorLockAggregate.UserDoorLockAccess
                     {
-                        UserId = model.UserId,
-                        DoorLockId = model.DoorLockId,
+                        UserId = user.Id,
+                        DoorLockId = doorLock.Id,
                         HasAccess = model.HasAccess
                     });
 
@@ -400,7 +406,7 @@ namespace FaceLock.WebAPI.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {
+                {                  
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
                     var doorLock = await query.GetDoorLockByIdAsync(doorLockId);
 
@@ -448,10 +454,7 @@ namespace FaceLock.WebAPI.Controllers
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
                     var accessDoorLock = await query.GetUserDoorLockAccessByIdAsync(model.UserId, model.DoorLockId);
 
-                    accessDoorLock.UserId = model.UserId ?? accessDoorLock.UserId;
-                    accessDoorLock.DoorLockId = model.DoorLockId;
                     accessDoorLock.HasAccess = model.HasAccess;
-
 
                     var command = _dataServiceFactory.CreateCommandDoorLockService();
                     await command.UpdateDoorLockAccessAsync(accessDoorLock);
