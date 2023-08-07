@@ -45,5 +45,9 @@
     <ProjectReference Include="..\..\Services\FaceLock.Recognition\FaceLock.Recognition.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\RecognitionModels\Request\" />
+  </ItemGroup>
+
 
 </Project>

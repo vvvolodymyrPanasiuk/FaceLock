@@ -1,4 +1,5 @@
-﻿using FaceLock.DataManagement.Services;
+﻿using Emgu.CV.Face;
+using FaceLock.DataManagement.Services;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.WebAPI.Models.AdminUserModels.Request;
 using FaceLock.WebAPI.Models.AdminUserModels.Response;
@@ -24,13 +25,16 @@ namespace FaceLock.WebAPI.Controllers
     {
         private readonly IDataServiceFactory _dataServiceFactory;
         private readonly ILogger<AdminUserController> _logger;
+        private readonly Recognition.Services.IFaceRecognitionService<string> _recognitionService;
 
         public AdminUserController(
             IDataServiceFactory dataServiceFactory,
-            ILogger<AdminUserController> logger)
+            ILogger<AdminUserController> logger,
+            Recognition.Services.IFaceRecognitionService<string> recognitionService)
         {
             _dataServiceFactory = dataServiceFactory;
             _logger = logger;
+            _recognitionService = recognitionService;
         }
 
         
@@ -111,10 +115,21 @@ namespace FaceLock.WebAPI.Controllers
             {
                 try
                 {
+                    foreach (var face in files.Files)
+                    {
+                        await _recognitionService.AddUserFaceToTrainModelAsync(userId, face);
+                    }
+
                     var command = _dataServiceFactory.CreateCommandUserService();
                     await command.AddUserFacesAsync(userId, files.Files);
 
                     return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (ArgumentNullException ex)
+                {
+                    // Log error and return 400 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status400BadRequest, $"Error: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
@@ -136,7 +151,8 @@ namespace FaceLock.WebAPI.Controllers
         /// <response code="201">Returns status 201 (Created) if the photo was added successfully.</response>
         /// <response code="400">If the model state is not valid.</response>
         /// <response code="401">If the user is not authorized to perform this action.</response>
-        /// <response code="500">If an error occurred during the operation.</response>        [ProducesResponseType(StatusCodes.Status201Created)]
+        /// <response code="500">If an error occurred during the operation.</response>        
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
@@ -148,10 +164,18 @@ namespace FaceLock.WebAPI.Controllers
             {
                 try
                 {
+                    await _recognitionService.AddUserFaceToTrainModelAsync(userId, file.File);
+
                     var command = _dataServiceFactory.CreateCommandUserService();
                     await command.AddUserFaceAsync(userId, file.File);
 
                     return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (ArgumentNullException ex)
+                {
+                    // Log error and return 400 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status400BadRequest, $"Error: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
