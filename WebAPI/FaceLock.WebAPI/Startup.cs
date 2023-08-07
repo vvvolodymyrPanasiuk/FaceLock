@@ -15,6 +15,9 @@ using FaceLock.Domain.Repositories.DoorLockRepository;
 using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.EF.MySql;
+using FaceLock.Recognition.RecognitionSettings;
+using FaceLock.Recognition.Services;
+using FaceLock.Recognition.ServicesImplementations.EmguCVImplementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -49,7 +52,7 @@ namespace FaceLock.WebAPI
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
-
+            
             Configuration = configuration;
         }
 
@@ -87,6 +90,7 @@ namespace FaceLock.WebAPI
             }
 
             services.Configure<JwtTokenSettings>(Configuration.GetSection("JwtTokenSettings"));
+            services.Configure<EmguCVFaceRecognationSettings>(Configuration.GetSection("EmguCVFaceRecognationSettings"));
 
             // Add logging
             services.AddLogging(loggingBuilder =>
@@ -222,6 +226,8 @@ namespace FaceLock.WebAPI
             services.AddScoped<IBlacklistRepository, InFileBlacklistRepository>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
+
+            services.AddTransient<IFaceRecognitionService<string>, EmguFaceRecognitionService<string>>();
         }
 
         private void ConfigureServicesProduction(IServiceCollection services)

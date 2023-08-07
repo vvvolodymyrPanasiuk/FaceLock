@@ -10,5 +10,10 @@
         /// Gets or sets the user ID for the recognized face.
         /// </summary>
         public T? UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the prediction distance for the recognized face.
+        /// </summary>
+        public double? PredictionDistance { get; set; }
     }
 }

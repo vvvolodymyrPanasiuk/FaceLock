@@ -1,4 +1,5 @@
 ﻿using FaceLock.Recognition.DTO;
+using Microsoft.AspNetCore.Http;
 
 namespace FaceLock.Recognition.Services
 {
@@ -9,37 +10,63 @@ namespace FaceLock.Recognition.Services
     public interface IFaceRecognitionService<T>
     {
         /// <summary>
-        /// Trains the face recognition model asynchronously.
+        /// Recognizes a user by a single face image and face ID.
         /// </summary>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task TrainModelAsync();
+        /// <param name="imageData">The byte array of the image data.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the face recognition result.</returns>
+        Task<FaceRecognitionResult<T>> RecognizeUserByFaceAsync(byte[] imageData);
 
         /// <summary>
-        /// Recognizes a user asynchronously based on the provided face recognition request.
+        /// Recognizes users by multiple face images and their face IDs.
         /// </summary>
-        /// <param name="request">The face recognition request.</param>
-        /// <returns>A task representing the asynchronous operation that returns the face recognition result.</returns>
-        Task<FaceRecognitionResult<T>> RecognizeUserAsync(FaceRecognitionRequest<T> request);
+        /// <param name="imagesData">The list of byte arrays of the image data.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the face recognition result.</returns>
+        Task<FaceRecognitionResult<T>> RecognizeUserByFacesAsync(List<byte[]> imagesData);
 
         /// <summary>
-        /// Recognizes multiple users asynchronously based on the provided face recognition requests.
+        /// Recognizes a user by a single face image and face ID.
         /// </summary>
-        /// <param name="requests">The face recognition requests.</param>
-        /// <returns>A task representing the asynchronous operation that returns the face recognition result.</returns>
-        Task<FaceRecognitionResult<T>> RecognizeUsersAsync(List<FaceRecognitionRequest<T>> requests);
+        /// <param name="imageData">The image data as an IFormFile.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the face recognition result.</returns>
+        Task<FaceRecognitionResult<T>> RecognizeUserByFaceAsync(IFormFile imageData);
 
         /// <summary>
-        /// Adds a user face asynchronously to the face recognition model.
+        /// Recognizes users by multiple face images and their face IDs.
         /// </summary>
-        /// <param name="request">The face recognition request.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task AddUserFaceAsync(FaceRecognitionRequest<T> request);
+        /// <param name="imagesData">The collection of image data as an IFormFileCollection.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the face recognition result.</returns>
+        Task<FaceRecognitionResult<T>> RecognizeUserByFacesAsync(IFormFileCollection imagesData);
 
         /// <summary>
-        /// Adds multiple user faces asynchronously to the face recognition model.
+        /// Adds a user face to the face recognition model asynchronously.
         /// </summary>
-        /// <param name="requests">The face recognition requests.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        Task AddUserFacesAsync(List<FaceRecognitionRequest<T>> requests);
+        /// <param name="userId">The type of the user ID.</param>
+        /// <param name="ImageData">The byte array of the image data.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task AddUserFaceToTrainModelAsync(T userId, byte[] imageData);
+
+        /// <summary>
+        /// Adds multiple user faces to the face recognition model asynchronously.
+        /// </summary>
+        /// <param name="userId">The type of the user ID.</param>
+        /// <param name="imagesData">The list of byte arrays of the image data.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task AddUserFacesToTrainModelAsync(T userId, List<byte[]> imagesData);
+
+        /// <summary>
+        /// Adds a user face to the face recognition model asynchronously.
+        /// </summary>
+        /// <param name="userId">The type of the user ID.</param>
+        /// <param name="imageData">The image data as an IFormFile.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task AddUserFaceToTrainModelAsync(T userId, IFormFile imageData);
+
+        /// <summary>
+        /// Adds multiple user faces to the face recognition model asynchronously.
+        /// </summary>
+        /// <param name="userId">The type of the user ID.</param>
+        /// <param name="imagesData">The collection of image data as an IFormFileCollection.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task AddUserFacesToTrainModelAsync(T userId, IFormFileCollection imagesData);
     }
 }
