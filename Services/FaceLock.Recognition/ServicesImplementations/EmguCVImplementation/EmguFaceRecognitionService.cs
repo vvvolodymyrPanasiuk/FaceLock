@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using FaceLock.Recognition.RecognitionSettings;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
 {
@@ -27,7 +26,7 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
         private readonly string userIdToLabelMapJsonFilePath;
         private readonly string labelToUserIdMapJsonFilePath;
         private readonly string emguTrainingModelFilePath;
-
+        
         private Dictionary<T, int>? userIdToLabelMap;
         private Dictionary<int, T>? labelToUserIdMap;
         private VectorOfInt? vectorOfInt;

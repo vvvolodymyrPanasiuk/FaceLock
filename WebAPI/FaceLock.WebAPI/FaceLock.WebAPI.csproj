@@ -8,10 +8,18 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Controllers\AuthenticationController.cs~RFeea5355.TMP" />
+    <None Remove="RecognitionData\EmguCV\haarcascade_frontalface_alt.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="RecognitionData\EmguCV\haarcascade_frontalface_alt.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

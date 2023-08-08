@@ -14,7 +14,6 @@ using FaceLock.Domain.Repositories;
 using FaceLock.Domain.Repositories.DoorLockRepository;
 using FaceLock.Domain.Repositories.PlaceRepository;
 using FaceLock.Domain.Repositories.UserRepository;
-using FaceLock.EF.MySql;
 using FaceLock.Recognition.RecognitionSettings;
 using FaceLock.Recognition.Services;
 using FaceLock.Recognition.ServicesImplementations.EmguCVImplementation;
@@ -32,9 +31,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 
 

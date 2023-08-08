@@ -1,5 +1,4 @@
-﻿using Emgu.CV.Face;
-using FaceLock.DataManagement.Services;
+﻿using FaceLock.DataManagement.Services;
 using FaceLock.Domain.Entities.UserAggregate;
 using FaceLock.WebAPI.Models.AdminUserModels.Request;
 using FaceLock.WebAPI.Models.AdminUserModels.Response;
