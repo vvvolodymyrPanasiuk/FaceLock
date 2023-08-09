@@ -28,6 +28,10 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
         {
             // Detect faces using the HaarCascadeClassifier
             var faces = faceDetector.DetectMultiScale(image, 1.1, 3, Size.Empty);
+            if(faces.Length == 0)
+            {
+                throw new ArgumentNullException("Face not detected.");
+            }
 
             var detectedFaces = new DetectedFace();
             // Extract first detected face region and convert it to grayscale image
@@ -46,6 +50,10 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
         {
             // Detect faces using the HaarCascadeClassifier
             var faces = faceDetector.DetectMultiScale(image, 1.1, 3, Size.Empty);
+            if (faces.Length == 0)
+            {
+                throw new ArgumentNullException("Face not detected.");
+            }
 
             // Create an array to store the detected faces
             var detectedFaces = new List<DetectedFace>();
@@ -70,6 +78,10 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
         {
             // Detect faces using the HaarCascadeClassifier
             var faces = await Task.Run(() => faceDetector.DetectMultiScale(image, 1.1, 3, Size.Empty));
+            if (faces.Length == 0)
+            {
+                throw new ArgumentNullException("Face not detected.");
+            }
 
             // Create an array to store the detected faces
             var detectedFaces = new List<DetectedFace>();
