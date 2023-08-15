@@ -31,6 +31,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -229,12 +230,17 @@ namespace FaceLock.WebAPI
 
         private void ConfigureServicesProduction(IServiceCollection services)
         {
-            /*
+            string connection = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+            string dbhost = System.Text.RegularExpressions.Regex.Match(connection, @"Data Source=(.+?);").Groups[1].Value;
+            string server = dbhost.Split(':')[0].ToString();
+            string port = dbhost.Split(':')[1].ToString();
+            string dbname = System.Text.RegularExpressions.Regex.Match(connection, @"Database=(.+?);").Groups[1].Value;
+            string dbusername = System.Text.RegularExpressions.Regex.Match(connection, @"User Id=(.+?);").Groups[1].Value;
+            string dbpassword = System.Text.RegularExpressions.Regex.Match(connection, @"Password=(.+?)$").Groups[1].Value;
+            string connectionString = $@"server={server};userid={dbusername};password={dbpassword};database={dbname};port={port};pooling = false; convert zero datetime=True;";
+
             services.AddDbContext<EF.MySql.FaceLockMySqlDbContext>(options =>
-                options.UseMySql(Configuration["DefaultConnection"], new MySqlServerVersion(new Version(8, 0))));
-            */
-            services.AddDbContext<EF.FaceLockDbContext>(options =>
-                options.UseInMemoryDatabase(databaseName: "FaceLockInMemoryDatabase"));
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(5, 1))));
 
             // Add identity
             services.AddIdentity<User, IdentityRole>(config =>
@@ -243,18 +249,18 @@ namespace FaceLock.WebAPI
                 config.Password.RequireUppercase = false;
                 config.Password.RequireLowercase = false;
             })
-                .AddEntityFrameworkStores<EF.FaceLockDbContext>()
+                .AddEntityFrameworkStores<EF.MySql.FaceLockMySqlDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddScoped<IUserRepository, EF.Repositories.UserRepository.UserRepository>();
-            services.AddScoped<IUserFaceRepository, EF.Repositories.UserRepository.UserFaceRepository>();
-            services.AddScoped<IVisitRepository, EF.Repositories.PlaceRepository.VisitRepository>();
-            services.AddScoped<IPlaceRepository, EF.Repositories.PlaceRepository.PlaceRepository>();
-            services.AddScoped<IDoorLockAccessRepository, EF.Repositories.DoorLockRepository.DoorLockAccessRepository>();
-            services.AddScoped<IDoorLockAccessTokenRepository, EF.Repositories.DoorLockRepository.DoorLockAccessTokenRepository>();
-            services.AddScoped<IDoorLockHistoryRepository, EF.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
-            services.AddScoped<IDoorLockRepository, EF.Repositories.DoorLockRepository.DoorLockRepository>();
-            services.AddScoped<IUnitOfWork, EF.Repositories.UnitOfWork>();
+            services.AddScoped<IUserRepository, EF.MySql.Repositories.UserRepository.UserRepository>();
+            services.AddScoped<IUserFaceRepository, EF.MySql.Repositories.UserRepository.UserFaceRepository>();
+            services.AddScoped<IVisitRepository, EF.MySql.Repositories.PlaceRepository.VisitRepository>();
+            services.AddScoped<IPlaceRepository, EF.MySql.Repositories.PlaceRepository.PlaceRepository>();
+            services.AddScoped<IDoorLockAccessRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockAccessRepository>();
+            services.AddScoped<IDoorLockAccessTokenRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockAccessTokenRepository>();
+            services.AddScoped<IDoorLockHistoryRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
+            services.AddScoped<IDoorLockRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockRepository>();
+            services.AddScoped<IUnitOfWork, EF.MySql.Repositories.UnitOfWork>();
         }
 
         private void ConfigureServicesDevelopment(IServiceCollection services, string connectionString)
@@ -292,8 +298,7 @@ namespace FaceLock.WebAPI
                 InitDockerDatabase.Init(app);
             }
             if (env.IsProduction())
-            {
-                /*
+            {                  
                 using (var serviceScope = app.ApplicationServices.CreateScope())
                 {
                     var services = serviceScope.ServiceProvider;
@@ -303,7 +308,7 @@ namespace FaceLock.WebAPI
                     {
                         dbContext.Database.Migrate();
                     }
-                }*/
+                }
             }
             if (env.IsDevelopment())
             {
