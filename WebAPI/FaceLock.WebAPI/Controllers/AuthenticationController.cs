@@ -229,7 +229,6 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpPost("refresh")]
-        [Authorize]
         public async Task<IActionResult> Refresh()
         {
             try
