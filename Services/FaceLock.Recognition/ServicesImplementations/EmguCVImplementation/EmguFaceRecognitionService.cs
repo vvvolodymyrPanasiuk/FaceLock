@@ -303,7 +303,13 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
                 if (typeof(TVector) == typeof(VectorOfMat))
                 {
                     var matList = JsonConvert.DeserializeObject<List<Mat>>(json);
+                    if(matList == null)
+                    {
+                        return default;
+                    }
+
                     var vectorOfMat = new VectorOfMat(matList.ToArray());
+
                     return (TVector)(object)vectorOfMat;
                 }
                 else
@@ -342,6 +348,11 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
+                if(json == null)
+                {
+                    return new Dictionary<TDictionaryKey, TDictionaryValue>();
+                }
+
                 return JsonConvert.DeserializeObject<Dictionary<TDictionaryKey, TDictionaryValue>>(json);
             }
             return null;
