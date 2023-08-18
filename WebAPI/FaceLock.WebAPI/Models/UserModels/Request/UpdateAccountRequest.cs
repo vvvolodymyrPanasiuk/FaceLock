@@ -58,18 +58,5 @@ namespace FaceLock.WebAPI.Models.UserModels.Request
         [Required(ErrorMessage = "Last name is required")]
         [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
         public string LastName { get; set; }
-
-        /// <summary>
-        /// The status associated with the account being updated.
-        /// </summary>
-        /// <remarks>
-        /// The status cannot exceed 50 characters.
-        /// </remarks>
-        /// <example>
-        /// User
-        /// </example>
-        [Required(ErrorMessage = "Status is required")]
-        [StringLength(50, ErrorMessage = "Status cannot exceed 50 characters")]
-        public string Status { get; set; }
     }
 }

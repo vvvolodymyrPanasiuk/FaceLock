@@ -215,7 +215,6 @@ namespace FaceLock.WebAPI.Controllers
                     user.Email = model.Email ?? user.Email;
                     user.FirstName = model.FirstName ?? user.FirstName;
                     user.LastName = model.LastName ?? user.LastName;
-                    user.Status = model.Status ?? user.Status;
 
                     var command = _dataServiceFactory.CreateCommandUserService();
                     await command.UpdateUserAsync(user);
