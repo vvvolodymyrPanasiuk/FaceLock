@@ -68,10 +68,10 @@ namespace FaceLock.DataManagement.Services.Queries
 
 
         /// <summary>
-        /// Gets all the access tokens for a door lock by door lock ID.
+        /// Gets security information for a door lock by door lock ID.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock.</param>
-        /// <returns>An IEnumerable of DoorLockAccessToken objects representing the access tokens for the door lock.</returns>
-        Task<IEnumerable<DoorLockAccessToken>> GetAccessTokensByDoorLockIdAsync(int doorLockId);    
+        /// <returns>A DoorLockSecurityInfo object representing the security information for the door lock.</returns>
+        Task<DoorLockSecurityInfo> GetSecurityInfoByDoorLockIdAsync(int doorLockId);    
     }
 }

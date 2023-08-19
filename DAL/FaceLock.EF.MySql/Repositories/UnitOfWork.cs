@@ -14,7 +14,7 @@ namespace FaceLock.EF.MySql.Repositories
         private readonly Lazy<IUserRepository> _userRepository;
         private readonly Lazy<IUserFaceRepository> _userFaceRepository;
         private readonly Lazy<IDoorLockAccessRepository> _doorLockAccessRepository;
-        private readonly Lazy<IDoorLockAccessTokenRepository> _doorLockAccessTokenRepository;
+        private readonly Lazy<IDoorLockSecurityInfoRepository> _doorLockSecurityInfoRepository;
         private readonly Lazy<IDoorLockHistoryRepository> _doorLockHistoryRepository;
         private readonly Lazy<IDoorLockRepository> _doorLockRepository;
         private readonly Lazy<IPlaceRepository> _placeRepository;
@@ -25,7 +25,7 @@ namespace FaceLock.EF.MySql.Repositories
             Lazy<IUserRepository> userRepository = null,
             Lazy<IUserFaceRepository> userFaceRepository = null,
             Lazy<IDoorLockAccessRepository> doorLockAccessRepository = null,
-            Lazy<IDoorLockAccessTokenRepository> doorLockAccessTokenRepository = null,
+            Lazy<IDoorLockSecurityInfoRepository> doorLockSecurityInfoRepository = null,
             Lazy<IDoorLockHistoryRepository> doorLockHistoryRepository = null,
             Lazy<IDoorLockRepository> doorLockRepository = null,
             Lazy<IPlaceRepository> placeRepository = null,
@@ -38,8 +38,8 @@ namespace FaceLock.EF.MySql.Repositories
                 new Lazy<IUserFaceRepository>(() => new UserFaceRepository(context));
             _doorLockAccessRepository = doorLockAccessRepository ?? 
                 new Lazy<IDoorLockAccessRepository>(() => new DoorLockAccessRepository(context));
-            _doorLockAccessTokenRepository = doorLockAccessTokenRepository ?? 
-                new Lazy<IDoorLockAccessTokenRepository>(() => new DoorLockAccessTokenRepository(context));
+            _doorLockSecurityInfoRepository = doorLockSecurityInfoRepository ?? 
+                new Lazy<IDoorLockSecurityInfoRepository>(() => new DoorLockSecurityInfoRepository(context));
             _doorLockHistoryRepository = doorLockHistoryRepository ?? 
                 new Lazy<IDoorLockHistoryRepository>(() => new DoorLockHistoryRepository(context));
             _doorLockRepository = doorLockRepository ?? 
@@ -53,7 +53,7 @@ namespace FaceLock.EF.MySql.Repositories
         public IUserRepository UserRepository => _userRepository.Value;
         public IUserFaceRepository UserFaceRepository => _userFaceRepository.Value;
         public IDoorLockAccessRepository DoorLockAccessRepository => _doorLockAccessRepository.Value;
-        public IDoorLockAccessTokenRepository DoorLockAccessTokenRepository => _doorLockAccessTokenRepository.Value;
+        public IDoorLockSecurityInfoRepository DoorLockSecurityInfoRepository => _doorLockSecurityInfoRepository.Value;
         public IDoorLockHistoryRepository DoorLockHistoryRepository => _doorLockHistoryRepository.Value;
         public IDoorLockRepository DoorLockRepository => _doorLockRepository.Value;
         public IPlaceRepository PlaceRepository => _placeRepository.Value;

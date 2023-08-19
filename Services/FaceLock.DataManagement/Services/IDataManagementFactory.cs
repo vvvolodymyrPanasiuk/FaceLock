@@ -39,9 +39,9 @@ namespace FaceLock.DataManagement.Services
         /// <returns>The created instance of IQueryUserService.</returns>
         IQueryUserService CreateQueryUserService();
         /// <summary>
-        /// Creates an instance of ITokenGeneratorService.
+        /// Creates an instance of ISecretKeyGeneratorService.
         /// </summary>
-        /// <returns>The created instance of ITokenGeneratorService.</returns>
-        ITokenGeneratorService CreateTokenGeneratorService();
+        /// <returns>The created instance of ISecretKeyGeneratorService.</returns>
+        ISecretKeyGeneratorService CreateSecretKeyGeneratorService();
     }
 }

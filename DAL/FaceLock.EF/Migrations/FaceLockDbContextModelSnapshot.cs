@@ -17,7 +17,7 @@ namespace FaceLock.EF.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.4")
+                .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -45,33 +45,6 @@ namespace FaceLock.EF.Migrations
                     b.ToTable("DoorLocks", (string)null);
                 });
 
-            modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.DoorLockAccessToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccessToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("DoorLockId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Utilized")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoorLockId");
-
-                    b.ToTable("DoorLockAccessTokens", (string)null);
-                });
-
             modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.DoorLockHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -89,7 +62,7 @@ namespace FaceLock.EF.Migrations
                     b.Property<DateTime>("OpenedDateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 4, 25, 23, 36, 16, 420, DateTimeKind.Local).AddTicks(9814));
+                        .HasDefaultValue(new DateTime(2023, 8, 19, 15, 41, 18, 601, DateTimeKind.Local).AddTicks(4590));
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -106,6 +79,37 @@ namespace FaceLock.EF.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("DoorLockHistories", (string)null);
+                });
+
+            modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.DoorLockSecurityInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DoorLockId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DoorLockId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SecretKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UrlConnection")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoorLockId");
+
+                    b.HasIndex("DoorLockId1");
+
+                    b.ToTable("DoorLockSecurityInformations", (string)null);
                 });
 
             modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.UserDoorLockAccess", b =>
@@ -168,7 +172,7 @@ namespace FaceLock.EF.Migrations
                     b.Property<DateTime>("CheckInTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2023, 4, 25, 23, 36, 16, 424, DateTimeKind.Local).AddTicks(1025));
+                        .HasDefaultValue(new DateTime(2023, 8, 19, 15, 41, 18, 607, DateTimeKind.Local).AddTicks(647));
 
                     b.Property<DateTime?>("CheckOutTime")
                         .HasColumnType("datetime2");
@@ -449,17 +453,6 @@ namespace FaceLock.EF.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.DoorLockAccessToken", b =>
-                {
-                    b.HasOne("FaceLock.Domain.Entities.DoorLockAggregate.DoorLock", "DoorLock")
-                        .WithMany("DoorLockAccessTokens")
-                        .HasForeignKey("DoorLockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DoorLock");
-                });
-
             modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.DoorLockHistory", b =>
                 {
                     b.HasOne("FaceLock.Domain.Entities.DoorLockAggregate.DoorLock", "DoorLock")
@@ -481,6 +474,21 @@ namespace FaceLock.EF.Migrations
                     b.Navigation("DoorLock");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.DoorLockSecurityInfo", b =>
+                {
+                    b.HasOne("FaceLock.Domain.Entities.DoorLockAggregate.DoorLock", "DoorLock")
+                        .WithMany()
+                        .HasForeignKey("DoorLockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FaceLock.Domain.Entities.DoorLockAggregate.DoorLock", null)
+                        .WithMany("DoorLockAccessTokens")
+                        .HasForeignKey("DoorLockId1");
+
+                    b.Navigation("DoorLock");
                 });
 
             modelBuilder.Entity("FaceLock.Domain.Entities.DoorLockAggregate.UserDoorLockAccess", b =>

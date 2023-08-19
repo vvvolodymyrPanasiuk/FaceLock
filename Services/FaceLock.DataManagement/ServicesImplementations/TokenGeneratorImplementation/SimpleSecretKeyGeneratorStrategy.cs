@@ -2,9 +2,9 @@
 
 namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplementation
 {
-    public class SimpleTokenGeneratorStrategy : ITokenGeneratorService
+    public class SimpleSecretKeyGeneratorStrategy : ISecretKeyGeneratorService
     {
-        public string GenerateToken()
+        public string GenerateSecretKey()
         {
             return Guid.NewGuid().ToString();
         }

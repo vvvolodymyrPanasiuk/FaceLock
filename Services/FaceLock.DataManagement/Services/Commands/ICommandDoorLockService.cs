@@ -74,26 +74,15 @@ namespace FaceLock.DataManagement.Services.Commands
 
 
         /// <summary>
-        /// Creates new access tokens for a door lock by door lock ID.
+        /// Creates new security information for a door lock by door lock ID.
         /// </summary>
-        /// <param name="doorLock">The DoorLock object representing the door lock for which to create the access tokens.</param>
-        /// <returns>An IEnumerable of DoorLockAccessToken objects representing the newly created access tokens for the door lock.</returns>
-        Task CreateAccessTokensAsync(int doorLock);
+        /// <param name="doorLock">The DoorLock ID representing the door lock for which to create the security info.</param>
+        /// <param name="urlConnection">The URL to connection to the door lock for which to create the security info.</param>
+        Task CreateSecurityInfoAsync(int doorLock, string urlConnection);
         /// <summary>
-        /// Uses an unused access token for a door lock by door lock ID.
+        /// Updates a security information for a door lock.
         /// </summary>
-        /// <param name="doorLockId">The ID of the door lock.</param>
-        /// <returns>A DoorLockAccessToken object representing the unused access token for the door lock.</returns>
-        Task<DoorLockAccessToken> UseUnusedAccessTokenAsync(int doorLockId);
-        /// <summary>
-        /// Updates an existing access token for a door lock.
-        /// </summary>
-        /// <param name="accessToken">The DoorLockAccessToken object representing the access token to update.</param>
-        Task UpdateAccessTokenAsync(DoorLockAccessToken accessToken);
-        /// <summary>
-        /// Updates multiple existing access tokens for a door lock.
-        /// </summary>
-        /// <param name="accessTokens">An IEnumerable of DoorLockAccessToken objects representing the access tokens to update.</param>
-        Task UpdateAccessTokensAsync(IEnumerable<DoorLockAccessToken> accessTokens);
+        /// <param name="securityInfo">The DoorLockSecurityInfo object representing the access token to update.</param>
+        Task UpdateSecurityInfoAsync(DoorLockSecurityInfo securityInfo);
     }
 }

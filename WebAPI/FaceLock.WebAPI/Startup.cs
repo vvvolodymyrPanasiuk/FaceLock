@@ -211,7 +211,7 @@ namespace FaceLock.WebAPI
             services.AddControllers();           
 
             // Application services
-            services.AddTransient<ITokenGeneratorService, SecureRandomTokenGeneratorStrategy>();
+            services.AddTransient<ISecretKeyGeneratorService, SecureRandomSecretKeyGeneratorStrategy>();
             services.AddScoped<ICommandUserService, DataManagement.ServicesImplementations.CommandImplementations.UserService>();
             services.AddScoped<IQueryUserService, DataManagement.ServicesImplementations.QueryImplementations.UserService>();
             services.AddScoped<ICommandPlaceService, DataManagement.ServicesImplementations.CommandImplementations.PlaceService>();
@@ -257,7 +257,7 @@ namespace FaceLock.WebAPI
             services.AddScoped<IVisitRepository, EF.MySql.Repositories.PlaceRepository.VisitRepository>();
             services.AddScoped<IPlaceRepository, EF.MySql.Repositories.PlaceRepository.PlaceRepository>();
             services.AddScoped<IDoorLockAccessRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockAccessRepository>();
-            services.AddScoped<IDoorLockAccessTokenRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockAccessTokenRepository>();
+            services.AddScoped<IDoorLockSecurityInfoRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockSecurityInfoRepository>();
             services.AddScoped<IDoorLockHistoryRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockRepository>();
             services.AddScoped<IUnitOfWork, EF.MySql.Repositories.UnitOfWork>();
@@ -284,7 +284,7 @@ namespace FaceLock.WebAPI
             services.AddScoped<IVisitRepository, EF.Repositories.PlaceRepository.VisitRepository>();
             services.AddScoped<IPlaceRepository, EF.Repositories.PlaceRepository.PlaceRepository>();
             services.AddScoped<IDoorLockAccessRepository, EF.Repositories.DoorLockRepository.DoorLockAccessRepository>();
-            services.AddScoped<IDoorLockAccessTokenRepository, EF.Repositories.DoorLockRepository.DoorLockAccessTokenRepository>();
+            services.AddScoped<IDoorLockSecurityInfoRepository, EF.Repositories.DoorLockRepository.DoorLockSecurityInfoRepository>();
             services.AddScoped<IDoorLockHistoryRepository, EF.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, EF.Repositories.DoorLockRepository.DoorLockRepository>();
             services.AddScoped<IUnitOfWork, EF.Repositories.UnitOfWork>();

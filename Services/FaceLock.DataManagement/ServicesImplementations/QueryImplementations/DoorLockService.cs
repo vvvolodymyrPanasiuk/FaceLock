@@ -128,17 +128,17 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
         }
         #endregion
 
-        #region DoorLockAccessTokenRepository
-        public async Task<IEnumerable<DoorLockAccessToken>> GetAccessTokensByDoorLockIdAsync(int doorLockId)
+        #region DoorLockSecurityInfoRepository
+        public async Task<DoorLockSecurityInfo> GetSecurityInfoByDoorLockIdAsync(int doorLockId)
         {
-            var doorLockTokens = await _unitOfWork.DoorLockAccessTokenRepository.GetAccessTokenByDoorLockIdAsync(doorLockId);
+            var doorLockSecurityInfo = await _unitOfWork.DoorLockSecurityInfoRepository.GetByIdAsync(doorLockId);
 
-            if (doorLockTokens == null)
+            if (doorLockSecurityInfo == null)
             {
-                throw new Exception("Door lock tokens not exist");
+                throw new Exception("Door lock security information not exist");
             }
 
-            return doorLockTokens;
+            return doorLockSecurityInfo;
         }
         #endregion
     }

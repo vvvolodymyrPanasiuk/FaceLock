@@ -8,6 +8,7 @@ using System;
 using FaceLock.WebAPI.Models.DoorLockModels.Request;
 using System.Linq;
 using FaceLock.WebAPI.Models.DoorLockModels.Response;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -218,12 +219,13 @@ namespace FaceLock.WebAPI.Controllers
             try
             {
                 var query = _dataServiceFactory.CreateQueryDoorLockService();
-                var doorLockTokens = await query.GetAccessTokensByDoorLockIdAsync(doorLockId);
+                /*var doorLockTokens = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
 
                 var result = doorLockTokens.Select(u =>
-                    new DoorLockToken(u.Id, u.DoorLockId, u.AccessToken, u.Utilized));
-
-                return StatusCode(StatusCodes.Status200OK, new GetDoorLockTokensResponse(result));
+                    new DoorLockToken(u.Id, u.DoorLockId, u.SecretKey, u.UrlConnection));
+                */
+                //return StatusCode(StatusCodes.Status200OK, new GetDoorLockTokensResponse(result));
+                return StatusCode(StatusCodes.Status200OK, new GetDoorLockTokensResponse(null));
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using FaceLock.Domain.Entities.PlaceAggregate;
+﻿using FaceLock.Domain.Entities.DoorLockAggregate;
+using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,10 @@ namespace FaceLock.EF.MySql
         public DbSet<UserFace> UserFaces { get; set; }
         public DbSet<Place> Places { get; set; }
         public DbSet<Visit> Visits { get; set; }
+        public DbSet<DoorLock> DoorLocks { get; set; }
+        public DbSet<UserDoorLockAccess> UserDoorLockAccesses { get; set; }
+        public DbSet<DoorLockHistory> DoorLockHistories { get; set; }
+        public DbSet<DoorLockSecurityInfo> DoorLockSecurityInformations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -3,11 +3,11 @@ using System.Security.Cryptography;
 
 namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplementation
 {
-    public class SecureRandomTokenGeneratorStrategy : ITokenGeneratorService
+    public class SecureRandomSecretKeyGeneratorStrategy : ISecretKeyGeneratorService
     {
         private const int TokenLength = 32; // length token in byte
 
-        public string GenerateToken()
+        public string GenerateSecretKey()
         {
             var randomNumberGenerator = RandomNumberGenerator.Create();
             var tokenBytes = new byte[TokenLength];

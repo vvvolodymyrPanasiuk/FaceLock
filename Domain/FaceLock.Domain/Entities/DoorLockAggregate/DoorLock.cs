@@ -11,6 +11,6 @@
 
         public List<UserDoorLockAccess>? DoorLockAccesses { get; set; }
         public List<DoorLockHistory>? DoorLockHistories { get; set; }
-        public List<DoorLockAccessToken>? DoorLockAccessTokens { get; set; }
+        public List<DoorLockSecurityInfo>? DoorLockAccessTokens { get; set; }
     }
 }

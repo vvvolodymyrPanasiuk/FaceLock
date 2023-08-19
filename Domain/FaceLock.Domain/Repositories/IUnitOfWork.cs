@@ -22,9 +22,9 @@ namespace FaceLock.Domain.Repositories
         /// </summary>
         IDoorLockAccessRepository DoorLockAccessRepository { get; }
         /// <summary>
-        /// The repository for the DoorLockAccessToken entity.
+        /// The repository for the DoorLockSecurityInfo entity.
         /// </summary>
-        IDoorLockAccessTokenRepository DoorLockAccessTokenRepository { get; }
+        IDoorLockSecurityInfoRepository DoorLockSecurityInfoRepository { get; }
         /// <summary>
         /// The repository for the DoorLockHistory entity.
         /// </summary>

@@ -15,11 +15,11 @@ namespace FaceLock.DataManagement.ServicesImplementations
         private readonly Lazy<IQueryDoorLockService> _queryDoorLockService;
         private readonly Lazy<IQueryPlaceService> _queryPlaceService;
         private readonly Lazy<IQueryUserService> _queryUserService;
-        private readonly Lazy<ITokenGeneratorService> _tokenGeneratorService;
+        private readonly Lazy<ISecretKeyGeneratorService> _secretKeyGeneratorService;
 
         public DataServiceFactory(
             IUnitOfWork contextFactory,
-            Lazy<ITokenGeneratorService> tokenGeneratorService = null,
+            Lazy<ISecretKeyGeneratorService> secretKeyGeneratorService = null,
             Lazy<IQueryUserService> queryUserService = null,
             Lazy<IQueryPlaceService> queryPlaceService = null,
             Lazy<IQueryDoorLockService> queryDoorLockService = null, 
@@ -28,8 +28,8 @@ namespace FaceLock.DataManagement.ServicesImplementations
             Lazy<ICommandDoorLockService> commandDoorLockService = null)
         {
             _context = contextFactory;
-            _tokenGeneratorService = tokenGeneratorService ?? 
-                new Lazy<ITokenGeneratorService>(() => new SecureRandomTokenGeneratorStrategy());
+            _secretKeyGeneratorService = secretKeyGeneratorService ?? 
+                new Lazy<ISecretKeyGeneratorService>(() => new SecureRandomSecretKeyGeneratorStrategy());
             _queryUserService = queryUserService ??
                 new Lazy<IQueryUserService>(() => new QueryImplementations.UserService(_context));
             _queryPlaceService = queryPlaceService ??
@@ -42,7 +42,7 @@ namespace FaceLock.DataManagement.ServicesImplementations
                 new Lazy<ICommandPlaceService>(() => new CommandImplementations.PlaceService(_context));
             _commandDoorLockService = commandDoorLockService ?? 
                 new Lazy<ICommandDoorLockService>(() => 
-                new CommandImplementations.DoorLockService(_context, _tokenGeneratorService.Value));                     
+                new CommandImplementations.DoorLockService(_context, _secretKeyGeneratorService.Value));                     
         }
 
         public ICommandDoorLockService CreateCommandDoorLockService()
@@ -75,9 +75,9 @@ namespace FaceLock.DataManagement.ServicesImplementations
             return _queryUserService.Value;
         }
 
-        public ITokenGeneratorService CreateTokenGeneratorService()
+        public ISecretKeyGeneratorService CreateSecretKeyGeneratorService()
         {
-            return _tokenGeneratorService.Value;
+            return _secretKeyGeneratorService.Value;
         }
     }
 }

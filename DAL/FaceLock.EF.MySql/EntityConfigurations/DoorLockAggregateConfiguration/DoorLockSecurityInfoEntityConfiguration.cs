@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaceLock.EF.MySql.EntityConfigurations.DoorLockAggregateConfiguration
 {
-    public class DoorLockAccessTokenEntityConfiguration : IEntityTypeConfiguration<DoorLockAccessToken>
+    public class DoorLockSecurityInfoEntityConfiguration : IEntityTypeConfiguration<DoorLockSecurityInfo>
     {
-        public void Configure(EntityTypeBuilder<DoorLockAccessToken> builder)
+        public void Configure(EntityTypeBuilder<DoorLockSecurityInfo> builder)
         {
-            builder.ToTable("DoorLockAccessTokens");
+            builder.ToTable("DoorLockSecurityInformations");
 
             builder.HasKey(e => e.Id);
 
@@ -21,9 +21,11 @@ namespace FaceLock.EF.MySql.EntityConfigurations.DoorLockAggregateConfiguration
 
             builder.HasIndex(e => e.DoorLockId);
 
-            builder.Property(e => e.Utilized)
-                .IsRequired()
-                .HasDefaultValue(false);
+            builder.Property(e => e.SecretKey)
+                .IsRequired();
+
+            builder.Property(e => e.UrlConnection)
+                .IsRequired();
 
             builder.HasOne(e => e.DoorLock)
                 .WithMany()

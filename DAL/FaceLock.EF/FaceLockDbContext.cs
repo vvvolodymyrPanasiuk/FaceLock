@@ -3,7 +3,6 @@ using FaceLock.Domain.Entities.PlaceAggregate;
 using FaceLock.Domain.Entities.UserAggregate;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
 namespace FaceLock.EF
@@ -19,7 +18,7 @@ namespace FaceLock.EF
         public DbSet<DoorLock> DoorLocks { get; set; }
         public DbSet<UserDoorLockAccess> UserDoorLockAccesses { get; set; }
         public DbSet<DoorLockHistory> DoorLockHistories { get; set; }
-        public DbSet<DoorLockAccessToken> DoorLockAccessTokens { get; set; }
+        public DbSet<DoorLockSecurityInfo> DoorLockSecurityInformations { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

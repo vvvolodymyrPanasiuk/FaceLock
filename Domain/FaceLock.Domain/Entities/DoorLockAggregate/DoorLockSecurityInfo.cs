@@ -1,14 +1,14 @@
 ﻿namespace FaceLock.Domain.Entities.DoorLockAggregate
 {
     /// <summary>
-    /// Сlass represents a door lock access token.
+    /// Сlass represents a door lock security information.
     /// </summary>
-    public class DoorLockAccessToken
+    public class DoorLockSecurityInfo
     {
         public int Id { get; set; }
         public int DoorLockId { get; set; }
-        public string AccessToken { get; set; }
-        public bool Utilized { get; set; }
+        public string SecretKey { get; set; }
+        public string UrlConnection { get; set; }
 
         public DoorLock? DoorLock { get; set; }
     }
