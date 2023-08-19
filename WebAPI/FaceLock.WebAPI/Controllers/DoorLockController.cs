@@ -9,6 +9,7 @@ using FaceLock.WebAPI.Models.DoorLockModels.Request;
 using System.Linq;
 using FaceLock.WebAPI.Models.DoorLockModels.Response;
 using Microsoft.AspNetCore.Http.HttpResults;
+using FaceLock.Domain.Entities.DoorLockAggregate;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -124,6 +125,48 @@ namespace FaceLock.WebAPI.Controllers
             return BadRequest(ModelState);
         }
 
+
+        // POST: api/<DoorLockController>/CreateSecretInfoDoorLock
+        /// <summary>
+        /// Creates a new secret info to door lock.
+        /// </summary>
+        /// <param name="model">The secret info of door lock to be created.</param>
+        /// <returns>Returns status 201 (Created) if the user's secret info to a door lock was created successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the user's access to a door lock was created successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+        [HttpPost("CreateSecretInfoDoorLock")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateSecretInfoDoorLock([FromBody] CreateSecretInfoDoorLockRequest model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var queryDoorLock = _dataServiceFactory.CreateQueryDoorLockService();
+                    var doorLock = await queryDoorLock.GetDoorLockByIdAsync(model.DoorLockId);
+
+                    var commandDoorLock = _dataServiceFactory.CreateCommandDoorLockService();
+                    await commandDoorLock.CreateSecurityInfoAsync(doorLock.Id, model.UrlConnection);
+
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }
+            }
+            return BadRequest(ModelState);
+        }
+
+
         #endregion
 
 
@@ -163,7 +206,7 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // GET api/<PlaceController>/GetDoorLock/{doorLockId}
+        // GET api/<DoorLockController>/GetDoorLock/{doorLockId}
         /// <summary>
         /// Retrieves the door lock with the specified ID from the repository.
         /// </summary>
@@ -198,7 +241,7 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // GET api/<PlaceController>/GetDoorLockTokens/{doorLockId}
+        // GET api/<DoorLockController>/GetDoorLockSecretInfo
         /// <summary>
         /// Retrieves the door lock tokens with the specified ID from the repository.
         /// </summary>
@@ -208,24 +251,21 @@ namespace FaceLock.WebAPI.Controllers
         /// <response code="401">If the user is not authorized to perform this action.</response>
         /// <response code="404">If the door lock with the given ID does not exist.</response>
         /// <response code="500">If an error occurred during the operation.</response>
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLockTokensResponse))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDoorLockSecretInfoResponse))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-        [HttpGet("GetDoorLockTokens/{doorLockId}")]
+        [HttpGet("GetDoorLockSecretInfo")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetDoorLockTokens(int doorLockId)
+        public async Task<IActionResult> GetDoorLockSecretInfo(int doorLockId)
         {
             try
             {
                 var query = _dataServiceFactory.CreateQueryDoorLockService();
-                /*var doorLockTokens = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
+                var doorLockSecretInfo = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
 
-                var result = doorLockTokens.Select(u =>
-                    new DoorLockToken(u.Id, u.DoorLockId, u.SecretKey, u.UrlConnection));
-                */
-                //return StatusCode(StatusCodes.Status200OK, new GetDoorLockTokensResponse(result));
-                return StatusCode(StatusCodes.Status200OK, new GetDoorLockTokensResponse(null));
+                return StatusCode(StatusCodes.Status200OK, 
+                    new GetDoorLockSecretInfoResponse(doorLockSecretInfo.DoorLockId, doorLockSecretInfo.DoorLockId, doorLockSecretInfo.UrlConnection, doorLockSecretInfo.SecretKey));
             }
             catch (Exception ex)
             {
@@ -472,6 +512,51 @@ namespace FaceLock.WebAPI.Controllers
             }
             return BadRequest(ModelState);
         }
+
+
+        // PUT api/<DoorLockController>/UpdateSecretInfoDoorLock
+        /// <summary>
+        /// Updates a user secret info to door lock.
+        /// </summary>
+        /// <param name="model">The model containing the updated secret info to door lock data.</param>
+        /// <returns>Returns status 201 (Created) if the secret info was updated successfully or an error message.</returns>
+        /// <response code="201">Returns status 201 (Created) if the access level was updated successfully.</response>
+        /// <response code="400">If the model state is not valid.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
+        [HttpPut("UpdateSecretInfoDoorLock")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateSecretInfoDoorLock([FromBody] UpdateSecretInfoDoorLockRequest model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var query = _dataServiceFactory.CreateQueryDoorLockService();
+                    var secretKeyDoorLock = await query.GetSecurityInfoByDoorLockIdAsync(model.Id);
+
+                    secretKeyDoorLock.UrlConnection = model.UrlConnection ?? secretKeyDoorLock.UrlConnection;
+                    secretKeyDoorLock.SecretKey = model.SecretKey ?? secretKeyDoorLock.SecretKey;
+
+                    var command = _dataServiceFactory.CreateCommandDoorLockService();
+                    await command.UpdateSecurityInfoAsync(secretKeyDoorLock);
+
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return 500 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                }
+            }
+            return BadRequest(ModelState);
+        }
+
 
         #endregion
 
