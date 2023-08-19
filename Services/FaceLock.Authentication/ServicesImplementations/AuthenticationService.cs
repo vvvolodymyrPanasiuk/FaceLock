@@ -78,7 +78,7 @@ namespace FaceLock.Authentication.ServicesImplementations
             // Create user with provided data
             var user = new User
             {
-                UserName = userRegisterDto.Email,
+                UserName = $"{userRegisterDto.FirstName}.{userRegisterDto.LastName}",
                 Email = userRegisterDto.Email,
                 FirstName = userRegisterDto.FirstName,
                 LastName = userRegisterDto.LastName,

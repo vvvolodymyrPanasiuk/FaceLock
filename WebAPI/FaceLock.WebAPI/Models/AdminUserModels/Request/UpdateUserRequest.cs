@@ -12,7 +12,7 @@ namespace FaceLock.WebAPI.Models.AdminUserModels.Request
         /// </summary>
         /// <example>John.Doe</example>
         [Required(ErrorMessage = "Username is required")]
-        [StringLength(20, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 20 characters")]
+        [StringLength(101, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 20 characters")]
         public string UserName { get; set; }
 
         /// <summary>
