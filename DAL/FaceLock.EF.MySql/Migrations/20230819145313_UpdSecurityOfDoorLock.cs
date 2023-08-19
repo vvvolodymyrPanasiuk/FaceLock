@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FaceLock.EF.MySql.Migrations
 {
     /// <inheritdoc />
-    public partial class InitMigration : Migration
+    public partial class UpdSecurityOfDoorLock : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace FaceLock.EF.MySql.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false)
+                    Id = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -46,7 +46,7 @@ namespace FaceLock.EF.MySql.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Status = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false, defaultValue: "feceecc8-bd69-4a82-b8a9-144dd94bbba9")
+                    UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false, defaultValue: "860c3a8e-6ecf-430a-bf88-e1956579b446")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -65,7 +65,7 @@ namespace FaceLock.EF.MySql.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PhoneNumberConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     TwoFactorEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     AccessFailedCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
                 },
@@ -115,7 +115,7 @@ namespace FaceLock.EF.MySql.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    RoleId = table.Column<string>(type: "varchar(255)", nullable: false)
+                    RoleId = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ClaimType = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -163,9 +163,9 @@ namespace FaceLock.EF.MySql.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false)
+                    LoginProvider = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ProviderKey = table.Column<string>(type: "varchar(255)", nullable: false)
+                    ProviderKey = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ProviderDisplayName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -190,7 +190,7 @@ namespace FaceLock.EF.MySql.Migrations
                 {
                     UserId = table.Column<string>(type: "varchar(256)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    RoleId = table.Column<string>(type: "varchar(255)", nullable: false)
+                    RoleId = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -217,9 +217,9 @@ namespace FaceLock.EF.MySql.Migrations
                 {
                     UserId = table.Column<string>(type: "varchar(256)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false)
+                    LoginProvider = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Name = table.Column<string>(type: "varchar(255)", nullable: false)
+                    Name = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Value = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
@@ -261,29 +261,6 @@ namespace FaceLock.EF.MySql.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "DoorLockAccessTokens",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    DoorLockId = table.Column<int>(type: "int", nullable: false),
-                    AccessToken = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Utilized = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DoorLockAccessTokens", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DoorLockAccessTokens_DoorLocks_DoorLockId",
-                        column: x => x.DoorLockId,
-                        principalTable: "DoorLocks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "DoorLockHistories",
                 columns: table => new
                 {
@@ -292,7 +269,7 @@ namespace FaceLock.EF.MySql.Migrations
                     DoorLockId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "varchar(256)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    OpenedDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValue: new DateTime(2023, 7, 21, 18, 18, 55, 489, DateTimeKind.Local).AddTicks(6718)),
+                    OpenedDateTime = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(2023, 8, 19, 17, 53, 13, 157, DateTimeKind.Local).AddTicks(4013)),
                     DoorLockId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -312,6 +289,36 @@ namespace FaceLock.EF.MySql.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DoorLockHistories_DoorLocks_DoorLockId1",
+                        column: x => x.DoorLockId1,
+                        principalTable: "DoorLocks",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "DoorLockSecurityInformations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    DoorLockId = table.Column<int>(type: "int", nullable: false),
+                    SecretKey = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UrlConnection = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DoorLockId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DoorLockSecurityInformations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DoorLockSecurityInformations_DoorLocks_DoorLockId",
+                        column: x => x.DoorLockId,
+                        principalTable: "DoorLocks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DoorLockSecurityInformations_DoorLocks_DoorLockId1",
                         column: x => x.DoorLockId1,
                         principalTable: "DoorLocks",
                         principalColumn: "Id");
@@ -356,8 +363,8 @@ namespace FaceLock.EF.MySql.Migrations
                     UserId = table.Column<string>(type: "varchar(256)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PlaceId = table.Column<int>(type: "int", nullable: false),
-                    CheckInTime = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValue: new DateTime(2023, 7, 21, 18, 18, 55, 503, DateTimeKind.Local).AddTicks(2079)),
-                    CheckOutTime = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                    CheckInTime = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(2023, 8, 19, 17, 53, 13, 161, DateTimeKind.Local).AddTicks(618)),
+                    CheckOutTime = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -415,11 +422,6 @@ namespace FaceLock.EF.MySql.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoorLockAccessTokens_DoorLockId",
-                table: "DoorLockAccessTokens",
-                column: "DoorLockId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_DoorLockHistories_DoorLockId",
                 table: "DoorLockHistories",
                 column: "DoorLockId");
@@ -438,6 +440,16 @@ namespace FaceLock.EF.MySql.Migrations
                 name: "IX_DoorLockHistories_UserId",
                 table: "DoorLockHistories",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoorLockSecurityInformations_DoorLockId",
+                table: "DoorLockSecurityInformations",
+                column: "DoorLockId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoorLockSecurityInformations_DoorLockId1",
+                table: "DoorLockSecurityInformations",
+                column: "DoorLockId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FaceUsers_UserId",
@@ -489,10 +501,10 @@ namespace FaceLock.EF.MySql.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "DoorLockAccessTokens");
+                name: "DoorLockHistories");
 
             migrationBuilder.DropTable(
-                name: "DoorLockHistories");
+                name: "DoorLockSecurityInformations");
 
             migrationBuilder.DropTable(
                 name: "FaceUsers");

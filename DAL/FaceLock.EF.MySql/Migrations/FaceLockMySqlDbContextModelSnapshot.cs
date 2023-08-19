@@ -55,7 +55,7 @@ namespace FaceLock.EF.MySql.Migrations
                     b.Property<DateTime>("OpenedDateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(2023, 8, 19, 16, 21, 7, 513, DateTimeKind.Local).AddTicks(6558));
+                        .HasDefaultValue(new DateTime(2023, 8, 19, 17, 53, 13, 157, DateTimeKind.Local).AddTicks(4013));
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -157,7 +157,7 @@ namespace FaceLock.EF.MySql.Migrations
                     b.Property<DateTime>("CheckInTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(2023, 8, 19, 16, 21, 7, 518, DateTimeKind.Local).AddTicks(1416));
+                        .HasDefaultValue(new DateTime(2023, 8, 19, 17, 53, 13, 161, DateTimeKind.Local).AddTicks(618));
 
                     b.Property<DateTime?>("CheckOutTime")
                         .HasColumnType("datetime");
@@ -262,7 +262,7 @@ namespace FaceLock.EF.MySql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)")
-                        .HasDefaultValue("9ce0eb33-e00d-4fd4-b469-f51526b1a227");
+                        .HasDefaultValue("860c3a8e-6ecf-430a-bf88-e1956579b446");
 
                     b.HasKey("Id");
 
