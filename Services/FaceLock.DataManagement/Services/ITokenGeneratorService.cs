@@ -18,18 +18,18 @@ namespace FaceLock.DataManagement.Services
         /// Generates a JWT token with the given secret key and door lock information.
         /// </summary>
         /// <param name="secretKey">The secret key used for token generation.</param>
-        /// <param name="doorLock">The door lock identifier.</param>
+        /// <param name="doorLockId">The door lock identifier.</param>
         /// <returns>The generated JWT token.</returns>
-        string GenerateToken(string secretKey, int doorLock);
+        string GenerateToken(string secretKey, int doorLockId);
 
         /// <summary>
         /// Generates a JWT token with the given secret key, door lock information, and URL connection.
         /// </summary>
         /// <param name="secretKey">The secret key used for token generation.</param>
-        /// <param name="doorLock">The door lock identifier.</param>
+        /// <param name="doorLockId">The door lock identifier.</param>
         /// <param name="urlConnection">The URL connection information.</param>
         /// <returns>The generated JWT token.</returns>
-        string GenerateToken(string secretKey, int doorLock, string urlConnection);
+        string GenerateToken(string secretKey, int doorLockId, string urlConnection);
 
         /// <summary>
         /// Generates a JWT token using the provided DoorLockSecurityInfo object.

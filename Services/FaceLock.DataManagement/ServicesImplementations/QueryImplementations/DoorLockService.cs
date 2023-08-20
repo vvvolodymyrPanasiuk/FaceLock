@@ -1,4 +1,5 @@
-﻿using FaceLock.DataManagement.Services.Queries;
+﻿using FaceLock.DataManagement.Services;
+using FaceLock.DataManagement.Services.Queries;
 using FaceLock.Domain.Entities.DoorLockAggregate;
 using FaceLock.Domain.Repositories;
 
@@ -7,9 +8,23 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
     public partial class DoorLockService : IQueryDoorLockService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public DoorLockService(IUnitOfWork unitOfWork)
+        private readonly ITokenGeneratorService _tokenGeneratorService;
+        public DoorLockService(IUnitOfWork unitOfWork, ITokenGeneratorService tokenGeneratorService)
         {
             _unitOfWork = unitOfWork;
+            _tokenGeneratorService = tokenGeneratorService;
+        }
+
+        public async Task<string> GetAccessTokenToDoorLockAsync(int doorLockId)
+        {
+            var doorLockSecurityInfo = await _unitOfWork.DoorLockSecurityInfoRepository.GetByIdAsync(doorLockId);
+            if (doorLockSecurityInfo == null)
+            {
+                throw new Exception("Door lock security information not exist");
+            }
+
+            var result = _tokenGeneratorService.GenerateToken(doorLockSecurityInfo);
+            return result;
         }
 
         #region DoorLockRepository
@@ -140,6 +155,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
 
             return doorLockSecurityInfo;
         }
+ 
         #endregion
     }
 }

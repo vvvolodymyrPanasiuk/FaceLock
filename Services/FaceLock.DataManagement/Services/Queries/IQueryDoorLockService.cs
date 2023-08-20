@@ -72,6 +72,14 @@ namespace FaceLock.DataManagement.Services.Queries
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock.</param>
         /// <returns>A DoorLockSecurityInfo object representing the security information for the door lock.</returns>
-        Task<DoorLockSecurityInfo> GetSecurityInfoByDoorLockIdAsync(int doorLockId);    
+        Task<DoorLockSecurityInfo> GetSecurityInfoByDoorLockIdAsync(int doorLockId);
+
+
+        /// <summary>
+        /// Gets an access token to interact with a specific door lock asynchronously.
+        /// </summary>
+        /// <param name="doorLockId">The identifier of the door lock.</param>
+        /// <returns>An access token that allows interaction with the specified door lock.</returns>
+        Task<string> GetAccessTokenToDoorLockAsync(int doorLockId);
     }
 }
