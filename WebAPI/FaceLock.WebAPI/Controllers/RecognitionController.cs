@@ -8,6 +8,7 @@ using FaceLock.WebAPI.Models.RecognitionModels.Response;
 using FaceLock.DataManagement.Services;
 using Grpc.Net.Client;
 using FaceLock.WebSocket.Protos;
+using FaceLock.WebAPI.GrpcClientFactory;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -21,14 +22,17 @@ namespace FaceLock.WebAPI.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly Recognition.Services.IFaceRecognitionService<string> _recognitionService;
         private readonly IDataServiceFactory _dataServiceFactory;
+        private readonly IGrpcClientChannelFactory _grpcClientChannelFactory;
 
         public RecognitionController(ILogger<AuthenticationController> logger,    
             Recognition.Services.IFaceRecognitionService<string> recognitionService,
-            IDataServiceFactory dataServiceFactory)
+            IDataServiceFactory dataServiceFactory,
+            IGrpcClientChannelFactory grpcClientChannelFactory)
         {
             _logger = logger;
             _recognitionService = recognitionService;
             _dataServiceFactory = dataServiceFactory;
+            _grpcClientChannelFactory = grpcClientChannelFactory;
         }
 
 
@@ -38,10 +42,10 @@ namespace FaceLock.WebAPI.Controllers
         /// </summary>
         /// <param name="files">The files to be identification as the user.</param>
         /// <returns>Returns status 200 (Ok) if the identification successfully or an error message.</returns>
-        /// <response code="200">Returns status 200 (Ok) if identification successfully.</response>
-        /// <response code="204">Returns status 204 (NoContent) if identification faild.</response>
-        /// <response code="400">If the model state is not valid.</response>
-        /// <response code="500">If an error occurred during the operation.</response>
+        /// <responseGrpsServe code="200">Returns status 200 (Ok) if identification successfully.</responseGrpsServe>
+        /// <responseGrpsServe code="204">Returns status 204 (NoContent) if identification faild.</responseGrpsServe>
+        /// <responseGrpsServe code="400">If the model state is not valid.</responseGrpsServe>
+        /// <responseGrpsServe code="500">If an error occurred during the operation.</responseGrpsServe>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -70,13 +74,13 @@ namespace FaceLock.WebAPI.Controllers
                 }
                 catch (ArgumentNullException ex)
                 {
-                    // Log error and return 400 response
+                    // Log error and return 400 responseGrpsServe
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status400BadRequest, $"Error: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    // Log error and return 500 response
+                    // Log error and return 500 responseGrpsServe
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
                 }
@@ -92,10 +96,10 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="placeId">The ID of the place to recognize.</param>
         /// <param name="files">The files to be identification as the user.</param>
         /// <returns>Returns status 200 (Ok) if the identification successfully or an error message.</returns>
-        /// <response code="200">Returns status 200 (Ok) if identification successfully.</response>
-        /// <response code="204">Returns status 204 (NoContent) if identification faild.</response>
-        /// <response code="400">If the model state is not valid.</response>
-        /// <response code="500">If an error occurred during the operation.</response>
+        /// <responseGrpsServe code="200">Returns status 200 (Ok) if identification successfully.</responseGrpsServe>
+        /// <responseGrpsServe code="204">Returns status 204 (NoContent) if identification faild.</responseGrpsServe>
+        /// <responseGrpsServe code="400">If the model state is not valid.</responseGrpsServe>
+        /// <responseGrpsServe code="500">If an error occurred during the operation.</responseGrpsServe>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -136,13 +140,13 @@ namespace FaceLock.WebAPI.Controllers
                 }
                 catch (ArgumentNullException ex)
                 {
-                    // Log error and return 400 response
+                    // Log error and return 400 responseGrpsServe
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status400BadRequest, $"Error: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    // Log error and return 500 response
+                    // Log error and return 500 responseGrpsServe
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
                 }
@@ -158,10 +162,10 @@ namespace FaceLock.WebAPI.Controllers
         /// <param name="doorLockId">The ID of the door lock to recognize.</param>
         /// <param name="files">The files to be identification as the user.</param>
         /// <returns>Returns status 200 (Ok) if the identification successfully or an error message.</returns>
-        /// <response code="200">Returns status 200 (Ok) if identification successfully.</response>
-        /// <response code="204">Returns status 204 (NoContent) if identification faild.</response>
-        /// <response code="400">If the model state is not valid.</response>
-        /// <response code="500">If an error occurred during the operation.</response>
+        /// <responseGrpsServe code="200">Returns status 200 (Ok) if identification successfully.</responseGrpsServe>
+        /// <responseGrpsServe code="204">Returns status 204 (NoContent) if identification faild.</responseGrpsServe>
+        /// <responseGrpsServe code="400">If the model state is not valid.</responseGrpsServe>
+        /// <responseGrpsServe code="500">If an error occurred during the operation.</responseGrpsServe>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -177,22 +181,30 @@ namespace FaceLock.WebAPI.Controllers
                     var doorLock = await query.GetDoorLockByIdAsync(doorLockId);
                     var token = await query.GetAccessTokenToDoorLockAsync(doorLockId);
 
-                    
-                    // TODO: upd response
-                    using var channel = GrpcChannel.ForAddress("https://localhost:10001"); // Замініть на фактичну адресу сервера gRPC
-                    var client = new DoorLock.DoorLockClient(channel);
-                    var request = new DoorLockServiceRequest
+
+
+                    int responseGrpsServeStatus;
+                    string responseGrpsServeMessage;
+                    // TODO: upd responseGrpsServe
+                    using (var channel = _grpcClientChannelFactory.CreateGrpcClientChannel())
                     {
-                        Token = token
-                    };
-                    var response = await client.OpenDoorLockAsync(request);
-                    if (response != null)
-                    {
-                        return StatusCode(StatusCodes.Status200OK, response);
+                        var client = new DoorLock.DoorLockClient(channel);
+                        var requestGrpsServe = new DoorLockServiceRequest
+                        {
+                            Token = token
+                        };
+
+                        var responseGrpsServe = await client.OpenDoorLockAsync(requestGrpsServe);
+                        responseGrpsServeStatus = responseGrpsServe.Status;
+                        responseGrpsServeMessage = responseGrpsServe.Message;
+
+                        if (responseGrpsServe != null)
+                        {
+                            return StatusCode(StatusCodes.Status200OK, responseGrpsServe);
+                        }
                     }
 
                     
-
                     var regonizeResult = new Recognition.DTO.FaceRecognitionResult<string>();
                     foreach (var face in files.Files)
                     {
@@ -219,13 +231,13 @@ namespace FaceLock.WebAPI.Controllers
                 }
                 catch (ArgumentNullException ex)
                 {
-                    // Log error and return 400 response
+                    // Log error and return 400 responseGrpsServe
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status400BadRequest, $"Error: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    // Log error and return 500 response
+                    // Log error and return 500 responseGrpsServe
                     _logger.LogError($"Error: {ex.Message}");
                     return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
                 }

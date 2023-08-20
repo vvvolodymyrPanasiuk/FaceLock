@@ -62,7 +62,6 @@
 
   <ItemGroup>
     <Folder Include="Models\RecognitionModels\Request\" />
-    <Folder Include="gRPCClientFactory\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -17,6 +17,8 @@ using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.Recognition.RecognitionSettings;
 using FaceLock.Recognition.Services;
 using FaceLock.Recognition.ServicesImplementations.EmguCVImplementation;
+using FaceLock.WebAPI.GrpcClientFactory;
+using FaceLock.WebAPI.GrpcClientFactory.GrpcClientFactoryImplementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -262,6 +264,8 @@ namespace FaceLock.WebAPI
             services.AddScoped<IDoorLockHistoryRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockRepository>();
             services.AddScoped<IUnitOfWork, EF.MySql.Repositories.UnitOfWork>();
+
+            services.AddTransient<IGrpcClientChannelFactory>(_ => new GrpcClientFactory.GrpcClientFactoryImplementations.GrpcClientChannelFactory(Configuration["GrpcServerAddress"]));
         }
 
         private void ConfigureServicesDevelopment(IServiceCollection services, string connectionString)
@@ -289,6 +293,8 @@ namespace FaceLock.WebAPI
             services.AddScoped<IDoorLockHistoryRepository, EF.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, EF.Repositories.DoorLockRepository.DoorLockRepository>();
             services.AddScoped<IUnitOfWork, EF.Repositories.UnitOfWork>();
+
+            services.AddTransient<IGrpcClientChannelFactory>(_ => new GrpcClientFactory.GrpcClientFactoryImplementations.GrpcClientChannelFactory(Configuration["GrpcServerAddress"]));  
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
