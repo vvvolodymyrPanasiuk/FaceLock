@@ -1,4 +1,5 @@
 ﻿using FaceLock.DataManagement.Services;
+using FaceLock.WebAPI.Models.AdminUserModels.Response;
 using FaceLock.WebAPI.Models.UserModels.Request;
 using FaceLock.WebAPI.Models.UserModels.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -145,7 +147,7 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // GET: api/<DoorLockController>/GetUserHistories
+        // GET: api/<UserController>/GetUserHistories
         /// <summary>
         /// Retrieves the user's door lock histories.
         /// </summary>
@@ -171,6 +173,89 @@ namespace FaceLock.WebAPI.Controllers
                     new UserHistory(u.Id, u.UserId, u.DoorLockId, u.OpenedDateTime));
 
                 return StatusCode(StatusCodes.Status200OK, new GetUserHistoriesResponse(result));
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+
+        // GET api/<UserController>/GetUserPhoto/{faceId}
+        /// <summary>
+        /// Retrieves a user's photo by ID and face ID.
+        /// </summary>
+        /// <param name="faceId">Face ID.</param>
+        /// <returns>Returns the user's photo as a file stream or status 404 (Not Found) if the photo is not found.</returns>
+        /// <response code="200">Returns the user's photo as a file stream.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If the photo is not found.</response>
+        /// <response code="500">If an error occurred during the operation.</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(int))]
+        [HttpGet("GetUserPhoto/{faceId}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserPhoto(int faceId)
+        {
+            try
+            {
+                //User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFace = await query.GetUserFaceByIdAsync(
+                    User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, faceId);
+
+                if (userFace?.ImageData != null)
+                {
+                    // return the image as a file stream
+                    return File(userFace.ImageData, userFace.ImageMimeType);
+                }
+
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception ex)
+            {
+                // Log error and return 500 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+            }
+        }
+
+
+        // GET api/<UserController>/GetUserPhotosInfo
+        /// <summary>
+        /// Retrieves all the photos of the user with the given ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>Returns the photos of the user.</returns>
+        /// <response code="200">Returns the photos of the user in a compressed zip file.</response>
+        /// <response code="401">If the user is not authorized to perform this action.</response>
+        /// <response code="404">If a user with the given ID does not exist.</response>
+        /// <response code="500">If an error occurred during the operation.</response>        
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpGet("GetUserPhotosInfo")]
+        [Authorize]
+        public async Task<IActionResult> GetUserPhotosInfo()
+        {
+            try
+            {
+                var query = _dataServiceFactory.CreateQueryUserService();
+                var userFaces = await query.GetAllUserFacesAsync(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                var result = new List<GetUserPhotosInfoResponse>();
+                foreach (var userFace in userFaces)
+                {
+                    result.Add(new GetUserPhotosInfoResponse(userFace.Id,
+                        userFace.ImageMimeType, userFace.UserId));
+                }
+                return StatusCode(StatusCodes.Status200OK, result);
+
             }
             catch (Exception ex)
             {
