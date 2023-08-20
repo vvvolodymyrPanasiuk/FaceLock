@@ -16,6 +16,7 @@ namespace FaceLock.DataManagement.ServicesImplementations
         private readonly Lazy<IQueryPlaceService> _queryPlaceService;
         private readonly Lazy<IQueryUserService> _queryUserService;
         private readonly Lazy<ISecretKeyGeneratorService> _secretKeyGeneratorService;
+        private readonly Lazy<ITokenGeneratorService> _tokenGeneratorService;
 
         public DataServiceFactory(
             IUnitOfWork contextFactory,
@@ -25,17 +26,20 @@ namespace FaceLock.DataManagement.ServicesImplementations
             Lazy<IQueryDoorLockService> queryDoorLockService = null, 
             Lazy<ICommandUserService> commandUserService = null,
             Lazy<ICommandPlaceService> commandPlaceService = null,
-            Lazy<ICommandDoorLockService> commandDoorLockService = null)
+            Lazy<ICommandDoorLockService> commandDoorLockService = null,
+            Lazy<ITokenGeneratorService> tokenGeneratorService = null)
         {
             _context = contextFactory;
             _secretKeyGeneratorService = secretKeyGeneratorService ?? 
                 new Lazy<ISecretKeyGeneratorService>(() => new SecureRandomSecretKeyGeneratorStrategy());
+            _tokenGeneratorService = tokenGeneratorService ?? 
+                new Lazy<ITokenGeneratorService>(() => new JwtTokenGeneratorService());
             _queryUserService = queryUserService ??
                 new Lazy<IQueryUserService>(() => new QueryImplementations.UserService(_context));
             _queryPlaceService = queryPlaceService ??
                 new Lazy<IQueryPlaceService>(() => new QueryImplementations.PlaceService(_context));
             _queryDoorLockService = queryDoorLockService ??
-                new Lazy<IQueryDoorLockService>(() => new QueryImplementations.DoorLockService(_context));
+                new Lazy<IQueryDoorLockService>(() => new QueryImplementations.DoorLockService(_context, _tokenGeneratorService.Value));
             _commandUserService = commandUserService ??
                 new Lazy<ICommandUserService>(() => new CommandImplementations.UserService(_context));
             _commandPlaceService = commandPlaceService ?? 

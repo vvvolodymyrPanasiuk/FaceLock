@@ -1,0 +1,19 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "FaceLock.WebSocket.Protos";
+
+package doorlock;
+
+
+service DoorLock {
+    rpc OpenDoorLock(DoorLockServiceRequest) returns (DoorLockServiceResponse);
+}
+
+message DoorLockServiceRequest {
+    string token = 1;
+}
+
+message DoorLockServiceResponse {
+    int32 status = 1;
+    string message = 2;
+}

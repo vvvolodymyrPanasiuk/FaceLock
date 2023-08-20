@@ -61,7 +61,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplemen
 
             var claims = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, doorLock.ToString()),
+                new Claim(ClaimTypes.Name, doorLockId.ToString()),
                 new Claim(ClaimTypes.UserData, DateTime.UtcNow.ToString())
             });
             if (claims == null)

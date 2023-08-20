@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "FaceLock.WebSocket.Development": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:10001;http://localhost:10000"
+    }
+  }
+}

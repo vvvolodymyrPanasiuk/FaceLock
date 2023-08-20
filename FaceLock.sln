@@ -49,7 +49,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{E294
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.EF.MySql", "DAL\FaceLock.EF.MySql\FaceLock.EF.MySql.csproj", "{1308D760-74D5-4711-822B-87CF047CF240}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceLock.Recognition", "Services\FaceLock.Recognition\FaceLock.Recognition.csproj", "{E8A62262-97D3-4F6D-AF14-ADFB6B7EED6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceLock.Recognition", "Services\FaceLock.Recognition\FaceLock.Recognition.csproj", "{E8A62262-97D3-4F6D-AF14-ADFB6B7EED6E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebSockets", "WebSockets", "{FC1578D9-7D48-4890-87A9-DD0BB2EFC8E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceLock.WebSocket", "WebSockets\FaceLock.WebSocket\FaceLock.WebSocket.csproj", "{AA27E411-3D14-4533-8C24-DF0B1396A7FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +97,10 @@ Global
 		{E8A62262-97D3-4F6D-AF14-ADFB6B7EED6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8A62262-97D3-4F6D-AF14-ADFB6B7EED6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8A62262-97D3-4F6D-AF14-ADFB6B7EED6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA27E411-3D14-4533-8C24-DF0B1396A7FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA27E411-3D14-4533-8C24-DF0B1396A7FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA27E411-3D14-4533-8C24-DF0B1396A7FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA27E411-3D14-4533-8C24-DF0B1396A7FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +114,7 @@ Global
 		{8F315145-88A0-4E88-9D66-B98E33E06E0B} = {79751805-AF81-4740-AA22-D59E42817AA7}
 		{1308D760-74D5-4711-822B-87CF047CF240} = {C60648B7-340E-4BFB-8144-DAD1906CDB23}
 		{E8A62262-97D3-4F6D-AF14-ADFB6B7EED6E} = {79751805-AF81-4740-AA22-D59E42817AA7}
+		{AA27E411-3D14-4533-8C24-DF0B1396A7FE} = {FC1578D9-7D48-4890-87A9-DD0BB2EFC8E0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AE4EA4CF-778D-4281-A892-B36231707020}

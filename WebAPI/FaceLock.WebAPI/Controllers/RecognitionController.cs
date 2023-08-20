@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System;
 using FaceLock.WebAPI.Models.RecognitionModels.Response;
 using FaceLock.DataManagement.Services;
+using Grpc.Net.Client;
+using FaceLock.WebSocket.Protos;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -174,6 +176,22 @@ namespace FaceLock.WebAPI.Controllers
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
                     var doorLock = await query.GetDoorLockByIdAsync(doorLockId);
                     var token = await query.GetAccessTokenToDoorLockAsync(doorLockId);
+
+                    
+                    // TODO: upd response
+                    using var channel = GrpcChannel.ForAddress("https://localhost:10001"); // Замініть на фактичну адресу сервера gRPC
+                    var client = new DoorLock.DoorLockClient(channel);
+                    var request = new DoorLockServiceRequest
+                    {
+                        Token = token
+                    };
+                    var response = await client.OpenDoorLockAsync(request);
+                    if (response != null)
+                    {
+                        return StatusCode(StatusCodes.Status200OK, response);
+                    }
+
+                    
 
                     var regonizeResult = new Recognition.DTO.FaceRecognitionResult<string>();
                     foreach (var face in files.Files)

@@ -212,6 +212,7 @@ namespace FaceLock.WebAPI
 
             // Application services
             services.AddTransient<ISecretKeyGeneratorService, SecureRandomSecretKeyGeneratorStrategy>();
+            services.AddTransient<ITokenGeneratorService, JwtTokenGeneratorService>();
             services.AddScoped<ICommandUserService, DataManagement.ServicesImplementations.CommandImplementations.UserService>();
             services.AddScoped<IQueryUserService, DataManagement.ServicesImplementations.QueryImplementations.UserService>();
             services.AddScoped<ICommandPlaceService, DataManagement.ServicesImplementations.CommandImplementations.PlaceService>();
