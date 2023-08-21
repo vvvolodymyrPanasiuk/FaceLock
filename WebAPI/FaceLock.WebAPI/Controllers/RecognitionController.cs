@@ -69,7 +69,9 @@ namespace FaceLock.WebAPI.Controllers
                     }
                     else
                     {
-                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(regonizeResult.UserId, regonizeResult.PredictionDistance));
+						var queryUserService = _dataServiceFactory.CreateQueryUserService();
+						var user = await queryUserService.GetUserByIdAsync(regonizeResult.UserId);
+                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance));
                     }
                 }
                 catch (ArgumentNullException ex)
@@ -134,9 +136,10 @@ namespace FaceLock.WebAPI.Controllers
                                 UserId = regonizeResult.UserId,
                                 CheckInTime = DateTime.UtcNow
                             });
-
-                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(regonizeResult.UserId, regonizeResult.PredictionDistance));
-                    }
+						var queryUserService = _dataServiceFactory.CreateQueryUserService();
+						var user = await queryUserService.GetUserByIdAsync(regonizeResult.UserId);
+                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance));
+					}
                 }
                 catch (ArgumentNullException ex)
                 {
@@ -226,8 +229,10 @@ namespace FaceLock.WebAPI.Controllers
                                 OpenedDateTime = DateTime.UtcNow
                             });
 
-                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(regonizeResult.UserId, regonizeResult.PredictionDistance));
-                    }
+						var queryUserService = _dataServiceFactory.CreateQueryUserService();
+						var user = await queryUserService.GetUserByIdAsync(regonizeResult.UserId);
+						return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance));
+					}
                 }
                 catch (ArgumentNullException ex)
                 {
