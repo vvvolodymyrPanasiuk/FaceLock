@@ -2,14 +2,14 @@
 using Grpc.Net.Client.Web;
 using System.Net.Http;
 
-namespace FaceLock.WebAPI.GrpcClientFactory.GrpcClientFactoryImplementations
+namespace FaceLock.WebAPI.Clients.GrpcClient.GrpcClientChannelFactory.GrpcClientChannelFactoryImplementations
 {
     public class GrpcClientChannelFactory : IGrpcClientChannelFactory
     {
         private readonly string _grpcServerAddress;
         public GrpcClientChannelFactory(string grpcServerAddress)
         {
-            _grpcServerAddress = grpcServerAddress;
+            _grpcServerAddress = "https://face-lock-websocket.azurewebsites.net/";
         }
 
         public GrpcChannel CreateGrpcClientChannel()

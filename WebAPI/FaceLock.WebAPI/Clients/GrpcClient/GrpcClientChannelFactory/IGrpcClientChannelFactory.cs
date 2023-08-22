@@ -1,6 +1,6 @@
 ﻿using Grpc.Net.Client;
 
-namespace FaceLock.WebAPI.GrpcClientFactory
+namespace FaceLock.WebAPI.Clients.GrpcClient.GrpcClientChannelFactory
 {
     /// <summary>
     /// Interface for a factory to create gRPC client channels.

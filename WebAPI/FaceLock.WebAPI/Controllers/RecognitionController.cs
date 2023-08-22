@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using System;
 using FaceLock.WebAPI.Models.RecognitionModels.Response;
 using FaceLock.DataManagement.Services;
-using FaceLock.WebSocket.Protos;
-using FaceLock.WebAPI.GrpcClientFactory;
+using FaceLock.WebAPI.Clients.GrpcClient;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -21,17 +20,17 @@ namespace FaceLock.WebAPI.Controllers
         private readonly ILogger<AuthenticationController> _logger;
         private readonly Recognition.Services.IFaceRecognitionService<string> _recognitionService;
         private readonly IDataServiceFactory _dataServiceFactory;
-        private readonly IGrpcClientChannelFactory _grpcClientChannelFactory;
+        private readonly IGrpcDoorLockClient _grpcDoorLockClient;
 
         public RecognitionController(ILogger<AuthenticationController> logger,    
             Recognition.Services.IFaceRecognitionService<string> recognitionService,
             IDataServiceFactory dataServiceFactory,
-            IGrpcClientChannelFactory grpcClientChannelFactory)
+            IGrpcDoorLockClient grpcDoorLockClient)
         {
             _logger = logger;
             _recognitionService = recognitionService;
             _dataServiceFactory = dataServiceFactory;
-            _grpcClientChannelFactory = grpcClientChannelFactory;
+            _grpcDoorLockClient = grpcDoorLockClient;
         }
 
 
@@ -188,23 +187,15 @@ namespace FaceLock.WebAPI.Controllers
                     int responseGrpsServeStatus;
                     string responseGrpsServeMessage;
                     // TODO: upd responseGrpsServe
-                    using (var channel = _grpcClientChannelFactory.CreateGrpcClientChannel())
+                    var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token);
+                    responseGrpsServeStatus = responseGrpsServe.Status;
+                    responseGrpsServeMessage = responseGrpsServe.Message;
+
+                    if (responseGrpsServe != null)
                     {
-                        var client = new DoorLock.DoorLockClient(channel);
-                        var requestGrpsServe = new DoorLockServiceRequest
-                        {
-                            Token = token
-                        };
-
-                        var responseGrpsServe = await client.OpenDoorLockAsync(requestGrpsServe);
-                        responseGrpsServeStatus = responseGrpsServe.Status;
-                        responseGrpsServeMessage = responseGrpsServe.Message;
-
-                        if (responseGrpsServe != null)
-                        {
-                            return StatusCode(StatusCodes.Status200OK, responseGrpsServe);
-                        }
+                        return StatusCode(StatusCodes.Status200OK, responseGrpsServe);
                     }
+                    
                     
 
                     var regonizeResult = new Recognition.DTO.FaceRecognitionResult<string>();

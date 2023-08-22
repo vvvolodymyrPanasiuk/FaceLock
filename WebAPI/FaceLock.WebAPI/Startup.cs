@@ -17,8 +17,10 @@ using FaceLock.Domain.Repositories.UserRepository;
 using FaceLock.Recognition.RecognitionSettings;
 using FaceLock.Recognition.Services;
 using FaceLock.Recognition.ServicesImplementations.EmguCVImplementation;
-using FaceLock.WebAPI.GrpcClientFactory;
-using FaceLock.WebAPI.GrpcClientFactory.GrpcClientFactoryImplementations;
+using FaceLock.WebAPI.Clients.GrpcClient;
+using FaceLock.WebAPI.Clients.GrpcClient.GrpcClientChannelFactory;
+using FaceLock.WebAPI.Clients.GrpcClient.GrpcClientChannelFactory.GrpcClientChannelFactoryImplementations;
+using FaceLock.WebAPI.Clients.GrpcClient.GrpcClientImplementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -228,6 +230,9 @@ namespace FaceLock.WebAPI
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
 
+            services.AddTransient<IGrpcClientChannelFactory>(_ => new GrpcClientChannelFactory(Configuration["GrpcServerAddress"]));
+            services.AddTransient<IGrpcDoorLockClient, GrpcDoorLockClient>();
+
             services.AddTransient<IFaceRecognitionService<string>, EmguFaceRecognitionService<string>>();
         }
 
@@ -264,8 +269,6 @@ namespace FaceLock.WebAPI
             services.AddScoped<IDoorLockHistoryRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, EF.MySql.Repositories.DoorLockRepository.DoorLockRepository>();
             services.AddScoped<IUnitOfWork, EF.MySql.Repositories.UnitOfWork>();
-
-            services.AddTransient<IGrpcClientChannelFactory>(_ => new GrpcClientFactory.GrpcClientFactoryImplementations.GrpcClientChannelFactory(Configuration["GrpcServerAddress"]));
         }
 
         private void ConfigureServicesDevelopment(IServiceCollection services, string connectionString)
@@ -293,8 +296,6 @@ namespace FaceLock.WebAPI
             services.AddScoped<IDoorLockHistoryRepository, EF.Repositories.DoorLockRepository.DoorLockHistoryRepository>();
             services.AddScoped<IDoorLockRepository, EF.Repositories.DoorLockRepository.DoorLockRepository>();
             services.AddScoped<IUnitOfWork, EF.Repositories.UnitOfWork>();
-
-            services.AddTransient<IGrpcClientChannelFactory>(_ => new GrpcClientFactory.GrpcClientFactoryImplementations.GrpcClientChannelFactory(Configuration["GrpcServerAddress"]));  
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
