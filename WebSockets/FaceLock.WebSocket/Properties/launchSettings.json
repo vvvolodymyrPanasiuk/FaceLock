@@ -2,10 +2,12 @@
   "profiles": {
     "FaceLock.WebSocket.Development": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:10001;http://localhost:10000"
+      "applicationUrl": "https://localhost:8585;http://localhost:8080"
     }
   }
 }

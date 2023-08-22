@@ -1,5 +1,6 @@
 ﻿using FaceLock.WebSocket.Protos;
 using Grpc.Core;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -7,7 +8,12 @@ namespace FaceLock.WebSocket.Services
 {
     public class DoorLockService : DoorLock.DoorLockBase
     {
-        public DoorLockService() { }
+        private readonly ILogger<DoorLockService> _logger;
+        public DoorLockService(ILogger<DoorLockService> logger) 
+        {
+            _logger = logger;
+        }
+
 
         public override Task<DoorLockServiceResponse> OpenDoorLock(DoorLockServiceRequest request, ServerCallContext context)
         {
@@ -22,6 +28,7 @@ namespace FaceLock.WebSocket.Services
                 // Logic to open the door lock
                 // ...
 
+                _logger.LogInformation($"200: Door lock: OPEN");
                 return Task.FromResult(new DoorLockServiceResponse
                 {
                     Status = 200,
@@ -30,6 +37,7 @@ namespace FaceLock.WebSocket.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Error: {ex.Message}");
                 return Task.FromResult(new DoorLockServiceResponse
                 {
                     Status = 500,

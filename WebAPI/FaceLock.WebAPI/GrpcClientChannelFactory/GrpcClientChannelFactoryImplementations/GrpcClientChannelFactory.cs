@@ -1,4 +1,6 @@
 ﻿using Grpc.Net.Client;
+using Grpc.Net.Client.Web;
+using System.Net.Http;
 
 namespace FaceLock.WebAPI.GrpcClientFactory.GrpcClientFactoryImplementations
 {
@@ -12,7 +14,14 @@ namespace FaceLock.WebAPI.GrpcClientFactory.GrpcClientFactoryImplementations
 
         public GrpcChannel CreateGrpcClientChannel()
         {
-            return GrpcChannel.ForAddress(_grpcServerAddress);
+            return GrpcChannel.ForAddress(_grpcServerAddress,
+                        new GrpcChannelOptions()
+                        {
+                            HttpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler())
+                            {
+                                HttpVersion = System.Net.HttpVersion.Version20
+                            }
+                        });
         }
     }
 }

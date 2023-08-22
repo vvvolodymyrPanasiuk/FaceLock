@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System;
 using FaceLock.WebAPI.Models.RecognitionModels.Response;
 using FaceLock.DataManagement.Services;
-using Grpc.Net.Client;
 using FaceLock.WebSocket.Protos;
 using FaceLock.WebAPI.GrpcClientFactory;
 
@@ -203,8 +202,8 @@ namespace FaceLock.WebAPI.Controllers
                             return StatusCode(StatusCodes.Status200OK, responseGrpsServe);
                         }
                     }
-
                     
+
                     var regonizeResult = new Recognition.DTO.FaceRecognitionResult<string>();
                     foreach (var face in files.Files)
                     {
