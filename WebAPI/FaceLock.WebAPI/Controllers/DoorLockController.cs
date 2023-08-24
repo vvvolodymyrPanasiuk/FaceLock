@@ -105,6 +105,13 @@ namespace FaceLock.WebAPI.Controllers
                     var queryDoorLock = _dataServiceFactory.CreateQueryDoorLockService();
                     var doorLock = await queryDoorLock.GetDoorLockByIdAsync(model.DoorLockId);
 
+                    var queryDoorLockAccess = _dataServiceFactory.CreateQueryDoorLockService();
+                    var doorLockAccess = await queryDoorLockAccess.GetUserDoorLockAccessByIdsAsync(model.UserId, model.DoorLockId);
+                    if(doorLockAccess != null)
+                    {
+                        return StatusCode(StatusCodes.Status409Conflict, $"Access already exists");
+                    }
+
                     var commandDoorLock = _dataServiceFactory.CreateCommandDoorLockService();
                     await commandDoorLock.AddDoorLockAccessAsync(new Domain.Entities.DoorLockAggregate.UserDoorLockAccess
                     {
@@ -494,7 +501,7 @@ namespace FaceLock.WebAPI.Controllers
                 try
                 {
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
-                    var accessDoorLock = await query.GetUserDoorLockAccessByIdAsync(model.UserId, model.DoorLockId);
+                    var accessDoorLock = await query.GetUserDoorLockAccessByIdsAsync(model.UserId, model.DoorLockId);
 
                     accessDoorLock.HasAccess = model.HasAccess;
 
@@ -622,7 +629,7 @@ namespace FaceLock.WebAPI.Controllers
             try
             {
                 var query = _dataServiceFactory.CreateQueryDoorLockService();
-                var accessForDelete = await query.GetUserDoorLockAccessByIdAsync(userId, doorLockId);
+                var accessForDelete = await query.GetUserDoorLockAccessByIdsAsync(userId, doorLockId);
 
                 var command = _dataServiceFactory.CreateCommandDoorLockService();
                 await command.DeleteDoorLockAccessAsync(accessForDelete);

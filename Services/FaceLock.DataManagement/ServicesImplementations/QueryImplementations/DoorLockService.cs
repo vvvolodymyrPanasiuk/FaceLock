@@ -90,7 +90,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             return userDoorLockAccess;
         }
 
-        public async Task<UserDoorLockAccess> GetUserDoorLockAccessByIdAsync(string userId, int doorLockId)
+        public async Task<UserDoorLockAccess> GetUserDoorLockAccessByIdsAsync(string userId, int doorLockId)
         {
             var accessesDoorLock = await _unitOfWork.DoorLockAccessRepository.GetAccessByDoorLockIdAsync(doorLockId);
             var accessDoorLock = accessesDoorLock.FirstOrDefault(a => a.UserId == userId);
@@ -155,7 +155,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
 
             return doorLockSecurityInfo;
         }
- 
+
         #endregion
     }
 }
