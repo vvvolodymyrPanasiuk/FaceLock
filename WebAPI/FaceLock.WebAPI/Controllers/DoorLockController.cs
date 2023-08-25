@@ -191,7 +191,6 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLocks")]
-        [Authorize]
         public async Task<IActionResult> GetDoorLocks()
         {
             try
@@ -228,7 +227,6 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLock/{doorLockId}")]
-        [Authorize]
         public async Task<IActionResult> GetDoorLock(int doorLockId)
         {
             try
