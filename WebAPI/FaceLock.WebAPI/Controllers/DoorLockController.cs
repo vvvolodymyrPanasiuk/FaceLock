@@ -106,8 +106,7 @@ namespace FaceLock.WebAPI.Controllers
                     var doorLock = await queryDoorLock.GetDoorLockByIdAsync(model.DoorLockId);
 
                     var queryDoorLockAccess = _dataServiceFactory.CreateQueryDoorLockService();
-                    var doorLockAccess = await queryDoorLockAccess.GetUserDoorLockAccessByIdsAsync(model.UserId, model.DoorLockId);
-                    if(doorLockAccess != null)
+                    if(await queryDoorLockAccess.IsExistUserDoorLockAccessByIds(model.UserId, model.DoorLockId))
                     {
                         return StatusCode(StatusCodes.Status409Conflict, $"Access already exists");
                     }
@@ -570,7 +569,7 @@ namespace FaceLock.WebAPI.Controllers
 
         #region DELETE Metods
 
-        // DELETE api/<DoorLockController>/DeleteDoorLock/{placeId}
+        // DELETE api/<DoorLockController>/DeleteDoorLock/{doorLockId}
         /// <summary>
         /// Deletes the door lock with the specified ID.
         /// </summary>
@@ -584,7 +583,7 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-        [HttpDelete("DeleteDoorLock/{placeId}")]
+        [HttpDelete("DeleteDoorLock/{doorLockId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteDoorLock(int doorLockId)
         {

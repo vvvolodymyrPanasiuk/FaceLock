@@ -45,6 +45,13 @@ namespace FaceLock.DataManagement.Services.Queries
         /// <param name="doorLockId">The ID of the door lock.</param>
         /// <returns>An IEnumerable of UserDoorLockAccess objects representing the door lock accesses for the door lock.</returns>
         Task<IEnumerable<UserDoorLockAccess>> GetAccessByDoorLockIdAsync(int doorLockId);
+        /// <summary>
+        /// Boolen of exist a user access to door lock by IDs.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="doorLockId">The ID of the door lock.</param>
+        /// <returns>True if a UserDoorLockAccess object representing the user access to door lock is exist.</returns>
+        Task<bool> IsExistUserDoorLockAccessByIds(string userId, int doorLockId);
 
 
         /// <summary>

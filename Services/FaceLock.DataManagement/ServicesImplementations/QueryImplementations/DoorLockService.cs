@@ -103,6 +103,22 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             return accessDoorLock;
         }
 
+        public async Task<bool> IsExistUserDoorLockAccessByIds(string userId, int doorLockId)
+        {
+            var accessesDoorLock = await _unitOfWork.DoorLockAccessRepository.GetAccessByDoorLockIdAsync(doorLockId);
+            var accessDoorLock = accessesDoorLock.FirstOrDefault(a => a.UserId == userId);
+
+            if (accessDoorLock == null)
+            {
+               return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+
         #endregion
 
         #region DoorLockHistoryRepository
