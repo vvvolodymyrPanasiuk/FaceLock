@@ -1,4 +1,7 @@
-﻿namespace FaceLock.WebAPI.Models.RecognitionModels.Response
+﻿using FaceLock.WebAPI.Models.HelpreModels;
+using System.Buffers.Text;
+
+namespace FaceLock.WebAPI.Models.RecognitionModels.Response
 {
     /// <summary>
     /// Identification response object.
@@ -51,6 +54,30 @@
 		/// "29.41"
 		/// </example>
 		public double? PredictionDistance { get; set; }
+		/// <summary>
+		/// The base64 encoded image data of user face.
+		/// </summary>
+		public Base64Image Base64UserImage { get; set; }
+
+		public IdentificationResponse(
+		 string id,
+		 string username,
+		 string email,
+		 string firstname,
+		 string lastname,
+		 string status,
+		 double? predictionDistance,
+		 Base64Image base64UserImage)
+		{
+			Id = id;
+			Username = username;
+			Email = email;
+			FirstName = firstname;
+			LastName = lastname;
+			Status = status;
+			PredictionDistance = predictionDistance;
+			Base64UserImage = base64UserImage;
+		}
 
 		public IdentificationResponse(
 		 string id,
@@ -68,6 +95,7 @@
 			LastName = lastname;
 			Status = status;
 			PredictionDistance = predictionDistance;
+			Base64UserImage = null;
 		}
 	}
 }
