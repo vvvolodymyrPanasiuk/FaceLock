@@ -7,6 +7,8 @@ using System;
 using FaceLock.WebAPI.Models.RecognitionModels.Response;
 using FaceLock.DataManagement.Services;
 using FaceLock.WebAPI.Clients.GrpcClient;
+using System.Linq;
+using FaceLock.WebAPI.Models.HelpreModels;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -69,7 +71,10 @@ namespace FaceLock.WebAPI.Controllers
                     {
 						var queryUserService = _dataServiceFactory.CreateQueryUserService();
 						var user = await queryUserService.GetUserByIdAsync(regonizeResult.UserId);
-                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance));
+						var userFace = (await queryUserService.GetAllUserFacesAsync(regonizeResult.UserId)).First();
+						var userFaceBase64 = new Base64Image(Convert.ToBase64String(userFace.ImageData), userFace.ImageMimeType);
+
+						return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance, userFaceBase64));
                     }
                 }
                 catch (ArgumentNullException ex)
@@ -136,9 +141,12 @@ namespace FaceLock.WebAPI.Controllers
                             });
 						var queryUserService = _dataServiceFactory.CreateQueryUserService();
 						var user = await queryUserService.GetUserByIdAsync(regonizeResult.UserId);
-                        return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance));
+						var userFace = (await queryUserService.GetAllUserFacesAsync(regonizeResult.UserId)).First();
+						var userFaceBase64 = new Base64Image(Convert.ToBase64String(userFace.ImageData), userFace.ImageMimeType);
+
+						return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance, userFaceBase64));
 					}
-                }
+				}
                 catch (ArgumentNullException ex)
                 {
                     // Log error and return 400 responseGrpsServe
@@ -221,9 +229,12 @@ namespace FaceLock.WebAPI.Controllers
 
 						var queryUserService = _dataServiceFactory.CreateQueryUserService();
 						var user = await queryUserService.GetUserByIdAsync(regonizeResult.UserId);
-						return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance));
+						var userFace = (await queryUserService.GetAllUserFacesAsync(regonizeResult.UserId)).First();
+						var userFaceBase64 = new Base64Image(Convert.ToBase64String(userFace.ImageData), userFace.ImageMimeType);
+
+						return StatusCode(StatusCodes.Status200OK, new IdentificationResponse(user.Id, user.UserName, user.Email, user.FirstName, user.LastName, user.Status, regonizeResult.PredictionDistance, userFaceBase64));
 					}
-                }
+				}
                 catch (ArgumentNullException ex)
                 {
                     // Log error and return 400 responseGrpsServe
