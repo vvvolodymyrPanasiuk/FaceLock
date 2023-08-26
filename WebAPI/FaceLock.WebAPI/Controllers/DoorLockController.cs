@@ -190,7 +190,6 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLocks")]
-        [Authorize]
         public async Task<IActionResult> GetDoorLocks()
         {
             try
