@@ -189,23 +189,7 @@ namespace FaceLock.WebAPI.Controllers
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
                     var doorLock = await query.GetDoorLockByIdAsync(doorLockId);
                     var token = await query.GetAccessTokenToDoorLockAsync(doorLockId);
-
-
-
-                    int responseGrpsServeStatus;
-                    string responseGrpsServeMessage;
-                    // TODO: upd responseGrpsServe
-                    var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token);
-                    responseGrpsServeStatus = responseGrpsServe.Status;
-                    responseGrpsServeMessage = responseGrpsServe.Message;
-
-                    if (responseGrpsServe != null)
-                    {
-                        return StatusCode(StatusCodes.Status200OK, responseGrpsServe);
-                    }
-                    
-                    
-
+                                 
                     var regonizeResult = new Recognition.DTO.FaceRecognitionResult<string>();
                     foreach (var face in files.Files)
                     {
@@ -218,6 +202,17 @@ namespace FaceLock.WebAPI.Controllers
                     }
                     else
                     {
+                        // TODO: check user access to door lock
+                        // TODO: upd responseGrpsServe
+                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token);
+                        if (responseGrpsServe != null)
+                        {
+                            _logger.LogInformation($"\n\n\n \t Response GRPC server: \n" +
+                                $"STATUS: {responseGrpsServe.Status}" +
+                                $"MESSAGE: {responseGrpsServe.Message}" +
+                                $"\n\n\n");
+                        }
+
                         var command = _dataServiceFactory.CreateCommandDoorLockService();
                         await command.AddDoorLockHistoryAsync(
                             new Domain.Entities.DoorLockAggregate.DoorLockHistory
