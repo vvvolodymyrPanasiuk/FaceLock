@@ -256,6 +256,56 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
             }
         }
 
+        public async Task RemoveUserFacesFromTrainModelAsync(T userId)
+        {
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId), "User ID error (empty)");
+            }
+
+            userIdToLabelMap = LoadDictionaryFromJson<T, int>(userIdToLabelMapJsonFilePath) ?? new Dictionary<T, int>();
+            labelToUserIdMap = LoadDictionaryFromJson<int, T>(labelToUserIdMapJsonFilePath) ?? new Dictionary<int, T>();
+
+            if (userIdToLabelMap.TryGetValue(userId, out int label))
+            {
+                userIdToLabelMap.Remove(userId);
+                labelToUserIdMap.Remove(label);
+
+                SaveDictionaryToJson(userIdToLabelMap, userIdToLabelMapJsonFilePath);
+                SaveDictionaryToJson(labelToUserIdMap, labelToUserIdMapJsonFilePath);
+
+                // Update the training data
+                vectorOfMat = LoadVectorFromJson<VectorOfMat>(vectorOfMatJsonFilePath) ?? new VectorOfMat();
+                vectorOfInt = LoadVectorFromJson<VectorOfInt>(vectorOfIntJsonFilePath) ?? new VectorOfInt();
+
+                var labels = vectorOfInt.ToArray();
+                var newLabels = labels.Where(l => l != label).ToArray();
+
+                var newVectorOfMat = new VectorOfMat();
+                var newVectorOfInt = new VectorOfInt();
+
+                for (int i = 0; i < vectorOfMat.Size; i++)
+                {
+                    if (labels[i] != label)
+                    {
+                        newVectorOfMat.Push(vectorOfMat[i]);
+                    }
+                }
+                newVectorOfInt.Push(newLabels);
+
+                vectorOfMat = newVectorOfMat;
+                vectorOfInt = newVectorOfInt;
+
+                // Re-train the recognizer with the updated data
+                faceRecognizer.Train(vectorOfMat, vectorOfInt);
+
+                // Save updated data to JSON files
+                SaveVectorToJson(vectorOfMat, vectorOfMatJsonFilePath);
+                SaveVectorToJson(vectorOfInt, vectorOfIntJsonFilePath);
+                faceRecognizer.Write(emguTrainingModelFilePath);
+            }
+        }
+
         #endregion
 
 

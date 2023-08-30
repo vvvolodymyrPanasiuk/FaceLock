@@ -68,5 +68,12 @@ namespace FaceLock.Recognition.Services
         /// <param name="imagesData">The collection of image data as an IFormFileCollection.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task AddUserFacesToTrainModelAsync(T userId, IFormFileCollection imagesData);
+
+        /// <summary>
+        /// Removes all face images associated with a specific user from the training model.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task RemoveUserFacesFromTrainModelAsync(T userId);
     }
 }
