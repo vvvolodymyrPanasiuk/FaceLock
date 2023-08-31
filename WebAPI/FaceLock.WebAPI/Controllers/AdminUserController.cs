@@ -466,6 +466,8 @@ namespace FaceLock.WebAPI.Controllers
                 var command = _dataServiceFactory.CreateCommandUserService();
                 await command.DeleteUserAsync(user);
 
+                await _recognitionService.RemoveUserFacesFromTrainModelAsync(userId);
+
                 return StatusCode(StatusCodes.Status204NoContent);
             }
             catch (Exception ex)
@@ -502,6 +504,11 @@ namespace FaceLock.WebAPI.Controllers
 
                 var command = _dataServiceFactory.CreateCommandUserService();
                 await command.DeleteUsersAsync(usersForDelete);
+
+                foreach(var userId in usersId.UsersId)
+                {
+                    await _recognitionService.RemoveUserFacesFromTrainModelAsync(userId);
+                }
 
                 return StatusCode(StatusCodes.Status204NoContent);
             }
@@ -580,6 +587,8 @@ namespace FaceLock.WebAPI.Controllers
 
                 var command = _dataServiceFactory.CreateCommandUserService();
                 await command.DeleteUserFacesAsync(userFaceToDelete);
+
+                await _recognitionService.RemoveUserFacesFromTrainModelAsync(userId);
 
                 return StatusCode(StatusCodes.Status204NoContent);
             }

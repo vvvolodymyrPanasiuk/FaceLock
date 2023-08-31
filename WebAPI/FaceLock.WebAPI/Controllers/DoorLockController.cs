@@ -8,8 +8,6 @@ using System;
 using FaceLock.WebAPI.Models.DoorLockModels.Request;
 using System.Linq;
 using FaceLock.WebAPI.Models.DoorLockModels.Response;
-using Microsoft.AspNetCore.Http.HttpResults;
-using FaceLock.Domain.Entities.DoorLockAggregate;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -190,6 +188,7 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         [HttpGet("GetDoorLocks")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetDoorLocks()
         {
             try

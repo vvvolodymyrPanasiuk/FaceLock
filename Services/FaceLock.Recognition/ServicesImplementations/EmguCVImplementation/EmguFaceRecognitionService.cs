@@ -269,12 +269,8 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
             if (userIdToLabelMap.TryGetValue(userId, out int label))
             {
                 userIdToLabelMap.Remove(userId);
-                labelToUserIdMap.Remove(label);
+                labelToUserIdMap.Remove(label);       
 
-                SaveDictionaryToJson(userIdToLabelMap, userIdToLabelMapJsonFilePath);
-                SaveDictionaryToJson(labelToUserIdMap, labelToUserIdMapJsonFilePath);
-
-                // Update the training data
                 vectorOfMat = LoadVectorFromJson<VectorOfMat>(vectorOfMatJsonFilePath) ?? new VectorOfMat();
                 vectorOfInt = LoadVectorFromJson<VectorOfInt>(vectorOfIntJsonFilePath) ?? new VectorOfInt();
 
@@ -296,13 +292,27 @@ namespace FaceLock.Recognition.ServicesImplementations.EmguCVImplementation
                 vectorOfMat = newVectorOfMat;
                 vectorOfInt = newVectorOfInt;
 
+
                 // Re-train the recognizer with the updated data
-                faceRecognizer.Train(vectorOfMat, vectorOfInt);
+                if (vectorOfInt.Length > 0)
+                {
+                    faceRecognizer.Train(vectorOfMat, vectorOfInt);
+                    faceRecognizer.Write(emguTrainingModelFilePath);
+                }
+                else
+                {
+                    File.WriteAllText(emguTrainingModelFilePath, string.Empty);
+                }
 
                 // Save updated data to JSON files
+                SaveDictionaryToJson(userIdToLabelMap, userIdToLabelMapJsonFilePath);
+                SaveDictionaryToJson(labelToUserIdMap, labelToUserIdMapJsonFilePath);
                 SaveVectorToJson(vectorOfMat, vectorOfMatJsonFilePath);
                 SaveVectorToJson(vectorOfInt, vectorOfIntJsonFilePath);
-                faceRecognizer.Write(emguTrainingModelFilePath);
+            }
+            else
+            {
+                throw new ArgumentNullException("Train model for User is empty");
             }
         }
 
