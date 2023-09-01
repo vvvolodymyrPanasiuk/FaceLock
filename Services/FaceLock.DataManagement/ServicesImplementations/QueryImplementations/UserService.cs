@@ -102,10 +102,9 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             {
                 throw new Exception("User not exists");
             }
-
             var userFace = await _unitOfWork.UserFaceRepository.GetByIdAsync(faceId);
 
-            if (userFace == null)
+            if (userFace == null || userFace.UserId != user.Id)
             {
                 throw new Exception("User face not exists");
             }
