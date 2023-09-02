@@ -31,13 +31,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
 
         public async Task UpdateSecurityInfoAsync(DoorLockSecurityInfo securityInfo)
         {
-            await _unitOfWork.DoorLockSecurityInfoRepository.UpdateAsync(new DoorLockSecurityInfo()
-            {
-                Id = securityInfo.Id,
-                DoorLockId = securityInfo.DoorLockId,
-                SecretKey = securityInfo.SecretKey,
-                UrlConnection = securityInfo.UrlConnection
-            });
+            await _unitOfWork.DoorLockSecurityInfoRepository.UpdateAsync(securityInfo);
             await _unitOfWork.SaveChangesAsync();
         }
         #endregion

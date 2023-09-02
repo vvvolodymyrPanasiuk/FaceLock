@@ -245,7 +245,7 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // GET api/<DoorLockController>/GetDoorLockSecretInfo
+        // GET api/<DoorLockController>/{doorLockId}/GetDoorLockSecretInfo
         /// <summary>
         /// Retrieves the door lock tokens with the specified ID from the repository.
         /// </summary>
@@ -259,7 +259,7 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-        [HttpGet("GetDoorLockSecretInfo")]
+        [HttpGet("{doorLockId}/GetDoorLockSecretInfo")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetDoorLockSecretInfo(int doorLockId)
         {
@@ -518,10 +518,11 @@ namespace FaceLock.WebAPI.Controllers
         }
 
 
-        // PUT api/<DoorLockController>/UpdateSecretInfoDoorLock
+        // PUT api/<DoorLockController>/{doorLockId}/UpdateSecretInfoDoorLock
         /// <summary>
         /// Updates a user secret info to door lock.
         /// </summary>
+        /// <param name="doorLockId">The ID of the door lock to update.</param>
         /// <param name="model">The model containing the updated secret info to door lock data.</param>
         /// <returns>Returns status 201 (Created) if the secret info was updated successfully or an error message.</returns>
         /// <response code="201">Returns status 201 (Created) if the access level was updated successfully.</response>
@@ -532,17 +533,19 @@ namespace FaceLock.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
-        [HttpPut("UpdateSecretInfoDoorLock")]
+        [HttpPut("{doorLockId}/UpdateSecretInfoDoorLock")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateSecretInfoDoorLock([FromBody] UpdateSecretInfoDoorLockRequest model)
+        public async Task<IActionResult> UpdateSecretInfoDoorLock(int doorLockId, [FromBody] UpdateSecretInfoDoorLockRequest model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
-                    var secretKeyDoorLock = await query.GetSecurityInfoByDoorLockIdAsync(model.Id);
+                    var secretKeyDoorLock = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
 
+                    secretKeyDoorLock.Id = secretKeyDoorLock.Id;
+                    secretKeyDoorLock.DoorLockId = secretKeyDoorLock.DoorLockId;
                     secretKeyDoorLock.UrlConnection = model.UrlConnection ?? secretKeyDoorLock.UrlConnection;
                     secretKeyDoorLock.SecretKey = model.SecretKey ?? secretKeyDoorLock.SecretKey;
 
