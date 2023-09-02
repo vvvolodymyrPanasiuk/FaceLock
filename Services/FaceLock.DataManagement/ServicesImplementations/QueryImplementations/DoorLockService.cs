@@ -17,7 +17,9 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
 
         public async Task<string> GetAccessTokenToDoorLockAsync(int doorLockId)
         {
-            var doorLockSecurityInfo = await _unitOfWork.DoorLockSecurityInfoRepository.GetByIdAsync(doorLockId);
+            var doorLockSecurityInfos = await _unitOfWork.DoorLockSecurityInfoRepository.GetAllAsync();
+            var doorLockSecurityInfo = doorLockSecurityInfos.FirstOrDefault(s => s.DoorLockId == doorLockId);
+
             if (doorLockSecurityInfo == null)
             {
                 throw new Exception("Door lock security information not exist");
