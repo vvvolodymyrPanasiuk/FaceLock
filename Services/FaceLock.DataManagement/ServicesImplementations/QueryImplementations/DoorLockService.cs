@@ -162,14 +162,15 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
         #region DoorLockSecurityInfoRepository
         public async Task<DoorLockSecurityInfo> GetSecurityInfoByDoorLockIdAsync(int doorLockId)
         {
-            var doorLockSecurityInfo = await _unitOfWork.DoorLockSecurityInfoRepository.GetByIdAsync(doorLockId);
+            var doorLockSecurityInfo = await _unitOfWork.DoorLockSecurityInfoRepository.GetAllAsync();
+            var result = doorLockSecurityInfo.FirstOrDefault(s => s.DoorLockId == doorLockId);
 
-            if (doorLockSecurityInfo == null)
+            if (result == null)
             {
                 throw new Exception("Door lock security information not exist");
             }
 
-            return doorLockSecurityInfo;
+            return result;
         }
 
         #endregion
