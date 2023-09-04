@@ -203,7 +203,14 @@ namespace FaceLock.WebAPI.Controllers
                     }
                     else
                     {
-                        // TODO: check user access to door lock
+                        var queryDoorLockAccess = _dataServiceFactory.CreateQueryDoorLockService();
+                        var doorLockUserAccess = await queryDoorLockAccess.GetUserDoorLockAccessByIdsAsync(regonizeResult.UserId, doorLockId);
+
+                        if(doorLockUserAccess.HasAccess == false)
+                        {
+                            return StatusCode(StatusCodes.Status403Forbidden);
+                        }
+
                         // TODO: upd responseGrpsServe
                         var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token);
                         if (responseGrpsServe != null)
