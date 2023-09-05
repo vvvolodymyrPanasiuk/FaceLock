@@ -197,7 +197,7 @@ namespace FaceLock.WebAPI.Controllers
                         regonizeResult = await _recognitionService.RecognizeUserByFaceAsync(face);
                     }
 
-                    if (regonizeResult.UserId == null)
+                    if (regonizeResult.UserId == null || regonizeResult.PredictionDistance > 90)
                     {
                         return StatusCode(StatusCodes.Status204NoContent);
                     }
