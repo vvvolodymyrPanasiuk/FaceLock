@@ -156,7 +156,7 @@ namespace FaceLock.WebAPI.Controllers
                     var doorLock = await queryDoorLock.GetDoorLockByIdAsync(model.DoorLockId);
 
                     var commandDoorLock = _dataServiceFactory.CreateCommandDoorLockService();
-                    await commandDoorLock.CreateSecurityInfoAsync(doorLock.Id, model.UrlConnection);
+                    await commandDoorLock.CreateSecurityInfoAsync(doorLock.Id, model.UrlConnection, model.SecretKey);
 
                     return StatusCode(StatusCodes.Status201Created);
                 }

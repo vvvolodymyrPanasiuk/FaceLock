@@ -31,5 +31,16 @@ namespace FaceLock.WebAPI.Models.DoorLockModels.Request
         /// </example>
         [Required(ErrorMessage = "Door lock ID is required")]
         public int DoorLockId { get; set; }
+
+        /// <summary>
+        /// Secret key to generate token.
+        /// </summary>
+        /// <remarks>
+        /// Secret key to generate token for door lock by WebSocket.
+        /// </remarks>
+        /// <example>
+        /// fisboGklKbop32,rokm43qolm/!ol,tbgs
+        /// </example>
+        public string SecretKey { get; set; }
     }
 }
