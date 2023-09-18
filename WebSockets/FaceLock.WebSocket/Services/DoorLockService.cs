@@ -24,6 +24,7 @@ namespace FaceLock.WebSocket.Services
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Request is null"), "Bad request");
                 }
                 var token = request.Token;
+                var url = request.Url;
 
                 // Logic to open the door lock
                 // ...

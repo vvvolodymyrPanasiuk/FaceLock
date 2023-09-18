@@ -188,8 +188,7 @@ namespace FaceLock.WebAPI.Controllers
                 try
                 {
                     var query = _dataServiceFactory.CreateQueryDoorLockService();
-                    var doorLock = await query.GetDoorLockByIdAsync(doorLockId);
-                    var token = await query.GetAccessTokenToDoorLockAsync(doorLockId);
+                    var doorLock = await query.GetDoorLockByIdAsync(doorLockId);                   
                                  
                     var regonizeResult = new Recognition.DTO.FaceRecognitionResult<string>();
                     foreach (var face in files.Files)
@@ -203,16 +202,17 @@ namespace FaceLock.WebAPI.Controllers
                     }
                     else
                     {
-                        var queryDoorLockAccess = _dataServiceFactory.CreateQueryDoorLockService();
-                        var doorLockUserAccess = await queryDoorLockAccess.GetUserDoorLockAccessByIdsAsync(regonizeResult.UserId, doorLockId);
+                        var token = await query.GetAccessTokenToDoorLockAsync(doorLockId);
+                        var doorLockUserAccess = await query.GetUserDoorLockAccessByIdsAsync(regonizeResult.UserId, doorLockId);
 
                         if(doorLockUserAccess.HasAccess == false)
                         {
                             return StatusCode(StatusCodes.Status403Forbidden);
                         }
 
-                        // TODO: upd responseGrpsServe
-                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token);
+                        var doorLockSecurityInfo = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
+
+                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token, doorLockSecurityInfo.UrlConnection);
                         if (responseGrpsServe != null)
                         {
                             _logger.LogInformation($"\n\n\n \t Response GRPC server: \n" +

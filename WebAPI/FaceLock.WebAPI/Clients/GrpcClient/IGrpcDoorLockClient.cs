@@ -12,7 +12,8 @@ namespace FaceLock.WebAPI.Clients.GrpcClient
         /// Opens a door lock using the provided token.
         /// </summary>
         /// <param name="token">The access token for opening the door lock.</param>
+        /// <param name="url">The url connection for opening the door lock.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the response from the gRPC service.</returns>
-        Task<DoorLockServiceResponse> OpenDoorLockAsync(string token);
+        Task<DoorLockServiceResponse> OpenDoorLockAsync(string token, string url);
     }
 }
