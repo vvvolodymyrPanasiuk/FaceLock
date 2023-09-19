@@ -1,4 +1,6 @@
-﻿using FaceLock.WebSocket.Protos;
+﻿using FaceLock.WebSocket.LockCommunicationService;
+using FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl;
+using FaceLock.WebSocket.Protos;
 using FaceLock.WebSocket.Services;
 using Google.Protobuf.Reflection;
 using Grpc.Net.ClientFactory;
@@ -46,6 +48,9 @@ namespace FaceLock.WebSocket
 
             services.AddGrpc();
             services.AddGrpcReflection();
+
+            services.AddSingleton<WebSocketHub>();
+            services.AddScoped<ILockCommunicationStrategy, WebSocketLockCommunicationStrategy>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,6 +65,24 @@ namespace FaceLock.WebSocket
             app.UseCors();
 
             app.UseRouting();
+
+            var webSocketOptions = new WebSocketOptions
+            {
+                KeepAliveInterval = TimeSpan.FromMinutes(2)
+            };
+            app.UseWebSockets(webSocketOptions);
+            var serv = new WebSocketHub();
+            app.Use(async (ctx, next) =>
+            {
+                if (ctx.WebSockets.IsWebSocketRequest)
+                {       
+                    await serv.StartAsync(ctx);
+                }
+                else
+                {
+                    await next(ctx);
+                }
+            });
 
             // Add gRPC-Web middleware after routing and before endpoints
             app.UseGrpcWeb(new GrpcWebOptions { DefaultEnabled = true });
