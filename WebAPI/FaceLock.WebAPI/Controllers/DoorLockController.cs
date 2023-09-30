@@ -269,7 +269,7 @@ namespace FaceLock.WebAPI.Controllers
                 var doorLockSecretInfo = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
 
                 return StatusCode(StatusCodes.Status200OK, 
-                    new GetDoorLockSecretInfoResponse(doorLockSecretInfo.DoorLockId, doorLockSecretInfo.DoorLockId, doorLockSecretInfo.UrlConnection, doorLockSecretInfo.SecretKey));
+                    new GetDoorLockSecretInfoResponse(doorLockSecretInfo.DoorLockId, doorLockSecretInfo.DoorLockId, doorLockSecretInfo.SerialNumber));
             }
             catch (Exception ex)
             {
@@ -546,8 +546,7 @@ namespace FaceLock.WebAPI.Controllers
 
                     secretKeyDoorLock.Id = secretKeyDoorLock.Id;
                     secretKeyDoorLock.DoorLockId = secretKeyDoorLock.DoorLockId;
-                    secretKeyDoorLock.UrlConnection = model.UrlConnection ?? secretKeyDoorLock.UrlConnection;
-                    secretKeyDoorLock.SecretKey = model.SecretKey ?? secretKeyDoorLock.SecretKey;
+                    secretKeyDoorLock.SerialNumber = model.UrlConnection ?? secretKeyDoorLock.SerialNumber;
 
                     var command = _dataServiceFactory.CreateCommandDoorLockService();
                     await command.UpdateSecurityInfoAsync(secretKeyDoorLock);

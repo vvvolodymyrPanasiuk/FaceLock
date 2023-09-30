@@ -36,25 +36,14 @@
         /// <example>
         /// "wss://example.com/my-namespace"
         /// </example>
-        public string UrlConnection { get; set; }
+        public string SerialNumber { get; set; }
 
-        /// <summary>
-        /// The description of the door lock.
-        /// </summary>
-        /// <remarks>
-        /// This is the secret key for generate jwt tokens.
-        /// </remarks>
-        /// <example>
-        /// srtgbjmti;srmbjrts457yt7n748tysrn4sr98tn
-        /// </example>
-        public string SecretKey { get; set; }
 
-        public GetDoorLockSecretInfoResponse(int id, int doorLock, string urlConnection, string secretKey)
+        public GetDoorLockSecretInfoResponse(int id, int doorLock, string serialNumber)
         {
             Id = id;
             DoorLockId = doorLock;
-            UrlConnection = urlConnection;
-            SecretKey = secretKey;
+            SerialNumber = serialNumber;
         }
     }
 }

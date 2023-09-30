@@ -212,7 +212,7 @@ namespace FaceLock.WebAPI.Controllers
 
                         var doorLockSecurityInfo = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
 
-                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token, doorLockSecurityInfo.UrlConnection);
+                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token, doorLockSecurityInfo.SerialNumber);
                         if (responseGrpsServe != null)
                         {
                             _logger.LogInformation($"\n\n\n \t Response GRPC server: \n" +

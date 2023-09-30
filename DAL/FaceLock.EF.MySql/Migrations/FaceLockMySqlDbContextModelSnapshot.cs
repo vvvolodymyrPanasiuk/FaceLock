@@ -55,7 +55,7 @@ namespace FaceLock.EF.MySql.Migrations
                     b.Property<DateTime>("OpenedDateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(2023, 8, 19, 17, 53, 13, 157, DateTimeKind.Local).AddTicks(4013));
+                        .HasDefaultValue(new DateTime(2023, 9, 30, 22, 16, 27, 611, DateTimeKind.Local).AddTicks(2965));
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -86,11 +86,7 @@ namespace FaceLock.EF.MySql.Migrations
                     b.Property<int?>("DoorLockId1")
                         .HasColumnType("int");
 
-                    b.Property<string>("SecretKey")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("UrlConnection")
+                    b.Property<string>("SerialNumber")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -157,7 +153,7 @@ namespace FaceLock.EF.MySql.Migrations
                     b.Property<DateTime>("CheckInTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(2023, 8, 19, 17, 53, 13, 161, DateTimeKind.Local).AddTicks(618));
+                        .HasDefaultValue(new DateTime(2023, 9, 30, 22, 16, 27, 621, DateTimeKind.Local).AddTicks(9135));
 
                     b.Property<DateTime?>("CheckOutTime")
                         .HasColumnType("datetime");
@@ -262,7 +258,7 @@ namespace FaceLock.EF.MySql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)")
-                        .HasDefaultValue("860c3a8e-6ecf-430a-bf88-e1956579b446");
+                        .HasDefaultValue("ccce0641-b9f9-438b-8882-24210eb1ce9c");
 
                     b.HasKey("Id");
 

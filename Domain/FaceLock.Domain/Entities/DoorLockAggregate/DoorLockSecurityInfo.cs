@@ -7,8 +7,7 @@
     {
         public int Id { get; set; }
         public int DoorLockId { get; set; }
-        public string SecretKey { get; set; }
-        public string UrlConnection { get; set; }
+        public string SerialNumber { get; set; }
 
         public DoorLock? DoorLock { get; set; }
     }

@@ -142,13 +142,14 @@ namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplemen
 
         public string GenerateToken(DoorLockSecurityInfo doorLockSecurityInfo)
         {
-            if (doorLockSecurityInfo.SecretKey == null || doorLockSecurityInfo?.DoorLockId == null || doorLockSecurityInfo.UrlConnection == null)
+            if (doorLockSecurityInfo?.DoorLockId == null || doorLockSecurityInfo.SerialNumber == null)
             {
                 throw new Exception("Door lock security information not exist");
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(doorLockSecurityInfo.SecretKey);
+            //var key = Encoding.ASCII.GetBytes(doorLockSecurityInfo.SecretKey);
+            var key = Encoding.ASCII.GetBytes("key");
             if (key == null)
             {
                 throw new Exception("JwtTokenGeneratorService exception: key cannot be null");
@@ -158,7 +159,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.TokenGeneratorImplemen
 {
                 new Claim(ClaimTypes.NameIdentifier, doorLockSecurityInfo.DoorLockId.ToString()),
                 new Claim(ClaimTypes.UserData, DateTime.UtcNow.ToString()),
-                new Claim(ClaimTypes.Uri, doorLockSecurityInfo.UrlConnection)
+                new Claim(ClaimTypes.Uri, doorLockSecurityInfo.SerialNumber)
             });
             if (claims == null)
             {

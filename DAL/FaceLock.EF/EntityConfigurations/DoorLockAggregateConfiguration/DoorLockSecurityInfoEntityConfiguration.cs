@@ -21,10 +21,7 @@ namespace FaceLock.EF.EntityConfigurations.DoorLockAggregateConfiguration
 
             builder.HasIndex(e => e.DoorLockId);
 
-            builder.Property(e => e.SecretKey)
-                .IsRequired();
-
-            builder.Property(e => e.UrlConnection)
+            builder.Property(e => e.SerialNumber)
                 .IsRequired();
 
             builder.HasOne(e => e.DoorLock)
