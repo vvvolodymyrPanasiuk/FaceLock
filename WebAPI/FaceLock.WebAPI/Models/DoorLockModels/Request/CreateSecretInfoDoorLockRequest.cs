@@ -8,17 +8,17 @@ namespace FaceLock.WebAPI.Models.DoorLockModels.Request
     public class CreateSecretInfoDoorLockRequest
     {
         /// <summary>
-        /// Url connection to WebSocket.
+        /// SerialNumber of door lock to WebSocket.
         /// </summary>
         /// <remarks>
-        /// Url connection to door lock by WebSocket.
+        /// SerialNumber of door lock by WebSocket.
         /// </remarks>
         /// <example>
-        /// "wss://example.com/my-namespace"
+        /// "12iuhl-541-uig"
         /// </example>
-        [Required(ErrorMessage = "UrlConnection of door lock is required")]
-        [DataType(DataType.Url)]
-        public string UrlConnection { get; set; }
+        [Required(ErrorMessage = "SerialNumber of door lock is required")]
+        [DataType(DataType.Text)]
+        public string SerialNumber { get; set; }
 
         /// <summary>
         /// Door lock ID.
@@ -31,16 +31,5 @@ namespace FaceLock.WebAPI.Models.DoorLockModels.Request
         /// </example>
         [Required(ErrorMessage = "Door lock ID is required")]
         public int DoorLockId { get; set; }
-
-        /// <summary>
-        /// Secret key to generate token.
-        /// </summary>
-        /// <remarks>
-        /// Secret key to generate token for door lock by WebSocket.
-        /// </remarks>
-        /// <example>
-        /// fisboGklKbop32,rokm43qolm/!ol,tbgs
-        /// </example>
-        public string SecretKey { get; set; }
     }
 }

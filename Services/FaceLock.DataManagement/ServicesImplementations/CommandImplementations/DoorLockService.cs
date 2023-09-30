@@ -17,13 +17,24 @@ namespace FaceLock.DataManagement.ServicesImplementations.CommandImplementations
         }
 
         #region DoorLockSecurityInfoRepository
-        public async Task CreateSecurityInfoAsync(int doorLockId, string serialNumber, string secretKey)
+        public async Task CreateSecurityInfoAsync(int doorLockId, string serialNumber)
+        {
+            await _unitOfWork.DoorLockSecurityInfoRepository.AddAsync(
+                new DoorLockSecurityInfo()
+                {
+                    DoorLockId = doorLockId,
+                    SerialNumber = serialNumber
+                });
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task CreateSecurityInfoAsync(int doorLockId, string urlConnection, string secretKey)
         {      
             await _unitOfWork.DoorLockSecurityInfoRepository.AddAsync(
                 new DoorLockSecurityInfo()
                     {
                         DoorLockId = doorLockId,
-                        SerialNumber = serialNumber,
+                        SerialNumber = urlConnection,
                         //SecretKey = secretKey ?? _secretKeyGeneratorService.GenerateSecretKey()
                     });
             await _unitOfWork.SaveChangesAsync();

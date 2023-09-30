@@ -156,7 +156,7 @@ namespace FaceLock.WebAPI.Controllers
                     var doorLock = await queryDoorLock.GetDoorLockByIdAsync(model.DoorLockId);
 
                     var commandDoorLock = _dataServiceFactory.CreateCommandDoorLockService();
-                    await commandDoorLock.CreateSecurityInfoAsync(doorLock.Id, model.UrlConnection, model.SecretKey);
+                    await commandDoorLock.CreateSecurityInfoAsync(doorLock.Id, model.SerialNumber);
 
                     return StatusCode(StatusCodes.Status201Created);
                 }
@@ -546,7 +546,7 @@ namespace FaceLock.WebAPI.Controllers
 
                     secretKeyDoorLock.Id = secretKeyDoorLock.Id;
                     secretKeyDoorLock.DoorLockId = secretKeyDoorLock.DoorLockId;
-                    secretKeyDoorLock.SerialNumber = model.UrlConnection ?? secretKeyDoorLock.SerialNumber;
+                    secretKeyDoorLock.SerialNumber = model.SerialNumber ?? secretKeyDoorLock.SerialNumber;
 
                     var command = _dataServiceFactory.CreateCommandDoorLockService();
                     await command.UpdateSecurityInfoAsync(secretKeyDoorLock);
@@ -611,7 +611,7 @@ namespace FaceLock.WebAPI.Controllers
         /// Deletes the user access to door lock with the specified ID.
         /// </summary>
         /// <param name="doorLockId">The ID of the door lock to delete.</param>        
-        /// <param name="userkId">The ID of the user to delete.</param>
+        /// <param name="userId">The ID of the user to delete.</param>
         /// <returns>Returns status 204 (No Content) if the access was deleted successfully or an error message.</returns>
         /// <response code="204">Returns status 204 (No Content) if the access was deleted successfully.</response>
         /// <response code="401">If the user is not authorized to perform this action.</response>

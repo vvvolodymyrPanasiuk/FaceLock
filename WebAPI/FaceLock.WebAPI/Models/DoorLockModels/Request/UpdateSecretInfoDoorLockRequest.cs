@@ -20,29 +20,16 @@ namespace FaceLock.WebAPI.Models.DoorLockModels.Request
         public int Id { get; set; }
 
         /// <summary>
-        /// The secret key of the door lock.
+        /// Serial number of door lock to WebSocket.
         /// </summary>
         /// <remarks>
-        /// This is the secret key for generate jwt tokens.
+        /// Serial number to door lock by WebSocket.
         /// </remarks>
         /// <example>
-        /// srtgbjmti;srmbjrts457yt7n748tysrn4sr98tn
-        /// </example>
-        [Required(ErrorMessage = "Secret key of door lock is required")]
-        public string SecretKey { get; set; }
-
-        /// <summary>
-        /// Url connection to WebSocket.
-        /// </summary>
-        /// <remarks>
-        /// Url connection to door lock by WebSocket.
-        /// </remarks>
-        /// <example>
-        /// "wss://example.com/my-namespace"
+        /// "rngy-45tyd-ytnytdn"
         /// </example>
         [Required(ErrorMessage = "Url Connection of door lock is required")]
-        [DataType(DataType.Url)]
-        public string UrlConnection { get; set; }
-
+        [DataType(DataType.Text)]
+        public string SerialNumber { get; set; }
     }
 }

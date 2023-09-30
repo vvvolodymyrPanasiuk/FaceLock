@@ -81,6 +81,12 @@ namespace FaceLock.DataManagement.Services.Commands
         /// <param name="secretKey">The secret key to generate token for the door lock for which to create the security info.</param>
         Task CreateSecurityInfoAsync(int doorLock, string urlConnection, string secretKey);
         /// <summary>
+        /// Creates new security information for a door lock by door lock ID.
+        /// </summary>
+        /// <param name="doorLock">The DoorLock ID representing the door lock for which to create the security info.</param>
+        /// <param name="serialNumber">The serial number to the door lock for which to create the security info.</param>
+        Task CreateSecurityInfoAsync(int doorLock, string serialNumber);
+        /// <summary>
         /// Updates a security information for a door lock.
         /// </summary>
         /// <param name="securityInfo">The DoorLockSecurityInfo object representing the access token to update.</param>

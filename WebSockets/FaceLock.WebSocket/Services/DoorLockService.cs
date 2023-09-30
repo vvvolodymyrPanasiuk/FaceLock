@@ -27,11 +27,10 @@ namespace FaceLock.WebSocket.Services
                 {
                     throw new RpcException(new Status(StatusCode.InvalidArgument, "Request is null"), "Bad request");
                 }
-                var token = request.Token;
-                var url = request.Url;
+                var serialNumber = request.SerialNumber;
 
                 // Logic to open the door lock
-                var res = await _lockCommunication.SendToLockAsync(url, "", token); 
+                var res = await _lockCommunication.SendToLockAsync(serialNumber, "", ""); 
                 if(res == true)
                 {
                     _logger.LogInformation($"200: Door lock: OPEN");

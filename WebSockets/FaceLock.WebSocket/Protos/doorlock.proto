@@ -10,8 +10,7 @@ service DoorLock {
 }
 
 message DoorLockServiceRequest {
-    string token = 1;
-    string url = 2;
+    string serialNumber = 1;
 }
 
 message DoorLockServiceResponse {
