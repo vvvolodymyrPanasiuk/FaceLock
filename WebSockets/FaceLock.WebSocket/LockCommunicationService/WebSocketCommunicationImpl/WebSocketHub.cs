@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Net;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 {
@@ -15,6 +16,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
         private static readonly ConcurrentDictionary<string, System.Net.WebSockets.WebSocket> _locksConnections = new();
         private static readonly ConcurrentDictionary<string, HttpContext> _locksWebSocketContexts = new();
 
+        private static List<string> whiteListOfDoorLocks = new();
 
 
         public async Task StartAsync(IPAddress ipAddress, int port)
@@ -65,6 +67,15 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
         }
 
 
+        public void AddToWhiteList(string serialNumber)
+        {
+            if(serialNumber  == null)
+            {
+                return;
+            }
+
+            whiteListOfDoorLocks.Add(serialNumber);
+        }
 
         public async Task StartAsync(HttpContext ctx)
         {
@@ -73,7 +84,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
             var newWebsocket = await ctx.WebSockets.AcceptWebSocketAsync();
             
             var ipAdressClient = $"{ctx.Connection.RemoteIpAddress}:{ctx.Connection.RemotePort}";
-
+          
 
             _locksConnections.TryAdd(ipAdressClient, newWebsocket);
             _locksWebSocketContexts.TryAdd(ipAdressClient, ctx);

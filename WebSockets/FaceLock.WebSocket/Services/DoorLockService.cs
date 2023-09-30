@@ -1,4 +1,5 @@
 ﻿using FaceLock.WebSocket.LockCommunicationService;
+using FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl;
 using FaceLock.WebSocket.Protos;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
@@ -59,6 +60,37 @@ namespace FaceLock.WebSocket.Services
                     Message = "Error: " + ex.Message
                 });
             }        
-        }      
+        }
+
+        public override async Task<DoorLockServiceResponse> AddLockToWhiteList(DoorLockServiceRequest request, ServerCallContext context)
+        {
+            try
+            {
+                if (request is null)
+                {
+                    throw new RpcException(new Status(StatusCode.InvalidArgument, "Request is null"), "Bad request");
+                }
+                var serialNumber = request.SerialNumber;
+
+                var webSocketHub = new WebSocketHub();
+                webSocketHub.AddToWhiteList(serialNumber);
+
+                _logger.LogInformation($"WhiteList: Added new serial number");
+                return await Task.FromResult(new DoorLockServiceResponse
+                {
+                    Status = 200,
+                    Message = "WhiteList: Added new serial number"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return await Task.FromResult(new DoorLockServiceResponse
+                {
+                    Status = 500,
+                    Message = "Error: " + ex.Message
+                });
+            }
+        }
     }
 }

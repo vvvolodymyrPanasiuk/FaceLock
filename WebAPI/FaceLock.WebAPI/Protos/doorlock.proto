@@ -5,13 +5,14 @@ option csharp_namespace = "FaceLock.WebSocket.Protos";
 package doorlock;
 
 
+
 service DoorLock {
     rpc OpenDoorLock(DoorLockServiceRequest) returns (DoorLockServiceResponse);
+    rpc AddLockToWhiteList(DoorLockServiceRequest) returns (DoorLockServiceResponse);
 }
 
 message DoorLockServiceRequest {
-    string token = 1;
-    string url = 2;
+    string serialNumber = 1;
 }
 
 message DoorLockServiceResponse {

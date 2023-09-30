@@ -7,6 +7,7 @@ package doorlock;
 
 service DoorLock {
     rpc OpenDoorLock(DoorLockServiceRequest) returns (DoorLockServiceResponse);
+    rpc AddLockToWhiteList(DoorLockServiceRequest) returns (DoorLockServiceResponse);
 }
 
 message DoorLockServiceRequest {

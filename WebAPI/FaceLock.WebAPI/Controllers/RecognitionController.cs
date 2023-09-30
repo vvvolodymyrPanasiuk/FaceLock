@@ -202,7 +202,6 @@ namespace FaceLock.WebAPI.Controllers
                     }
                     else
                     {
-                        var token = await query.GetAccessTokenToDoorLockAsync(doorLockId);
                         var doorLockUserAccess = await query.GetUserDoorLockAccessByIdsAsync(regonizeResult.UserId, doorLockId);
 
                         if(doorLockUserAccess.HasAccess == false)
@@ -212,7 +211,7 @@ namespace FaceLock.WebAPI.Controllers
 
                         var doorLockSecurityInfo = await query.GetSecurityInfoByDoorLockIdAsync(doorLockId);
 
-                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(token, doorLockSecurityInfo.SerialNumber);
+                        var responseGrpsServe = await _grpcDoorLockClient.OpenDoorLockAsync(doorLockSecurityInfo.SerialNumber);
                         if (responseGrpsServe != null)
                         {
                             _logger.LogInformation($"\n\n\n \t Response GRPC server: \n" +

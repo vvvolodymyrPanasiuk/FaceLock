@@ -8,6 +8,8 @@ using System;
 using FaceLock.WebAPI.Models.DoorLockModels.Request;
 using System.Linq;
 using FaceLock.WebAPI.Models.DoorLockModels.Response;
+using FaceLock.WebAPI.Clients.GrpcClient;
+using FaceLock.Domain.Entities.DoorLockAggregate;
 
 namespace FaceLock.WebAPI.Controllers
 {
@@ -20,13 +22,16 @@ namespace FaceLock.WebAPI.Controllers
     public class DoorLockController : ControllerBase
     {
         private readonly IDataServiceFactory _dataServiceFactory;
+        private readonly IGrpcDoorLockClient _grpcDoorLockClient;
         private readonly ILogger<PlaceController> _logger;
 
         public DoorLockController(
             IDataServiceFactory dataServiceFactory,
+            IGrpcDoorLockClient grpcDoorLockClient,
             ILogger<PlaceController> logger)
         {
             _dataServiceFactory = dataServiceFactory;
+            _grpcDoorLockClient = grpcDoorLockClient;
             _logger = logger;
         }
 
@@ -157,6 +162,15 @@ namespace FaceLock.WebAPI.Controllers
 
                     var commandDoorLock = _dataServiceFactory.CreateCommandDoorLockService();
                     await commandDoorLock.CreateSecurityInfoAsync(doorLock.Id, model.SerialNumber);
+
+                    var responseGrpsServe = await _grpcDoorLockClient.AddLockToWhiteListAsync(model.SerialNumber);
+                    if (responseGrpsServe != null)
+                    {
+                        _logger.LogInformation($"\n\n\n \t Response GRPC server: \n" +
+                            $"STATUS: {responseGrpsServe.Status}" +
+                            $"MESSAGE: {responseGrpsServe.Message}" +
+                            $"\n\n\n");
+                    }
 
                     return StatusCode(StatusCodes.Status201Created);
                 }

@@ -13,15 +13,29 @@ namespace FaceLock.WebAPI.Clients.GrpcClient.GrpcClientImplementation
             _grpcClientChannelFactory = grpcClientChannelFactory;
         }
 
-        public async Task<DoorLockServiceResponse> OpenDoorLockAsync(string token, string url)
+        public async Task<DoorLockServiceResponse> AddLockToWhiteListAsync(string serialNumber)
         {
             using (var channel = _grpcClientChannelFactory.CreateGrpcClientChannel())
             {
                 var client = new DoorLock.DoorLockClient(channel);
                 var request = new DoorLockServiceRequest
                 {
-                    Token = token,
-                    Url = url
+                    SerialNumber = serialNumber,
+                };
+
+                var response = await client.AddLockToWhiteListAsync(request);
+                return response;
+            }
+        }
+
+        public async Task<DoorLockServiceResponse> OpenDoorLockAsync(string serialNumber)
+        {
+            using (var channel = _grpcClientChannelFactory.CreateGrpcClientChannel())
+            {
+                var client = new DoorLock.DoorLockClient(channel);
+                var request = new DoorLockServiceRequest
+                {
+                    SerialNumber = serialNumber,
                 };
 
                 var response = await client.OpenDoorLockAsync(request);
