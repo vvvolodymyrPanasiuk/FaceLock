@@ -8,14 +8,15 @@ using System.Net.Sockets;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 {
     public class WebSocketHub
     {
-        private static readonly ConcurrentDictionary<string, System.Net.WebSockets.WebSocket> _locksConnections = new();
+        private static readonly ConcurrentDictionary<string, System.Net.WebSockets.WebSocket> _locksSerialNumber = new();
         private static readonly ConcurrentDictionary<string, HttpContext> _locksWebSocketContexts = new();
-
         private static List<string> whiteListOfDoorLocks = new();
 
 
@@ -52,7 +53,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 
                     // Отримуємо унікальний ідентифікатор замка на основі IP-адреси та порту
                     var lockId = tcpClient.Client.RemoteEndPoint.ToString();
-                    _locksConnections.TryAdd(lockId, webSocket);
+                    _locksSerialNumber.TryAdd(lockId, webSocket);
 
                     Console.WriteLine($"New lock connected: {lockId}");
 
@@ -84,14 +85,21 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
             var newWebsocket = await ctx.WebSockets.AcceptWebSocketAsync();
             
             var ipAdressClient = $"{ctx.Connection.RemoteIpAddress}:{ctx.Connection.RemotePort}";
-          
 
-            _locksConnections.TryAdd(ipAdressClient, newWebsocket);
-            _locksWebSocketContexts.TryAdd(ipAdressClient, ctx);
+            string serialNumber = ctx.Request.Headers["serialNumber"];
+
+            if(!whiteListOfDoorLocks.Contains(serialNumber) || serialNumber == null)
+            {
+                await newWebsocket?.CloseAsync(WebSocketCloseStatus.InternalServerError, "Internal Server Error", CancellationToken.None);
+                return;
+            }
+
+            _locksSerialNumber.TryAdd(serialNumber, newWebsocket);
+            _locksWebSocketContexts.TryAdd(serialNumber, ctx);
 
             Console.WriteLine($"{ipAdressClient} connected");
 
-            await HandleLockAsync(ipAdressClient, newWebsocket);
+            await HandleLockAsync(serialNumber, newWebsocket);
         }
 
         private async Task HandleLockAsync(string lockId, System.Net.WebSockets.WebSocket webSocket)
@@ -123,7 +131,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
                 }
             }
 
-            _locksConnections.TryRemove(lockId, out _);
+            _locksSerialNumber.TryRemove(lockId, out _);
             _locksWebSocketContexts.TryRemove(lockId, out _);
             webSocket.Dispose();
             Console.WriteLine($"Lock {lockId} disconnected.");
@@ -131,7 +139,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 
         public async Task SendAsync(string lockId, string message)
         {
-            if (_locksConnections.TryGetValue(lockId, out var webSocket))
+            if (_locksSerialNumber.TryGetValue(lockId, out var webSocket))
             {
                 await SendAsync(webSocket, message);
             }
@@ -143,7 +151,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 
         public async Task SendAsync(string lockId, string message, string jwtToken)
         {
-            if (_locksConnections.TryGetValue(lockId, out var webSocket))
+            if (_locksSerialNumber.TryGetValue(lockId, out var webSocket))
             {
                 await SendAsync(webSocket, $"{message}{jwtToken}");
             }

@@ -10,10 +10,8 @@ namespace FaceLock.WebSocket.LockCommunicationService
         /// <summary>
         /// Send a message to a lock.
         /// </summary>
-        /// <param name="url">The URL/connection information of the lock.</param>
-        /// <param name="message">The message to send.</param>
-        /// <param name="jwtToken">The JWT token for authentication.</param>
+        /// <param name="serialNumber">The URL/connection information of the lock.</param>
         /// <returns>True if the message was successfully sent; otherwise, false.</returns>
-        Task<bool> SendToLockAsync(string url, string message, string jwtToken);
+        Task<bool> SendToLockAsync(string serialNumber);
     }
 }

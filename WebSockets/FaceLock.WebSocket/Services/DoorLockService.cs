@@ -31,7 +31,7 @@ namespace FaceLock.WebSocket.Services
                 var serialNumber = request.SerialNumber;
 
                 // Logic to open the door lock
-                var res = await _lockCommunication.SendToLockAsync(serialNumber, "", ""); 
+                var res = await _lockCommunication.SendToLockAsync(serialNumber); 
                 if(res == true)
                 {
                     _logger.LogInformation($"200: Door lock: OPEN");
