@@ -4,12 +4,9 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using System.Collections.Concurrent;
-using System.Net.Sockets;
-using System.Net;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 {
@@ -19,56 +16,15 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
         private static readonly ConcurrentDictionary<string, HttpContext> _locksWebSocketContexts = new();
         private static List<string> whiteListOfDoorLocks = new();
 
+        private readonly ILogger<WebSocketHub> _logger;
 
-        public async Task StartAsync(IPAddress ipAddress, int port)
+        public WebSocketHub(ILogger<WebSocketHub> logger)
         {
-            var listener = new TcpListener(ipAddress, port);
-            listener.Start();
-
-            Console.WriteLine($"WebSocket server started on {ipAddress}:{port}");
-
-            while (true)
-            {
-                var tcpClient = await listener.AcceptTcpClientAsync();
-
-                // Запускаємо обробку WebSocket-запиту в окремому потоці
-                _ = Task.Run(() => ProcessWebSocketRequestAsync(tcpClient));
-            }
-        }
-        private async Task ProcessWebSocketRequestAsync(TcpClient tcpClient)
-        {
-            HttpListenerWebSocketContext webSocketContext = null;
-
-            try
-            {
-                var listener = new HttpListener();
-                listener.Prefixes.Add($"http://{tcpClient.Client.RemoteEndPoint}/");
-                listener.Start();
-
-                var context = await listener.GetContextAsync();
-                if (context.Request.IsWebSocketRequest)
-                {
-                    webSocketContext = await context.AcceptWebSocketAsync(null);
-                    var webSocket = webSocketContext.WebSocket;
-
-                    // Отримуємо унікальний ідентифікатор замка на основі IP-адреси та порту
-                    var lockId = tcpClient.Client.RemoteEndPoint.ToString();
-                    _locksSerialNumber.TryAdd(lockId, webSocket);
-
-                    Console.WriteLine($"New lock connected: {lockId}");
-
-                    // Обробка повідомлень від замка
-                    await HandleLockAsync(lockId, webSocket);
-                }
-            }
-            catch
-            {
-                webSocketContext?.WebSocket.CloseAsync(WebSocketCloseStatus.InternalServerError, "Internal Server Error", CancellationToken.None);
-            }
+            _logger = logger;
         }
 
 
-        public void AddToWhiteList(string serialNumber)
+        public static void AddToWhiteList(string serialNumber)
         {
             if(serialNumber  == null)
             {
@@ -91,6 +47,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
             if(!whiteListOfDoorLocks.Contains(serialNumber) || serialNumber == null)
             {
                 await newWebsocket?.CloseAsync(WebSocketCloseStatus.InternalServerError, "Internal Server Error", CancellationToken.None);
+                newWebsocket.Dispose();
                 return;
             }
 
@@ -115,11 +72,10 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
                     if (receiveResult.MessageType == WebSocketMessageType.Text)
                     {
                         var message = Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
+
                         Console.WriteLine($"Received message from lock {lockId}: {message}");
+                        _logger.LogInformation($"Received message from lock {lockId}: {message}");
 
-                        // Опрацьовуйте повідомлення від замка тут
-
-                        // Приклад відправки відповіді на замок
                         var responseMessage = "Message received and processed.";
                         await SendAsync(webSocket, responseMessage);
                     }
@@ -127,6 +83,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error handling lock {lockId}: {ex.Message}");
+                    _logger.LogError($"Error handling lock {lockId}: {ex.Message}");
                     break;
                 }
             }

@@ -72,8 +72,7 @@ namespace FaceLock.WebSocket.Services
                 }
                 var serialNumber = request.SerialNumber;
 
-                var webSocketHub = new WebSocketHub();
-                webSocketHub.AddToWhiteList(serialNumber);
+                WebSocketHub.AddToWhiteList(serialNumber);
 
                 _logger.LogInformation($"WhiteList: Added new serial number");
                 return await Task.FromResult(new DoorLockServiceResponse

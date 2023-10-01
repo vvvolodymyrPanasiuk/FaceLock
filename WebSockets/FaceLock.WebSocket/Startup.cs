@@ -1,20 +1,14 @@
 ﻿using FaceLock.WebSocket.LockCommunicationService;
 using FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl;
-using FaceLock.WebSocket.Protos;
-using FaceLock.WebSocket.Services;
-using Google.Protobuf.Reflection;
-using Grpc.Net.ClientFactory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Serilog;
 using System;
 using System.IO;
-using System.Reflection;
 
 namespace FaceLock.WebSocket
 {
@@ -71,7 +65,8 @@ namespace FaceLock.WebSocket
                 KeepAliveInterval = TimeSpan.FromMinutes(2)
             };
             app.UseWebSockets(webSocketOptions);
-            var serv = new WebSocketHub();
+
+            var serv = app.ApplicationServices.GetRequiredService<WebSocketHub>();
             app.Use(async (ctx, next) =>
             {
                 if (ctx.WebSockets.IsWebSocketRequest)
