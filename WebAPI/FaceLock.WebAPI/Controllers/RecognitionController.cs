@@ -198,7 +198,7 @@ namespace FaceLock.WebAPI.Controllers
 
                     if (regonizeResult.UserId == null || regonizeResult.PredictionDistance > 90)
                     {
-                        return StatusCode(StatusCodes.Status204NoContent);
+                        return StatusCode(StatusCodes.Status404NotFound, $"ID:{regonizeResult.UserId} - PredictionDistance:{regonizeResult.PredictionDistance}");
                     }
                     else
                     {

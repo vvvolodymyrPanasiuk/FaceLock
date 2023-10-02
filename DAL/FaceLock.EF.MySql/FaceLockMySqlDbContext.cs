@@ -23,8 +23,6 @@ namespace FaceLock.EF.MySql
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string qqqq = "Server=bbttldm6uicnfbpjncx0-mysql.services.clever-cloud.com;Port=3306;Database=bbttldm6uicnfbpjncx0;Persist Security Info=True;User=u182w8veachlcmul;Password=pRm2XXERQeqsuuarcujX;Connection Timeout=60;";
-            optionsBuilder.UseMySql(qqqq, new MySqlServerVersion(new Version(5, 1)));
             //optionsBuilder.LogTo(message => System.Diagnostics.Debug.WriteLine(message), new[] { RelationalEventId.CommandExecuted });
             //optionsBuilder.LogTo(message => System.Diagnostics.Debug.WriteLine(message));
         }

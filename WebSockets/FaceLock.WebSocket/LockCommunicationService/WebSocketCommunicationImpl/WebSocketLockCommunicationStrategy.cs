@@ -32,6 +32,11 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
             _webSocketServer = webSocketServer ?? throw new ArgumentNullException(nameof(webSocketServer));
         }
 
+        public async Task AddToWhiteListAsync(string serialNumber)
+        {
+            await _webSocketServer.AddToWhiteListAsync(serialNumber);
+        }
+
         public async Task<bool> SendToLockAsync(string serialNumber)
         {
             try

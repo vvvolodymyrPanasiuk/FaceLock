@@ -7,31 +7,40 @@ using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 {
+    public class SerialNumberDoorLock
+    {
+        public string SerialNumber { get; set; }
+    }
+
     public class WebSocketHub
     {
         private static readonly ConcurrentDictionary<string, System.Net.WebSockets.WebSocket> _locksSerialNumber = new();
         private static readonly ConcurrentDictionary<string, HttpContext> _locksWebSocketContexts = new();
-        private static List<string> whiteListOfDoorLocks = new();
+        private readonly string _filePath;
 
         private readonly ILogger<WebSocketHub> _logger;
 
-        public WebSocketHub(ILogger<WebSocketHub> logger)
+        public WebSocketHub(ILogger<WebSocketHub> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _filePath = configuration["SerialNumbersFilePath"];
         }
 
 
-        public static void AddToWhiteList(string serialNumber)
+        public async Task AddToWhiteListAsync(string serialNumber)
         {
             if(serialNumber  == null)
             {
                 return;
             }
 
-            whiteListOfDoorLocks.Add(serialNumber);
+            await AddSerialNumberAsync(new SerialNumberDoorLock() { SerialNumber = serialNumber });
         }
 
         public async Task StartAsync(HttpContext ctx)
@@ -44,7 +53,7 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
 
             string serialNumber = ctx.Request.Headers["serialNumber"];
 
-            if(!whiteListOfDoorLocks.Contains(serialNumber) || serialNumber == null)
+            if(!IsExistSerialNumberAsync(serialNumber).Result || serialNumber == null)
             {
                 await newWebsocket?.CloseAsync(WebSocketCloseStatus.InternalServerError, "Internal Server Error", CancellationToken.None);
                 newWebsocket.Dispose();
@@ -124,6 +133,56 @@ namespace FaceLock.WebSocket.LockCommunicationService.WebSocketCommunicationImpl
             var buffer = new ArraySegment<byte>(data);
 
             await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+
+
+
+
+
+        public async Task AddSerialNumberAsync(SerialNumberDoorLock serialNumber)
+        {
+            var serialNumbers = await ReadSerialNumbersFromFileAsync();
+            serialNumbers.Add(serialNumber);
+            await WriteSerialNumbersToFileAsync(serialNumbers);
+        }
+
+        public async Task RemoveSerialNumberAsync(string serialNumber)
+        {
+            var serialNumbers = await ReadSerialNumbersFromFileAsync();
+            serialNumbers.RemoveAll(sn => sn.SerialNumber == serialNumber);
+            await WriteSerialNumbersToFileAsync(serialNumbers);
+        }
+
+        public async Task<bool> IsExistSerialNumberAsync(string serialNumber)
+        {
+            var serialNumbers = await ReadSerialNumbersFromFileAsync();
+            var serialNumberExist = serialNumbers.Find(sn => sn.SerialNumber == serialNumber);
+            return serialNumberExist != null;
+        }
+
+        private async Task<List<SerialNumberDoorLock>> ReadSerialNumbersFromFileAsync()
+        {
+            if (!File.Exists(_filePath))
+            {
+                return new List<SerialNumberDoorLock>();
+            }
+
+            var jsonString = await File.ReadAllTextAsync(_filePath);
+            if(jsonString == null || jsonString == "")
+            {
+                return new List<SerialNumberDoorLock>();
+            }
+            return JsonSerializer.Deserialize<List<SerialNumberDoorLock>>(jsonString);
+        }
+
+        private async Task WriteSerialNumbersToFileAsync(List<SerialNumberDoorLock> tokenStates)
+        {
+            var jsonString = JsonSerializer.Serialize(tokenStates, new JsonSerializerOptions
+            {
+                WriteIndented = true // For pretty
+            });
+
+            await File.WriteAllTextAsync(_filePath, jsonString);
         }
     }
 }

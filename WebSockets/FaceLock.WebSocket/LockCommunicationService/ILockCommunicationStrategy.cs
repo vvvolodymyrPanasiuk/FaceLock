@@ -13,5 +13,7 @@ namespace FaceLock.WebSocket.LockCommunicationService
         /// <param name="serialNumber">The URL/connection information of the lock.</param>
         /// <returns>True if the message was successfully sent; otherwise, false.</returns>
         Task<bool> SendToLockAsync(string serialNumber);
+
+        Task AddToWhiteListAsync(string serialNumber);
     }
 }

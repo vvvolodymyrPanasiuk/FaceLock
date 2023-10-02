@@ -66,6 +66,12 @@ namespace FaceLock.WebAPI.Controllers
                     new GetUserInfoResponse(user.Id, user.UserName, user.Email,
                         user.FirstName, user.LastName, user.Status));
             }
+            catch (ArgumentNullException ex)
+            {
+                // Log error and return 401 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status401Unauthorized, $"Error: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 // Log error and return 500 response
@@ -303,8 +309,14 @@ namespace FaceLock.WebAPI.Controllers
 
                     var command = _dataServiceFactory.CreateCommandUserService();
                     await command.UpdateUserAsync(user);
-
+                    
                     return StatusCode(StatusCodes.Status201Created);
+                }
+                catch (ArgumentNullException ex)
+                {
+                    // Log error and return 401 response
+                    _logger.LogError($"Error: {ex.Message}");
+                    return StatusCode(StatusCodes.Status401Unauthorized, $"Error: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
@@ -347,6 +359,12 @@ namespace FaceLock.WebAPI.Controllers
                 await command.DeleteUserAsync(user);
 
                 return StatusCode(StatusCodes.Status204NoContent);
+            }
+            catch (ArgumentNullException ex)
+            {
+                // Log error and return 401 response
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status401Unauthorized, $"Error: {ex.Message}");
             }
             catch (Exception ex)
             {

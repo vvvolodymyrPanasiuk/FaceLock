@@ -20,7 +20,7 @@ namespace FaceLock.DataManagement.ServicesImplementations.QueryImplementations
             
             if (user == null)
             {
-                throw new Exception("User not exists");
+                throw new ArgumentNullException("User not exists");
             }
 
             return user;
