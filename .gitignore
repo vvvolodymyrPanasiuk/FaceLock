@@ -21,6 +21,7 @@ tokenstate.json
 #secrets
 appsettings.Production.json
 settings.json
+serialNumbers.json
 
 # Build results
 [Dd]ebug/
