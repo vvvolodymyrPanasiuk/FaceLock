@@ -9,7 +9,6 @@ using FaceLock.DataManagement.Services;
 using FaceLock.WebAPI.Clients.GrpcClient;
 using System.Linq;
 using FaceLock.WebAPI.Models.HelpreModels;
-using Emgu.CV.Face;
 
 namespace FaceLock.WebAPI.Controllers
 {
